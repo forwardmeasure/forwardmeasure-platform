@@ -1,0 +1,66 @@
+name: Platform Verification
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - develop
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check Out Platform
+        uses: actions/checkout@v4
+        with:
+          path: forwardmeasure-platform
+
+      - name: Check Out Testcontainers
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-testcontainers
+          ref: develop
+          path: forwardmeasure-testcontainers
+
+      - name: Check Out Database Migrations
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-database-migrations
+          ref: develop
+          path: forwardmeasure-database-migrations
+
+      - name: Check Out JPA
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-jpa
+          ref: develop
+          path: forwardmeasure-jpa
+
+      - name: Check Out OKS
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/openworkflow-kafka-streams
+          ref: develop
+          path: openworkflow-kafka-streams
+
+      - name: Check Out Entity Intelligence
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/entity-intelligence
+          ref: develop
+          path: entity-intelligence
+
+      - name: Set Up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+
+      - name: Validate Development Manifest
+        run: forwardmeasure-platform/scripts/verify-source-manifest.sh development
+
+      - name: Verify Complete Platform Reactor
+        run: mvn -B -f forwardmeasure-platform/pom.xml clean verify
