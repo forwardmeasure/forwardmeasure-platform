@@ -7,7 +7,7 @@
       "path": "../forwardmeasure-testcontainers",
       "repository": "git@github.com:forwardmeasure/forwardmeasure-testcontainers.git",
       "branch": "develop",
-      "revision": "WORKTREE",
+      "revision": "990b90b9e7b53db37e41408788043baaf01b63a4",
       "mavenVersion": "1.0.0"
     },
     {
@@ -15,7 +15,7 @@
       "path": "../forwardmeasure-database-migrations",
       "repository": "git@github.com:forwardmeasure/forwardmeasure-database-migrations.git",
       "branch": "develop",
-      "revision": "WORKTREE",
+      "revision": "444379e3963c2d29e12798f6629d2444a2363925",
       "mavenVersion": "1.0.0"
     },
     {
@@ -23,7 +23,7 @@
       "path": "../forwardmeasure-jpa",
       "repository": "git@github.com:forwardmeasure/forwardmeasure-jpa.git",
       "branch": "develop",
-      "revision": "WORKTREE",
+      "revision": "8c5bd4aeeb6a10f85ea2dc6f919ec45e78d071c5",
       "baseRevision": "f1bf7274b12b90b4e7a27dc4398778993f585aa3",
       "mavenVersion": "1.0.0"
     },
@@ -32,7 +32,7 @@
       "path": "../openworkflow-kafka-streams",
       "repository": "git@github.com:forwardmeasure/openworkflow-kafka-streams.git",
       "branch": "develop",
-      "revision": "WORKTREE",
+      "revision": "1543ece0a3384fd384aeb37feb92fdb60a6e7d2d",
       "baseRevision": "4e8a6daca626bd3d197431cffdc0c1dad4af7e6c",
       "mavenVersion": "0.1.0"
     },
@@ -41,7 +41,7 @@
       "path": "../entity-intelligence",
       "repository": "git@github.com:forwardmeasure/entity-intelligence.git",
       "branch": "develop",
-      "revision": "WORKTREE",
+      "revision": "2654f96c4d45d19abe2de061e3852f4299a512d3",
       "baseRevision": "3b2070584a1e5238d2e256f65717be2f02a04fdc",
       "mavenVersion": "0.2.0-SNAPSHOT"
     }
