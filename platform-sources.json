@@ -28,6 +28,14 @@
       "mavenVersion": "1.0.0"
     },
     {
+      "id": "forwardmeasure-object-storage",
+      "path": "../forwardmeasure-object-storage",
+      "repository": "git@github.com:forwardmeasure/forwardmeasure-object-storage.git",
+      "branch": "develop",
+      "revision": "WORKTREE",
+      "mavenVersion": "1.0.0"
+    },
+    {
       "id": "openworkflow-kafka-streams",
       "path": "../openworkflow-kafka-streams",
       "repository": "git@github.com:forwardmeasure/openworkflow-kafka-streams.git",
@@ -41,9 +49,9 @@
       "path": "../entity-intelligence",
       "repository": "git@github.com:forwardmeasure/entity-intelligence.git",
       "branch": "develop",
-      "revision": "2654f96c4d45d19abe2de061e3852f4299a512d3",
+      "revision": "WORKTREE",
       "baseRevision": "3b2070584a1e5238d2e256f65717be2f02a04fdc",
-      "mavenVersion": "0.2.0-SNAPSHOT"
+      "mavenVersion": "1.0.0"
     }
   ]
 }

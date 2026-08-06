@@ -15,6 +15,7 @@
     <forwardmeasure.testcontainers.version>1.0.0</forwardmeasure.testcontainers.version>
     <forwardmeasure.database-migrations.version>1.0.0</forwardmeasure.database-migrations.version>
     <forwardmeasure.jpa.version>1.0.0</forwardmeasure.jpa.version>
+    <forwardmeasure.object-storage.version>1.0.0</forwardmeasure.object-storage.version>
     <openworkflow.kafka-streams.version>0.1.0</openworkflow.kafka-streams.version>
     <entity-intelligence.version>0.2.0-SNAPSHOT</entity-intelligence.version>
   </properties>
@@ -39,6 +40,13 @@
         <groupId>com.forwardmeasure.jpa</groupId>
         <artifactId>forwardmeasure-jpa-bom</artifactId>
         <version>${forwardmeasure.jpa.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.objectstorage</groupId>
+        <artifactId>forwardmeasure-object-storage-bom</artifactId>
+        <version>${forwardmeasure.object-storage.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

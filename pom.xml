@@ -53,6 +53,7 @@
     <module>../forwardmeasure-testcontainers</module>
     <module>../forwardmeasure-database-migrations</module>
     <module>../forwardmeasure-jpa</module>
+    <module>../forwardmeasure-object-storage</module>
     <module>../openworkflow-kafka-streams</module>
     <module>../entity-intelligence</module>
     <module>forwardmeasure-platform-bom</module>

@@ -13,9 +13,10 @@ All component repositories must be checked out as siblings of this repository.
 mvn -B clean verify
 ```
 
-The reactor builds Testcontainers, database migrations, JPA, OKS, and Entity
-Intelligence in dependency order. Maven resolves matching component coordinates
-from the reactor instead of relying on stale artifacts in the local repository.
+The reactor builds Testcontainers, database migrations, JPA, object storage,
+OKS, and Entity Intelligence in dependency order. Maven resolves matching
+component coordinates from the reactor instead of relying on stale artifacts
+in the local repository.
 
 ## Release validation
 
@@ -32,6 +33,6 @@ branches, mismatched Maven versions, and snapshot versions.
 ## Compatibility BOM
 
 Consumers import `com.forwardmeasure.platform:forwardmeasure-platform-bom:1.0.0`.
-The BOM composes the approved Testcontainers, migration, JPA, OKS, and Entity
-Intelligence dependency-management surfaces. Component repositories remain
-independently releasable.
+The BOM composes the approved Testcontainers, migration, JPA, object-storage,
+OKS, and Entity Intelligence dependency-management surfaces. Component
+repositories remain independently releasable.
