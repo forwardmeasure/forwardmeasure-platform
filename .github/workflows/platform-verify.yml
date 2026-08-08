@@ -38,12 +38,26 @@ jobs:
           ref: develop
           path: forwardmeasure-jpa
 
+      - name: Check Out Object Storage
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-object-storage
+          ref: develop
+          path: forwardmeasure-object-storage
+
       - name: Check Out OKS
         uses: actions/checkout@v4
         with:
           repository: forwardmeasure/openworkflow-kafka-streams
           ref: develop
           path: openworkflow-kafka-streams
+
+      - name: Check Out Agents
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-agents
+          ref: develop
+          path: forwardmeasure-agents
 
       - name: Check Out Entity Intelligence
         uses: actions/checkout@v4

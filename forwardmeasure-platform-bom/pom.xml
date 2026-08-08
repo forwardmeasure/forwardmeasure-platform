@@ -16,8 +16,9 @@
     <forwardmeasure.database-migrations.version>1.0.0</forwardmeasure.database-migrations.version>
     <forwardmeasure.jpa.version>1.0.0</forwardmeasure.jpa.version>
     <forwardmeasure.object-storage.version>1.0.0</forwardmeasure.object-storage.version>
-    <openworkflow.kafka-streams.version>0.1.0</openworkflow.kafka-streams.version>
-    <entity-intelligence.version>0.2.0-SNAPSHOT</entity-intelligence.version>
+    <openworkflow.kafka-streams.version>1.0.0</openworkflow.kafka-streams.version>
+    <forwardmeasure.agents.version>1.0.0</forwardmeasure.agents.version>
+    <entity-intelligence.version>1.0.0</entity-intelligence.version>
   </properties>
 
   <dependencyManagement>
@@ -55,6 +56,14 @@
         <groupId>com.forwardmeasure.openworkflow</groupId>
         <artifactId>openworkflow-kafka-streams-parent</artifactId>
         <version>${openworkflow.kafka-streams.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- ForwardMeasure Agents currently exposes dependency management from its parent. -->
+      <dependency>
+        <groupId>com.forwardmeasure.agents</groupId>
+        <artifactId>forwardmeasure-agents-parent</artifactId>
+        <version>${forwardmeasure.agents.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

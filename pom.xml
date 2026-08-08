@@ -55,6 +55,7 @@
     <module>../forwardmeasure-jpa</module>
     <module>../forwardmeasure-object-storage</module>
     <module>../openworkflow-kafka-streams</module>
+    <module>../forwardmeasure-agents</module>
     <module>../entity-intelligence</module>
     <module>forwardmeasure-platform-bom</module>
   </modules>
