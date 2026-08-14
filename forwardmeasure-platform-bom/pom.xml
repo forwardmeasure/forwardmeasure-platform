@@ -18,7 +18,9 @@
     <forwardmeasure.object-storage.version>1.0.0</forwardmeasure.object-storage.version>
     <openworkflow.kafka-streams.version>1.0.0</openworkflow.kafka-streams.version>
     <forwardmeasure.agents.version>1.0.0</forwardmeasure.agents.version>
+    <forwardmeasure.nlp.version>1.0.0</forwardmeasure.nlp.version>
     <entity-intelligence.version>1.0.0</entity-intelligence.version>
+    <forwardmeasure.platform.version>1.0.0</forwardmeasure.platform.version>
   </properties>
 
   <dependencyManagement>
@@ -67,6 +69,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.nlp</groupId>
+        <artifactId>forwardmeasure-nlp-bom</artifactId>
+        <version>${forwardmeasure.nlp.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <!-- Entity Intelligence currently exposes its dependency-management surface from its parent. -->
       <dependency>
         <groupId>com.forwardmeasure.entityintelligence</groupId>
@@ -74,6 +83,21 @@
         <version>${entity-intelligence.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-dashboard-contract</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-dashboard-api-java</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-dashboard-client-typescript</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

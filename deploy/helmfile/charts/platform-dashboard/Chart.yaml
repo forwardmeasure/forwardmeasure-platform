@@ -1,0 +1,6 @@
+apiVersion: v2
+name: forwardmeasure-platform-dashboard
+description: Production deployment for the ForwardMeasure Platform Dashboard
+type: application
+version: 1.0.0
+appVersion: 1.0.0

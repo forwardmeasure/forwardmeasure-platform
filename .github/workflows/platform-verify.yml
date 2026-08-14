@@ -59,6 +59,13 @@ jobs:
           ref: develop
           path: forwardmeasure-agents
 
+      - name: Check Out NLP
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-nlp
+          ref: develop
+          path: forwardmeasure-nlp
+
       - name: Check Out Entity Intelligence
         uses: actions/checkout@v4
         with:

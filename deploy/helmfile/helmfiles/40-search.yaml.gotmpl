@@ -1,0 +1,11 @@
+repositories:
+  - name: forwardmeasure
+    url: https://forwardmeasure.github.io/helm-charts
+
+releases:
+  - name: opensearch-cluster
+    namespace: {{ .Values.namespaces.openSearch }}
+    chart: {{ .Values.chartSources.openSearch | quote }}
+    labels: {stage: search, component: opensearch}
+    values:
+      - ../releases/opensearch.yaml.gotmpl

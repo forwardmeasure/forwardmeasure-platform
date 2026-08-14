@@ -1,0 +1,65 @@
+deploymentMode: Serverless
+podAnnotations:
+  traffic.sidecar.istio.io/excludeInboundPorts: "8080"
+externalModelCache: true
+vllmRuntime: {enabled: false}
+huggingFace:
+  token: {secretName: "", secretKey: token}
+imagePullSecrets: [{name: docker-io-credentials}]
+serviceAccount: {create: false, name: model-cache-sa}
+modelCache:
+  pvcName: model-cache-pvc
+  serviceAccountName: model-cache-sa
+  mountPath: /mnt/models/cache
+  skipManifestVerification: false
+modelDownload:
+  image:
+    registry: docker.io
+    repository: forwardmeasure/ml-model-utilities
+    digest: sha256:3c8ea9f77791ee19337df5257240866de050a50cca633164f0aaea6c3e52d76f
+    pullPolicy: IfNotPresent
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              forwardmeasure.com/ner-client: "true"
+        # Serverless KServe may route a request through the Knative activator
+        # or the Istio data plane before it reaches the predictor pod. Preserve
+        # those infrastructure paths while application namespaces remain
+        # explicitly opted in with the ner-client label above.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: knative-serving
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: istio-system
+      ports: [{protocol: TCP, port: 8080}]
+podDisruptionBudget: {enabled: true, minAvailable: 1}
+models:
+  - name: ner-gliner-medium-v2-1
+    enabled: true
+    runtime: kserve-custom
+    huggingFaceRepo: urchade/gliner_medium-v2.1
+    huggingFaceRevision: 40ec419335d09393f298636f471328b722c6da9e
+    customImage:
+      registry: docker.io
+      repository: forwardmeasure/named-entity-recognition-service
+      digest: sha256:db8b3ec1298c8cb42aa309899b1d48be5c7dd8b30f479f0f5b69f55b43988a6b
+      pullPolicy: IfNotPresent
+    env:
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      NER_DEVICE: cpu
+      NER_LOCAL_FILES_ONLY: "true"
+      NER_BACKBONE_CONFIG_PATH: /app/model-configs/microsoft--deberta-v3-base.json
+      NER_BACKBONE_TOKENIZER_PATH: /app/model-backbones/microsoft--deberta-v3-base
+      NER_MODEL_PATH: /mnt/models/cache/urchade--gliner_medium-v2.1--40ec419335d09393f298636f471328b722c6da9e
+      NER_MODEL_NAME: urchade/gliner_medium-v2.1
+      NER_MODEL_REVISION: 40ec419335d09393f298636f471328b722c6da9e
+    gpu: 0
+    resources:
+      requests: {cpu: "2", memory: 4Gi}
+      limits: {cpu: "8", memory: 8Gi}
+    scaling: {minReplicas: 1, maxReplicas: 4, timeoutSeconds: 300}

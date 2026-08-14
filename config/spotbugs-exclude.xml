@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--
+        These namespaces are generated from governed OpenAPI, AsyncAPI and JSON
+        Schema inputs. SpotBugs reports mutable-bean representation warnings and
+        safe same-reference/equals short-circuits in the generator output. The
+        generated contracts are instead gated by schema, serialization,
+        compatibility and real-infrastructure tests. Handwritten production and
+        test bytecode remains subject to the Medium-confidence gate.
+    -->
+    <Match>
+        <Or>
+            <Class name="~com\.forwardmeasure\.entityintelligence\.contract\..*"/>
+            <Class name="~com\.forwardmeasure\.entityintelligence\.client\..*"/>
+        </Or>
+    </Match>
+
+    <!-- Hibernate generates these static metamodel classes during compilation. -->
+    <Match>
+        <Class name="~com\.forwardmeasure\.entityintelligence\.persistence\.jpa\.entity\..*_"/>
+    </Match>
+
+    <!-- MapStruct generates these implementations from the governed mapper interfaces. -->
+    <Match>
+        <Class name="~com\.forwardmeasure\.entityintelligence\.population\.mapping\..*MapperImpl"/>
+    </Match>
+    <Match>
+        <Class name="~com\.forwardmeasure\.entityintelligence\.api\..*MapperImpl"/>
+    </Match>
+
+    <!--
+        These exact persistence views intentionally expose managed JPA entity
+        associations. Copying a managed entity would destroy persistence
+        identity and dirty-tracking semantics. Collection members of Aggregate
+        are still defensively copied by its compact constructor.
+    -->
+    <Match>
+        <Or>
+            <Class name="com.forwardmeasure.entityintelligence.persistence.jpa.entity.SparkExecutionEntity"/>
+            <Class name="com.forwardmeasure.entityintelligence.persistence.jpa.service.EntityScreeningService$ActiveTarget"/>
+            <Class name="com.forwardmeasure.entityintelligence.persistence.jpa.service.EntityScreeningService$Aggregate"/>
+        </Or>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

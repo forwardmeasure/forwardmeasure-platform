@@ -1,0 +1,56 @@
+gateway:
+  enabled: false
+  name: {{ .Values.gateway.name | quote }}
+  namespace: {{ .Values.namespaces.istio | quote }}
+  gatewayClassName: {{ .Values.gateway.className | quote }}
+  replicaCount: {{ .Values.gateway.replicaCount }}
+  loadBalancerIp: {{ .Values.gateway.loadBalancerIp | quote }}
+  rootTlsSecret: platform-root-tls
+  rootHostname: {{ .Values.gateway.rootHost | quote }}
+  listeners:
+    - {name: tenant-https, hostname: {{ .Values.gateway.tenantHost | quote }}, tlsSecret: platform-tenant-tls}
+    - {name: auth-https, hostname: {{ .Values.gateway.authHost | quote }}, tlsSecret: auth-tls}
+    - {name: registry-https, hostname: {{ .Values.gateway.registryHost | quote }}, tlsSecret: registry-tls}
+    - {name: search-https, hostname: {{ .Values.gateway.searchHost | quote }}, tlsSecret: search-tls}
+    - {name: analytics-https, hostname: {{ .Values.gateway.analyticsHost | quote }}, tlsSecret: analytics-tls}
+clusterIssuer:
+  enabled: false
+  name: {{ .Values.gateway.clusterIssuer | quote }}
+  email: {{ .Values.gateway.acmeEmail | quote }}
+  gcpProject: {{ .Values.gcp.projectId | quote }}
+routes:
+  - name: keycloak
+    hostnames: [{{ .Values.gateway.authHost | quote }}]
+    parentRef: {sectionName: auth-https}
+    rules:
+      - matches: [{path: {type: PathPrefix, value: /}}]
+        backend: {name: keycloak, namespace: {{ .Values.namespaces.keycloak }}, port: 8080}
+    certificate: {enabled: true, secretName: auth-tls}
+  - name: registry-api
+    hostnames: [{{ .Values.gateway.registryHost | quote }}]
+    parentRef: {sectionName: registry-https}
+    rules:
+      - matches: [{path: {type: PathPrefix, value: /apis/registry}}]
+        backend: {name: {{ printf "%s-app-service" .Values.registry.name }}, namespace: {{ .Values.namespaces.registry }}, port: 8080}
+    certificate: {enabled: true, secretName: registry-tls}
+  - name: registry-ui
+    hostnames: [{{ .Values.gateway.registryHost | quote }}]
+    parentRef: {sectionName: registry-https}
+    rules:
+      - matches: [{path: {type: PathPrefix, value: /}}]
+        backend: {name: {{ printf "%s-ui-service" .Values.registry.name }}, namespace: {{ .Values.namespaces.registry }}, port: 8080}
+    certificate: {enabled: false, secretName: registry-tls}
+  - name: opensearch-dashboards
+    hostnames: [{{ .Values.gateway.searchHost | quote }}]
+    parentRef: {sectionName: search-https}
+    rules:
+      - matches: [{path: {type: PathPrefix, value: /}}]
+        backend: {name: opensearch-cluster-opensearch-dashboards, namespace: {{ .Values.namespaces.openSearch }}, port: 5601}
+    certificate: {enabled: true, secretName: search-tls}
+  - name: superset
+    hostnames: [{{ .Values.gateway.analyticsHost | quote }}]
+    parentRef: {sectionName: analytics-https}
+    rules:
+      - matches: [{path: {type: PathPrefix, value: /}}]
+        backend: {name: superset, namespace: {{ .Values.namespaces.superset }}, port: 8088}
+    certificate: {enabled: true, secretName: analytics-tls}

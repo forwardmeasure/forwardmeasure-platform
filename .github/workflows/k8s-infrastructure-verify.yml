@@ -1,0 +1,30 @@
+name: Kubernetes Infrastructure Verify
+
+on:
+  pull_request:
+    paths:
+      - "k8s-infrastructure/**"
+      - ".github/workflows/k8s-infrastructure-verify.yml"
+  push:
+    branches: [develop]
+    paths:
+      - "k8s-infrastructure/**"
+      - ".github/workflows/k8s-infrastructure-verify.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  gcp-opentofu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.11.5
+
+      - name: Validate GCP infrastructure
+        run: ./k8s-infrastructure/opentofu/gcp/scripts/validate.sh

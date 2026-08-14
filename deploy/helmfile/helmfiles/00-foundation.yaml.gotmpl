@@ -1,0 +1,62 @@
+repositories:
+  - name: istio
+    url: https://istio-release.storage.googleapis.com/charts
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: external-secrets
+    url: https://charts.external-secrets.io
+
+releases:
+  - name: istio-base
+    namespace: {{ .Values.namespaces.istio }}
+    chart: istio/base
+    version: {{ .Values.versions.istio | quote }}
+    labels: {stage: foundation, component: service-mesh}
+
+  - name: istiod
+    namespace: {{ .Values.namespaces.istio }}
+    chart: istio/istiod
+    version: {{ .Values.versions.istio | quote }}
+    needs: [{{ .Values.namespaces.istio }}/istio-base]
+    labels: {stage: foundation, component: service-mesh}
+    values:
+      - pilot:
+          replicaCount: 2
+        autoscaleEnabled: false
+        global:
+          proxy:
+            resources:
+              requests: {cpu: 100m, memory: 128Mi}
+              limits: {memory: 512Mi}
+
+  - name: cert-manager
+    namespace: {{ .Values.namespaces.certManager }}
+    chart: jetstack/cert-manager
+    version: {{ .Values.versions.certManager | quote }}
+    labels: {stage: foundation, component: certificates}
+    values:
+      - crds: {enabled: true, keep: true}
+        replicaCount: 2
+        serviceAccount:
+          create: true
+          name: cert-manager
+          annotations:
+            iam.gke.io/gcp-service-account: {{ .Values.gcp.dnsServiceAccountEmail | quote }}
+        webhook: {replicaCount: 2}
+        cainjector: {replicaCount: 2}
+
+  - name: external-secrets
+    namespace: {{ .Values.namespaces.externalSecrets }}
+    chart: external-secrets/external-secrets
+    version: {{ .Values.versions.externalSecrets | quote }}
+    labels: {stage: foundation, component: secrets}
+    values:
+      - installCRDs: true
+        replicaCount: 2
+        webhook: {replicaCount: 2}
+        certController: {replicaCount: 2}
+        serviceAccount:
+          create: true
+          name: {{ .Values.secretStore.serviceAccountName | quote }}
+          annotations:
+            iam.gke.io/gcp-service-account: {{ .Values.gcp.externalSecretsServiceAccountEmail | quote }}

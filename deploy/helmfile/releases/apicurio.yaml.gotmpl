@@ -1,0 +1,24 @@
+registry:
+  name: {{ .Values.registry.name | quote }}
+  replicas: {{ .Values.registry.replicas }}
+kafka:
+  bootstrapServers: {{ .Values.kafka.bootstrapServers | quote }}
+access:
+  applicationNamespace: openworkflow-kafka-streams
+  gatewayNamespace: {{ .Values.namespaces.istio | quote }}
+auth:
+  enabled: true
+  clientId: {{ .Values.identity.publicClientId | quote }}
+  serverUrl: {{ printf "https://%s/realms/%s" .Values.gateway.authHost .Values.identity.realm | quote }}
+  redirectUrl: {{ printf "https://%s/registry/" .Values.gateway.registryHost | quote }}
+  logoutUrl: {{ printf "https://%s/" .Values.gateway.registryHost | quote }}
+cors:
+  allowedOrigins:
+    - {{ printf "https://%s" .Values.gateway.registryHost | quote }}
+    {{- range $tenant := .Values.tenants }}
+    - {{ printf "https://%s" $tenant.host | quote }}
+    {{- end }}
+ui:
+  enabled: {{ .Values.registry.uiEnabled }}
+  contextPath: /registry/
+  apiUrl: {{ printf "https://%s/apis/registry/v3" .Values.gateway.registryHost | quote }}

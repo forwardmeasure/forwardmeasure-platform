@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "platform-dashboard.name" . }}
+  labels:
+    {{- include "platform-dashboard.labels" . | nindent 4 }}
+data:
+  application-deployment.yaml: |
+    quarkus:
+      oidc:
+        auth-server-url: {{ .Values.oidc.issuer | quote }}
+        client-id: {{ .Values.oidc.clientId | quote }}
+        token:
+          audience: {{ .Values.oidc.audience | quote }}
+    forwardmeasure:
+      platform:
+        dashboard:
+          oidc-url: {{ .Values.oidc.url | quote }}
+          oidc-realm: {{ .Values.oidc.realm | quote }}
+          oidc-client-id: {{ .Values.oidc.clientId | quote }}
+          tenants:
+            {{- range .Values.tenants }}
+            - host: {{ .host | quote }}
+              did: {{ .did | quote }}
+              name: {{ .name | quote }}
+              display-name: {{ .displayName | quote }}
+            {{- end }}
+          applications:
+            {{- toYaml .Values.applications | nindent 12 }}
+          environment: {{ .Values.environment | quote }}
+          probe-timeout: {{ .Values.probeTimeout | quote }}
+          observation-ttl: {{ .Values.observationTtl | quote }}
+          components:
+            {{- range .Values.components }}
+            - id: {{ .id | quote }}
+              name: {{ .name | quote }}
+              category: {{ .category | quote }}
+              probe: {{ .probe | quote }}
+              health-uri: {{ .healthUri | quote }}
+              {{- with .consoleUri }}
+              console-uri: {{ . | quote }}
+              {{- end }}
+            {{- end }}

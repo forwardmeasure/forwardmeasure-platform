@@ -1,0 +1,19 @@
+{{- if .Values.kafkaTopics.enabled }}
+{{- $root := . }}
+{{- range .Values.kafkaTopics.names }}
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaTopic
+metadata:
+  name: {{ . | replace "." "-" | trunc 63 | trimSuffix "-" }}
+  namespace: {{ $root.Values.kafkaTopics.namespace }}
+  labels:
+    strimzi.io/cluster: {{ $root.Values.kafkaTopics.clusterName }}
+spec:
+  topicName: {{ . | quote }}
+  partitions: {{ $root.Values.kafkaTopics.partitions }}
+  replicas: {{ $root.Values.kafkaTopics.replicas }}
+  config:
+    min.insync.replicas: "2"
+{{- end }}
+{{- end }}

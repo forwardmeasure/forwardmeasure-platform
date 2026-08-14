@@ -1,0 +1,41 @@
+namespaceOverride: {{ .Values.namespaces.openSearch | quote }}
+certificates:
+  clusterIssuer: {{ .Values.gateway.clusterIssuer | quote }}
+  node:
+    dnsName: {{ .Values.gateway.searchHost | quote }}
+  admin:
+    dnsName: {{ printf "opensearch-admin.%s" .Values.platform.domain | quote }}
+externalSecret:
+  clusterSecretStore: {{ .Values.secretStore.name | quote }}
+  targetSecretName: {{ .Values.openSearch.credentialsSecret | quote }}
+  keys:
+    username: {remoteKey: {{ .Values.secretStore.remoteKeys.openSearchUsername | quote }}, property: username}
+    password: {remoteKey: {{ .Values.secretStore.remoteKeys.openSearchPassword | quote }}, property: password}
+    cookie: {remoteKey: {{ .Values.secretStore.remoteKeys.openSearchCookie | quote }}, property: cookie}
+securityConfig:
+  secretName: opensearch-security-config
+  passwordHashRemoteKey: {{ .Values.secretStore.remoteKeys.openSearchPasswordHash | quote }}
+opensearch:
+  replicas: {{ .Values.openSearch.replicas }}
+  opensearchJavaOpts: {{ .Values.openSearch.javaOpts | quote }}
+  persistence:
+    enabled: true
+    size: {{ .Values.openSearch.storage | quote }}
+  config:
+    opensearch.yml: |
+      cluster.name: opensearch-cluster
+      network.host: 0.0.0.0
+      plugins.ml_commons.only_run_on_ml_node: false
+      plugins.security.ssl.transport.enabled: true
+      plugins.security.ssl.transport.pemcert_filepath: /usr/share/opensearch/config/certs/tls.crt
+      plugins.security.ssl.transport.pemkey_filepath: /usr/share/opensearch/config/certs/tls.key
+      plugins.security.ssl.transport.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/ca.crt
+      plugins.security.ssl.http.enabled: true
+      plugins.security.ssl.http.pemcert_filepath: /usr/share/opensearch/config/certs/tls.crt
+      plugins.security.ssl.http.pemkey_filepath: /usr/share/opensearch/config/certs/tls.key
+      plugins.security.ssl.http.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/ca.crt
+      plugins.security.nodes_dn:
+        - "CN=opensearch-cluster-master"
+        - "CN=opensearch-cluster-master.{{ .Values.namespaces.openSearch }}.svc.cluster.local"
+      plugins.security.authcz.admin_dn:
+        - "CN=opensearch-admin.{{ .Values.platform.domain }}"

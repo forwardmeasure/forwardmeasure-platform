@@ -1,0 +1,37 @@
+repositories:
+  - name: valkey
+    url: https://valkey.io/valkey-helm
+  - name: superset
+    url: https://apache.github.io/superset
+
+releases:
+  - name: valkey
+    namespace: {{ .Values.namespaces.valkey }}
+    chart: valkey/valkey
+    version: {{ .Values.versions.valkey | quote }}
+    labels: {stage: analytics, component: cache}
+    values:
+      - auth:
+          enabled: true
+          usersExistingSecret: valkey-auth
+          aclUsers:
+            default:
+              permissions: "~* &* +@all"
+              passwordKey: password
+        replica:
+          enabled: true
+          replicas: {{ sub .Values.analytics.valkeyReplicas 1 }}
+          replicationUser: default
+          minReplicasToWrite: 1
+          persistence: {size: 20Gi, accessModes: [ReadWriteOnce]}
+        resources:
+          requests: {cpu: 100m, memory: 256Mi}
+          limits: {memory: 1Gi}
+
+  - name: superset
+    namespace: {{ .Values.namespaces.superset }}
+    chart: superset/superset
+    version: {{ .Values.versions.superset | quote }}
+    labels: {stage: analytics, component: superset}
+    values:
+      - ../releases/superset.yaml.gotmpl

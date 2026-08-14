@@ -1,0 +1,49 @@
+# Copy to a private environment file and replace every placeholder. This file
+# intentionally contains no credentials; all secret values reside in Google
+# Secret Manager and are referenced by name from environments/base.yaml.
+platform:
+  domain: new-platform.example
+
+gcp:
+  projectId: forwardmeasure-production
+  region: us-central1
+  clusterName: forwardmeasure-production
+  dnsServiceAccountEmail: cert-manager@forwardmeasure-production.iam.gserviceaccount.com
+  externalSecretsServiceAccountEmail: external-secrets@forwardmeasure-production.iam.gserviceaccount.com
+  modelServiceAccountEmail: model-serving@forwardmeasure-production.iam.gserviceaccount.com
+  modelCacheBucket: forwardmeasure-production-model-cache
+
+gateway:
+  loadBalancerIp: 203.0.113.10
+  rootHost: platform.new-platform.example
+  tenantHost: "*.new-platform.example"
+  authHost: auth.new-platform.example
+  registryHost: registry.new-platform.example
+  searchHost: search.new-platform.example
+  analyticsHost: analytics.new-platform.example
+  acmeEmail: platform-owner@new-platform.example
+
+bootstrapIdentity:
+  tenantHost: example-bank.new-platform.example
+  tenantDid: did:web:example-bank.new-platform.example
+  actorDid: did:web:example-bank.new-platform.example:actors:platform-admin
+  actorType: HUMAN
+
+tenants:
+  - host: example-bank.new-platform.example
+    did: did:web:example-bank.new-platform.example
+    code: example-bank
+    name: Example Bank
+
+identity:
+  serviceClients:
+    - clientId: oks-operation-adapter-example-bank
+      name: Example Bank OKS Operation Adapter
+      secretKey: OKS_OPERATION_ADAPTER_EXAMPLE_BANK_CLIENT_SECRET
+      secretRemoteKey: platform-oks-operation-adapter-example-bank-client-secret
+      realmRoles: [workflow-internal]
+      audiences: [entity-intelligence-internal]
+      claims:
+        tenant_did: did:web:example-bank.new-platform.example
+        actor_did: did:web:example-bank.new-platform.example:actors:oks-operation-adapter
+        actor_type: SERVICE

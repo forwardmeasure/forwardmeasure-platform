@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["image", "imagePolicy", "replicaCount", "autoscaling", "resources", "oidc", "tenants", "applications", "environment", "probeTimeout", "observationTtl", "components", "route"],
+  "properties": {
+    "image": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "tag", "digest", "pullPolicy"],
+      "properties": {
+        "repository": {"type": "string", "minLength": 1},
+        "tag": {"type": "string", "minLength": 1},
+        "digest": {"type": "string", "pattern": "^$|^sha256:[a-f0-9]{64}$"},
+        "pullPolicy": {"enum": ["Always", "IfNotPresent", "Never"]}
+      }
+    },
+    "imagePolicy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requireDigest"],
+      "properties": {"requireDigest": {"type": "boolean"}}
+    },
+    "imagePullSecrets": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "replicaCount": {"type": "integer", "minimum": 1},
+    "autoscaling": {
+      "type": "object", "additionalProperties": false,
+      "required": ["enabled", "minReplicas", "maxReplicas", "targetCPUUtilizationPercentage"],
+      "properties": {
+        "enabled": {"type": "boolean"}, "minReplicas": {"type": "integer", "minimum": 2},
+        "maxReplicas": {"type": "integer", "minimum": 2},
+        "targetCPUUtilizationPercentage": {"type": "integer", "minimum": 1, "maximum": 100}
+      }
+    },
+    "resources": {"type": "object"},
+    "oidc": {
+      "type": "object", "additionalProperties": false,
+      "required": ["url", "issuer", "realm", "clientId", "audience"],
+      "properties": {"url": {"type": "string", "format": "uri"}, "issuer": {"type": "string", "format": "uri"}, "realm": {"type": "string", "minLength": 1}, "clientId": {"type": "string", "minLength": 1}, "audience": {"type": "string", "minLength": 1}}
+    },
+    "tenants": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["host", "did", "name", "displayName"],
+        "properties": {
+          "host": {"type": "string", "pattern": "^[A-Za-z0-9.-]+$"},
+          "did": {"type": "string", "pattern": "^did:"},
+          "name": {"type": "string", "minLength": 1},
+          "displayName": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "applications": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "name", "description", "href"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$"},
+          "name": {"type": "string", "minLength": 1, "maxLength": 128},
+          "description": {"type": "string", "minLength": 1, "maxLength": 512},
+          "href": {"type": "string", "pattern": "^/[^/?#\\s][^?#\\s]*$"}
+        }
+      }
+    },
+    "environment": {"type": "string", "minLength": 1},
+    "probeTimeout": {"type": "string", "pattern": "^PT.+$"},
+    "observationTtl": {"type": "string", "pattern": "^PT.+$"},
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "name", "category", "probe", "healthUri"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{1,63}$"}, "name": {"type": "string", "minLength": 1},
+          "category": {"enum": ["IDENTITY", "MESSAGING", "SCHEMA_GOVERNANCE", "SEARCH", "STORAGE", "ANALYTICS", "MODEL_SERVING", "ORCHESTRATION"]},
+          "probe": {"enum": ["HTTP", "TCP"]}, "healthUri": {"type": "string", "format": "uri"}, "consoleUri": {"type": "string", "format": "uri"}
+        }
+      }
+    },
+    "route": {
+      "type": "object", "additionalProperties": false,
+      "required": ["enabled", "gatewayName", "gatewayNamespace", "listenerName", "hostname"],
+      "properties": {"enabled": {"type": "boolean"}, "gatewayName": {"type": "string", "minLength": 1}, "gatewayNamespace": {"type": "string", "minLength": 1}, "listenerName": {"type": "string", "minLength": 1}, "hostname": {"type": "string", "minLength": 1}}
+    }
+  }
+}

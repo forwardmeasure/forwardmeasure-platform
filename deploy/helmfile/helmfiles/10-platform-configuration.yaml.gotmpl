@@ -1,0 +1,60 @@
+repositories:
+  - name: forwardmeasure
+    url: https://forwardmeasure.github.io/helm-charts
+
+releases:
+  - name: platform-secrets
+    namespace: {{ .Values.namespaces.externalSecrets }}
+    chart: forwardmeasure/platform-secrets
+    version: {{ .Values.versions.platformSecrets | quote }}
+    labels: {stage: configuration, component: secrets}
+    values:
+      - ../releases/platform-secrets.yaml.gotmpl
+
+  - name: platform-routing
+    namespace: {{ .Values.namespaces.istio }}
+    chart: forwardmeasure/platform-routing
+    version: {{ .Values.versions.platformRouting | quote }}
+    needs: [{{ .Values.namespaces.istio }}/platform-certificates]
+    labels: {stage: configuration, component: routing}
+    values:
+      - ../releases/platform-routing.yaml.gotmpl
+
+  - name: platform-certificates
+    namespace: {{ .Values.namespaces.istio }}
+    chart: ../charts/platform-bootstrap
+    labels: {stage: configuration, component: certificates}
+    values:
+      - certificates:
+          enabled: true
+          issuer:
+            name: {{ .Values.gateway.clusterIssuer | quote }}
+            server: https://acme-v02.api.letsencrypt.org/directory
+            email: {{ .Values.gateway.acmeEmail | quote }}
+            gcpProject: {{ .Values.gcp.projectId | quote }}
+          keycloak:
+            namespace: {{ .Values.namespaces.keycloak | quote }}
+            host: {{ .Values.gateway.authHost | quote }}
+            secretName: {{ .Values.identity.tlsSecret | quote }}
+          gateway:
+            namespace: {{ .Values.namespaces.istio | quote }}
+            rootHost: {{ .Values.gateway.rootHost | quote }}
+            rootSecret: platform-root-tls
+            tenantHost: {{ .Values.gateway.tenantHost | quote }}
+            tenantSecret: platform-tenant-tls
+        gateway:
+          enabled: true
+          name: {{ .Values.gateway.name | quote }}
+          namespace: {{ .Values.namespaces.istio | quote }}
+          className: {{ .Values.gateway.className | quote }}
+          replicaCount: {{ .Values.gateway.replicaCount }}
+          loadBalancerIp: {{ .Values.gateway.loadBalancerIp | quote }}
+          rootHost: {{ .Values.gateway.rootHost | quote }}
+          rootSecret: platform-root-tls
+          tenantHost: {{ .Values.gateway.tenantHost | quote }}
+          tenantSecret: platform-tenant-tls
+          listeners:
+            - {name: auth-https, hostname: {{ .Values.gateway.authHost | quote }}, tlsSecret: auth-tls}
+            - {name: registry-https, hostname: {{ .Values.gateway.registryHost | quote }}, tlsSecret: registry-tls}
+            - {name: search-https, hostname: {{ .Values.gateway.searchHost | quote }}, tlsSecret: search-tls}
+            - {name: analytics-https, hostname: {{ .Values.gateway.analyticsHost | quote }}, tlsSecret: analytics-tls}

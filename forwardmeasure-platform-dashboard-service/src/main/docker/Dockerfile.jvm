@@ -1,0 +1,16 @@
+ARG JAVA_RUNTIME_IMAGE=docker.io/forwardmeasure/java-runtime:25-rocky10
+FROM ${JAVA_RUNTIME_IMAGE}
+
+ARG APP_UID=10013
+ARG APP_GID=10013
+
+COPY --chown=${APP_UID}:${APP_GID} target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=${APP_UID}:${APP_GID} target/quarkus-app/*.jar /deployments/
+COPY --chown=${APP_UID}:${APP_GID} target/quarkus-app/app/ /deployments/app/
+COPY --chown=${APP_UID}:${APP_GID} target/quarkus-app/quarkus/ /deployments/quarkus/
+
+EXPOSE 8080
+USER ${APP_UID}:${APP_GID}
+WORKDIR /deployments
+ENV JDK_JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus.profile=prod"
+ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]

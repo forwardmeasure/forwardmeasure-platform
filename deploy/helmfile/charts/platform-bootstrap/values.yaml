@@ -1,0 +1,38 @@
+certificates:
+  enabled: false
+  issuer:
+    name: letsencrypt-gcp-dns
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: platform-owner@example.com
+    gcpProject: replace-with-gcp-project
+  keycloak:
+    namespace: keycloak
+    host: auth.example.com
+    secretName: keycloak-server-tls
+  gateway:
+    namespace: istio-system
+    rootHost: platform.example.com
+    rootSecret: platform-root-tls
+    tenantHost: "*.example.com"
+    tenantSecret: platform-tenant-tls
+
+kafkaTopics:
+  enabled: false
+  namespace: kafka
+  clusterName: kafka-cluster
+  partitions: 12
+  replicas: 3
+  names: []
+
+gateway:
+  enabled: false
+  name: platform-gateway
+  namespace: istio-system
+  className: istio
+  replicaCount: 2
+  loadBalancerIp: 192.0.2.10
+  rootHost: platform.example.com
+  rootSecret: platform-root-tls
+  tenantHost: "*.example.com"
+  tenantSecret: platform-tenant-tls
+  listeners: []

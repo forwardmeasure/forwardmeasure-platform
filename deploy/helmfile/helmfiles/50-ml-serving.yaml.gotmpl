@@ -1,0 +1,155 @@
+repositories:
+  - name: forwardmeasure
+    url: https://forwardmeasure.github.io/helm-charts
+  - name: knative-operator
+    url: https://knative.github.io/operator
+
+releases:
+  - name: knative-operator
+    namespace: {{ .Values.namespaces.knativeOperator }}
+    chart: knative-operator/knative-operator
+    version: {{ .Values.versions.knativeOperator | quote }}
+    labels: {stage: ml-serving, component: knative-operator}
+
+  - name: knative-resources
+    namespace: {{ .Values.namespaces.knativeOperator }}
+    chart: forwardmeasure/knative-crd
+    version: {{ .Values.versions.knativeResources | quote }}
+    needs: [{{ .Values.namespaces.knativeOperator }}/knative-operator]
+    labels: {stage: ml-serving, component: knative}
+    values:
+      - knativeVersion: "1.22.1"
+        serving:
+          namespace: {{ .Values.namespaces.knativeServing | quote }}
+          istioNamespace: {{ .Values.namespaces.istio | quote }}
+          gatewayName: {{ .Values.gateway.name | quote }}
+          config:
+            domain: {{ printf "models.%s" .Values.platform.domain | quote }}
+        eventing:
+          namespace: {{ .Values.namespaces.knativeEventing | quote }}
+          kafka:
+            bootstrapServers: {{ .Values.kafka.bootstrapServers | quote }}
+
+  - name: kserve-crd
+    namespace: {{ .Values.namespaces.kserve }}
+    chart: oci://ghcr.io/kserve/charts/kserve-crd
+    version: {{ .Values.versions.kserve | quote }}
+    labels: {stage: ml-serving, component: kserve-crd}
+    hooks:
+      - events: [postsync]
+        command: sh
+        args:
+          - -c
+          - >-
+            kubectl wait --for=condition=Established --timeout=180s
+            crd/inferenceservices.serving.kserve.io
+            crd/servingruntimes.serving.kserve.io
+            crd/clusterservingruntimes.serving.kserve.io
+
+  - name: kserve
+    namespace: {{ .Values.namespaces.kserve }}
+    chart: oci://ghcr.io/kserve/charts/kserve-resources
+    version: {{ .Values.versions.kserve | quote }}
+    needs: [{{ .Values.namespaces.kserve }}/kserve-crd]
+    labels: {stage: ml-serving, component: kserve}
+    values:
+      - kserve:
+          controller:
+            deploymentMode: Knative
+            gateway:
+              domain: {{ printf "models.%s" .Values.platform.domain | quote }}
+              urlScheme: https
+              disableIstioVirtualHost: false
+              ingressGateway:
+                enableGatewayApi: true
+                createGateway: false
+                gateway: {{ printf "%s/%s" .Values.namespaces.istio .Values.gateway.name | quote }}
+                className: istio
+              localGateway:
+                gateway: {{ printf "%s/knative-local-gateway" .Values.namespaces.knativeServing | quote }}
+                gatewayService: {{ printf "knative-local-gateway-platform.%s.svc.cluster.local" .Values.namespaces.istio | quote }}
+          certManager: {enabled: "true"}
+
+  - name: kserve-runtime-configs
+    namespace: {{ .Values.namespaces.kserve }}
+    chart: oci://ghcr.io/kserve/charts/kserve-runtime-configs
+    version: {{ .Values.versions.kserve | quote }}
+    needs: [{{ .Values.namespaces.kserve }}/kserve]
+    labels: {stage: ml-serving, component: kserve-runtimes}
+    values:
+      - kserve:
+          llmisvcConfigs: {enabled: false}
+          servingruntime:
+            enabled: true
+            tensorflow: {disabled: true}
+            pmmlserver: {disabled: true}
+            paddleserver: {disabled: true}
+            predictiveserver: {disabled: true}
+            lgbserver: {disabled: false}
+            sklearnserver: {disabled: false}
+            xgbserver: {disabled: false}
+            mlserver: {disabled: false}
+            torchserve: {disabled: false}
+            huggingfaceserver: {disabled: false, imagePullPolicy: IfNotPresent}
+            tritonserver: {disabled: false, imagePullPolicy: IfNotPresent}
+
+  - name: model-cache
+    namespace: {{ .Values.namespaces.modelServing }}
+    chart: forwardmeasure/model-cache
+    version: {{ .Values.versions.modelCache | quote }}
+    labels: {stage: ml-serving, component: model-cache}
+    values:
+      - size: {{ .Values.models.cacheSize | quote }}
+        storageClass: {create: false}
+        persistentVolume:
+          create: true
+          name: platform-model-cache-pv
+          accessMode: ReadWriteMany
+          mountOptions: [implicit-dirs, uid=1000, gid=1000, file-mode=0777, dir-mode=0777]
+          csi:
+            driver: gcsfuse.csi.storage.gke.io
+            volumeHandle: {{ .Values.gcp.modelCacheBucket | quote }}
+            volumeAttributes: {gcsfuseLoggingSeverity: warning}
+        persistentVolumeClaim:
+          create: true
+          name: {{ .Values.models.cachePvc | quote }}
+        serviceAccount:
+          create: true
+          name: {{ .Values.models.cacheServiceAccount | quote }}
+          annotations:
+            iam.gke.io/gcp-service-account: {{ .Values.gcp.modelServiceAccountEmail | quote }}
+        imagePullSecrets: [{name: docker-io-credentials}]
+
+  - name: docling
+    namespace: {{ .Values.namespaces.docling }}
+    chart: forwardmeasure/docling-serve
+    version: {{ .Values.versions.docling | quote }}
+    labels: {stage: ml-serving, component: document-parsing}
+    values:
+      - mode: {{ .Values.models.docling.mode | quote }}
+        pipeline: {{ .Values.models.docling.pipeline | quote }}
+        persistence:
+          create: true
+          existingClaim: ""
+          size: {{ .Values.models.docling.storage | quote }}
+        modelDownload: {enabled: true}
+        hfToken: {secretName: huggingface-token, secretKey: token}
+        serviceAccount:
+          create: true
+          name: docling
+          annotations:
+            iam.gke.io/gcp-service-account: {{ .Values.gcp.modelServiceAccountEmail | quote }}
+
+  - name: named-entity-recognition
+    namespace: {{ .Values.namespaces.modelServing }}
+    chart: forwardmeasure/kserve-model-serving
+    version: {{ .Values.versions.modelServing | quote }}
+    needs:
+      - {{ .Values.namespaces.kserve }}/kserve
+      - {{ .Values.namespaces.modelServing }}/model-cache
+    labels: {stage: ml-serving, component: named-entity-recognition}
+    values:
+      - ../../kserve/named-entity-recognition.values.yaml
+      - modelCache:
+          pvcName: {{ .Values.models.cachePvc | quote }}
+          serviceAccountName: {{ .Values.models.cacheServiceAccount | quote }}

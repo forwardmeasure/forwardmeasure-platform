@@ -1,0 +1,6 @@
+apiVersion: v2
+name: forwardmeasure-platform-bootstrap
+description: Greenfield platform resources not owned by upstream component charts
+type: application
+version: 1.0.0
+appVersion: 1.0.0

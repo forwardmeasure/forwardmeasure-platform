@@ -40,5 +40,20 @@ branches, mismatched Maven versions, and snapshot versions.
 
 Consumers import `com.forwardmeasure.platform:forwardmeasure-platform-bom:1.0.0`.
 The BOM composes the approved Testcontainers, migration, JPA, object-storage,
-OKS, Agents, and Entity Intelligence dependency-management surfaces. Component
-repositories remain independently releasable.
+OKS, Agents, shared NLP, and Entity Intelligence dependency-management
+surfaces. Component repositories remain independently releasable.
+
+## Greenfield deployment
+
+The shared Kubernetes platform release is under
+[`deploy/helmfile`](deploy/helmfile/README.md). It is independent of the
+retiring Data Fabric deployment and precedes the OKS and proprietary Entity
+Intelligence tiers.
+
+With all platform repositories checked out as siblings, validate or install
+the complete three-tier estate in dependency order:
+
+```bash
+./deploy/validate-greenfield.sh gcp-greenfield-example
+./deploy/install-greenfield.sh gcp-production
+```

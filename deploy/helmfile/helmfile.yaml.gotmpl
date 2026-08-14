@@ -1,0 +1,41 @@
+helmDefaults:
+  wait: true
+  waitForJobs: true
+  timeout: 1800
+  atomic: true
+  createNamespace: false
+
+environments:
+  base:
+    values:
+      - environments/base.yaml
+  gcp-greenfield-example:
+    values:
+      - environments/base.yaml
+      - environments/gcp-greenfield.example.yaml
+
+---
+
+{{- $layers := dict
+  "base" (list "environments/base.yaml")
+  "gcp-greenfield-example" (list "environments/base.yaml" "environments/gcp-greenfield.example.yaml")
+}}
+{{- $values := index $layers .Environment.Name | default (list) }}
+
+helmfiles:
+  - path: helmfiles/00-foundation.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/10-platform-configuration.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/20-identity.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/30-messaging.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/40-search.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/50-ml-serving.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/60-analytics.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/70-platform-dashboard.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}

@@ -1,0 +1,8 @@
+{
+  "themes": [
+    {
+      "name": "forwardmeasure",
+      "types": ["login"]
+    }
+  ]
+}

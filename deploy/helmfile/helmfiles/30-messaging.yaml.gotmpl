@@ -1,0 +1,60 @@
+repositories:
+  - name: forwardmeasure
+    url: https://forwardmeasure.github.io/helm-charts
+  - name: strimzi
+    url: https://strimzi.io/charts
+
+releases:
+  - name: strimzi-operator
+    namespace: {{ .Values.namespaces.strimzi }}
+    chart: strimzi/strimzi-kafka-operator
+    version: {{ .Values.versions.strimzi | quote }}
+    labels: {stage: messaging, component: kafka-operator}
+    values:
+      - watchNamespaces:
+          - {{ .Values.namespaces.kafka | quote }}
+
+  - name: kafka
+    namespace: {{ .Values.namespaces.kafka }}
+    chart: forwardmeasure/kafka
+    version: {{ .Values.versions.kafka | quote }}
+    labels: {stage: messaging, component: kafka}
+    needs: [{{ .Values.namespaces.strimzi }}/strimzi-operator]
+    values:
+      - clusterName: {{ .Values.kafka.clusterName | quote }}
+        kafkaVersion: {{ .Values.kafka.version | quote }}
+        controllers:
+          replicas: {{ .Values.kafka.controllers }}
+          storage: {size: {{ .Values.kafka.controllerStorage | quote }}, deleteClaim: false}
+        brokers:
+          replicas: {{ .Values.kafka.brokers }}
+          storage: {size: {{ .Values.kafka.brokerStorage | quote }}, deleteClaim: false}
+
+  - name: registry-topics
+    namespace: {{ .Values.namespaces.kafka }}
+    chart: ../charts/platform-bootstrap
+    labels: {stage: messaging, component: registry-topics}
+    needs: [{{ .Values.namespaces.kafka }}/kafka]
+    values:
+      - kafkaTopics:
+          enabled: true
+          namespace: {{ .Values.namespaces.kafka | quote }}
+          clusterName: {{ .Values.kafka.clusterName | quote }}
+          names: [apicurio-kafkasql-journal, apicurio-kafkasql-snapshots, apicurio-registry-events]
+
+  - name: apicurio-registry-operator
+    namespace: {{ .Values.namespaces.registry }}
+    chart: forwardmeasure/apicurio-registry-operator
+    version: {{ .Values.versions.apicurioOperator | quote }}
+    labels: {stage: messaging, component: registry-operator}
+
+  - name: apicurio-registry
+    namespace: {{ .Values.namespaces.registry }}
+    chart: forwardmeasure/apicurio-registry-deployment
+    version: {{ .Values.versions.apicurioDeployment | quote }}
+    labels: {stage: messaging, component: registry}
+    needs:
+      - {{ .Values.namespaces.registry }}/apicurio-registry-operator
+      - {{ .Values.namespaces.kafka }}/registry-topics
+    values:
+      - ../releases/apicurio.yaml.gotmpl

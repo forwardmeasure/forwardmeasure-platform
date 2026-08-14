@@ -1,0 +1,11 @@
+repositories:
+  - name: forwardmeasure
+    url: https://forwardmeasure.github.io/helm-charts
+
+releases:
+  - name: keycloak
+    namespace: {{ .Values.namespaces.keycloak }}
+    chart: {{ .Values.chartSources.keycloak | quote }}
+    labels: {stage: identity, component: keycloak}
+    values:
+      - ../releases/keycloak.yaml.gotmpl

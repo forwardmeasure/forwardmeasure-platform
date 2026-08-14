@@ -1,0 +1,71 @@
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: local("Inter Variable"), local("Inter");
+}
+
+:root {
+  --fm-canvas: #f4f4f1;
+  --fm-surface: #ffffff;
+  --fm-ink: #181817;
+  --fm-muted: #686864;
+  --fm-border: #d9d9d4;
+  --fm-accent: #635bff;
+  --fm-danger: #a6382d;
+}
+
+body,
+.pf-v5-c-login {
+  background: var(--fm-canvas);
+  color: var(--fm-ink);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+.pf-v5-c-login__container {
+  grid-template-areas: "header" "main";
+  grid-template-columns: minmax(0, 440px);
+}
+
+.pf-v5-c-login__main {
+  border: 1px solid var(--fm-border);
+  border-radius: 18px;
+  background: var(--fm-surface);
+  box-shadow: 0 24px 70px rgb(24 24 23 / 10%);
+}
+
+.pf-v5-c-login__main-header {
+  padding-block-end: 0;
+}
+
+.pf-v5-c-title,
+#kc-page-title {
+  color: var(--fm-ink);
+  font-weight: 680;
+  letter-spacing: -0.035em;
+}
+
+.pf-v5-c-form-control,
+.pf-v5-c-button.pf-m-primary {
+  border-radius: 9px;
+}
+
+.pf-v5-c-button.pf-m-primary {
+  background: var(--fm-ink);
+  font-weight: 650;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-primary:focus-visible {
+  background: var(--fm-accent);
+}
+
+a {
+  color: var(--fm-accent);
+}
+
+.pf-v5-c-helper-text__item.pf-m-error,
+.pf-v5-c-alert.pf-m-danger {
+  color: var(--fm-danger);
+}

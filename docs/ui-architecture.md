@@ -5,17 +5,15 @@
 ForwardMeasure will present one tenant-scoped product experience without
 building one monolithic application.
 
-The tenant portal is the overarching shell and launch point. OKS and Entity
-Intelligence retain separate dashboards because they answer different
-questions:
+The tenant portal is the overarching shell and launch point. Three product
+surfaces remain independently owned because they answer different questions:
 
-- the OKS dashboard explains how workflows are defined and executed;
-- the Entity Intelligence dashboard explains the operational state of the
-  entity-intelligence domain;
-- the Entity Intelligence workbench supports evidence, entity, dossier, and
+- open-source OKS Studio explains how workflows are authored and executed;
+- the closed-source Entity Intelligence Workbench combines the tenant overview
+  with evidence, population, screening, resolution, entity, dossier and
   investigation work;
-- the Entity Intelligence agents application presents discoverable agents and
-  their runs using OKS capabilities in an Entity Intelligence context.
+- the open-source Platform Dashboard explains shared platform health and
+  operations without absorbing either product's business screens.
 
 The portal may display high-level summary cards from both domains, but it must
 not duplicate their operational screens or embed their applications in
@@ -26,15 +24,14 @@ iframes.
 | Surface | Primary users | Responsibilities |
 | --- | --- | --- |
 | Tenant portal | All tenant users | Product navigation, tenant identity, session entry, cross-product notices, and shallow status summaries |
-| OKS runtime dashboard | Workflow authors and platform operators | Workflow catalogue and lifecycle, execution graph and timeline, step input/output drill-down, pause/resume/cancel, human tasks, adapter health, and later standards-native authoring |
-| Entity Intelligence dashboard | Entity Intelligence operators | Ingestion, extraction, resolution, screening, population, and asynchronous-task operational views |
-| Entity Intelligence workbench | Investigators and analysts | Evidence, entities, assertions, dossiers, investigations, screening, and resolution decisions |
-| Entity Intelligence agents | Agent users and stewards | Agent catalogue, typed instructions, runs, A2A/A2UI interactions, and domain-specific agent experiences |
+| OKS Studio | Workflow authors and platform operators | Workflow authoring, catalogue and lifecycle, execution graph and timeline, step input/output drill-down, pause/resume/cancel, human tasks, and adapter health |
+| Entity Intelligence Workbench | Entity Intelligence operators, investigators and analysts | Tenant overview, ingestion, extraction, populations, screening, resolution, entities, assertions, dossiers and investigations |
+| Platform Dashboard | Platform operators | Shared service health, Kafka, schema registry, storage, search, model-service and deployment operations |
 
-An agent invocation is an OKS execution. The agents application therefore uses
-the OKS API for execution state and human interaction while using Entity
-Intelligence APIs for domain resources. It must not create a second workflow
-runtime model.
+An agent invocation is an OKS execution. If an agent-facing product is later
+justified, it must use OKS for execution state and human interaction and domain
+APIs for business resources. Milestone UI work does not create an empty agent
+application or a second workflow runtime model.
 
 ## Shared UI Foundation
 
@@ -53,9 +50,9 @@ not by OKS or Entity Intelligence. The intended packages are:
 - `@forwardmeasure/ui-testing`: browser fixtures and accessibility helpers.
 
 Entity Intelligence currently incubates the first foundation and component
-packages inside `entity-intelligence-ui`. They may be used by its three
-applications now, but OKS must not depend on packages named or owned by Entity
-Intelligence. Once the visual and application contracts stabilize, the neutral
+packages inside `entity-intelligence-ui`. OKS and the Platform Dashboard must
+not depend on packages named or owned by Entity Intelligence. Once the visual
+and application contracts stabilize, the neutral
 packages move to a dedicated `forwardmeasure-ui` repository and join the
 `forwardmeasure-platform` source reactor. Until a package registry is justified,
 the TypeScript packages can use the same Maven-JAR packaging pattern as the
@@ -87,8 +84,8 @@ transport models.
    navigation; micro-frontends and iframes are not the default architecture.
 3. Domain applications own domain vocabulary and colour-rich visualizations;
    shared tokens own typography, structure, controls, and theme behaviour.
-4. The OKS workflow visualization is reusable in the agents application and in
-   Entity Intelligence execution detail pages.
+4. The OKS workflow visualization is reusable in future agent experiences and
+   in Entity Intelligence execution detail pages.
 5. The portal aggregates only stable, intentionally exposed summary APIs. It
    must not query internal stores or reconstruct workflow state.
 6. Generated clients are immutable build outputs derived from the authoritative
@@ -97,7 +94,8 @@ transport models.
 ## Deployment Shape
 
 The products may be deployed independently while appearing under one tenant
-host, for example `/`, `/dashboard`, `/workbench`, `/agents`, and `/workflows`.
-Istio routing can map those paths to separate services. A common host and
-Keycloak realm provide a coherent session without forcing the applications
-into one deployment or one JavaScript bundle.
+host: `/` for the portal/Platform Dashboard, `/ei` for the Entity Intelligence
+Workbench during coexistence, and `/agents` for OKS Studio. Istio routing
+can map those paths to separate services. A common host and Keycloak realm
+provide a coherent session without forcing the applications into one
+deployment or one JavaScript bundle.

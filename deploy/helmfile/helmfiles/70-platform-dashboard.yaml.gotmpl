@@ -1,0 +1,8 @@
+releases:
+  - name: forwardmeasure-platform-dashboard
+    namespace: {{ .Values.namespaces.platform }}
+    chart: ../charts/platform-dashboard
+    version: {{ .Values.versions.platformDashboard | quote }}
+    labels: {stage: dashboard, component: platform-dashboard}
+    values:
+      - ../releases/platform-dashboard.yaml.gotmpl

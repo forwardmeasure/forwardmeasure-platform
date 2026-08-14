@@ -1,0 +1,59 @@
+secretEnv: {create: false}
+envFromSecret: superset-env
+redis: {enabled: false}
+postgresql: {enabled: false}
+serviceAccount: {create: true}
+imagePullSecrets: [docker-io-credentials]
+supersetNode:
+  replicas: {enabled: true, replicaCount: {{ .Values.analytics.supersetReplicas }}}
+  podDisruptionBudget: {enabled: true, minAvailable: null, maxUnavailable: 1}
+supersetWorker:
+  replicas: {enabled: true, replicaCount: {{ .Values.analytics.supersetWorkers }}}
+  podDisruptionBudget: {enabled: true, minAvailable: null, maxUnavailable: 1}
+extraEnv:
+  REDIS_HOST: {{ printf "valkey.%s.svc.cluster.local" .Values.namespaces.valkey | quote }}
+  REDIS_PORT: "6379"
+  REDIS_USER: default
+  REDIS_PROTO: redis
+  REDIS_DB: "1"
+  REDIS_CELERY_DB: "0"
+  OIDC_CLIENT_ID: superset
+  OIDC_ISSUER: {{ printf "https://%s/realms/%s" .Values.gateway.authHost .Values.identity.realm | quote }}
+configOverrides:
+  database: |
+    import os
+    SQLALCHEMY_DATABASE_URI = os.environ["SQLALCHEMY_DATABASE_URI"]
+  oidc: |
+    import os
+    from flask_appbuilder.security.manager import AUTH_OAUTH
+    AUTH_TYPE = AUTH_OAUTH
+    AUTH_USER_REGISTRATION = True
+    AUTH_USER_REGISTRATION_ROLE = "Gamma"
+    OAUTH_PROVIDERS = [{
+      "name": "keycloak",
+      "token_key": "access_token",
+      "icon": "fa-key",
+      "remote_app": {
+        "client_id": os.environ["OIDC_CLIENT_ID"],
+        "client_secret": os.environ["OIDC_CLIENT_SECRET"],
+        "api_base_url": os.environ["OIDC_ISSUER"] + "/protocol/openid-connect/",
+        "access_token_url": os.environ["OIDC_ISSUER"] + "/protocol/openid-connect/token",
+        "authorize_url": os.environ["OIDC_ISSUER"] + "/protocol/openid-connect/auth",
+        "client_kwargs": {"scope": "openid email profile"},
+        "server_metadata_url": os.environ["OIDC_ISSUER"] + "/.well-known/openid-configuration"
+      }
+    }]
+init:
+  enabled: true
+  createAdmin: false
+  initscript: |-
+    #!/bin/sh
+    set -eu
+    superset db upgrade
+    superset init
+    superset fab create-admin \
+      --username "${ADMIN_USERNAME}" \
+      --firstname Platform \
+      --lastname Administrator \
+      --email "${ADMIN_EMAIL}" \
+      --password "${ADMIN_PASSWORD}" || true

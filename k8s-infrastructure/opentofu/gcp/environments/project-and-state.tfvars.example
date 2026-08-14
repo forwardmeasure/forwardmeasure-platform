@@ -1,0 +1,12 @@
+project_id        = "forwardmeasure-production"
+project_name      = "ForwardMeasure Production"
+region            = "us-central1"
+state_bucket_name = "forwardmeasure-production-opentofu-state"
+
+# Set true when the project does not already exist.
+create_project  = true
+billing_account = "XXXXXX-XXXXXX-XXXXXX"
+
+# Use either folder_id or organization_id when your GCP hierarchy requires it.
+# folder_id       = "123456789012"
+# organization_id = "123456789012"

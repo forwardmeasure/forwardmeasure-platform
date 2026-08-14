@@ -37,6 +37,20 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.outputTimestamp>1980-01-01T00:00:02Z</project.build.outputTimestamp>
     <maven.compiler.release>25</maven.compiler.release>
+    <quarkus.platform.version>3.38.1</quarkus.platform.version>
+    <openapi-generator.version>7.21.0</openapi-generator.version>
+    <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
+    <fabric8.docker.version>0.46.0</fabric8.docker.version>
+    <maven.resources.version>3.4.0</maven.resources.version>
+    <maven.compiler.version>3.15.0</maven.compiler.version>
+    <maven.jar.version>3.5.0</maven.jar.version>
+    <maven.surefire.version>3.5.4</maven.surefire.version>
+    <nodejs.version>v22.22.0</nodejs.version>
+    <keycloak.version>26.5.7</keycloak.version>
+    <keycloak.image.digest>sha256:45ae20191531eb608ddb0b775d012b40d3e4f942697f3214694887dd7c108d13</keycloak.image.digest>
+    <container-image.registry>docker.io</container-image.registry>
+    <container-image.group>forwardmeasure</container-image.group>
+    <container-image.tag>${revision}</container-image.tag>
     <maven.clean.version>3.5.0</maven.clean.version>
     <maven.install.version>3.1.4</maven.install.version>
     <maven.deploy.version>3.1.4</maven.deploy.version>
@@ -56,13 +70,61 @@
     <module>../forwardmeasure-object-storage</module>
     <module>../openworkflow-kafka-streams</module>
     <module>../forwardmeasure-agents</module>
-    <module>../entity-intelligence</module>
+    <module>../forwardmeasure-nlp</module>
     <module>forwardmeasure-platform-bom</module>
+    <module>forwardmeasure-keycloak-theme</module>
+    <module>forwardmeasure-platform-dashboard-contract</module>
+    <module>forwardmeasure-platform-dashboard-api-java</module>
+    <module>forwardmeasure-platform-dashboard-client-typescript</module>
+    <module>forwardmeasure-platform-dashboard-service</module>
+    <module>../entity-intelligence</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.quarkus.platform</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-dashboard-contract</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-dashboard-api-java</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-dashboard-client-typescript</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>6.0.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven.jar.version}</version>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
@@ -92,6 +154,36 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>flatten-maven-plugin</artifactId>
           <version>${flatten.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.platform.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.openapitools</groupId>
+          <artifactId>openapi-generator-maven-plugin</artifactId>
+          <version>${openapi-generator.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>${frontend-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>${fabric8.docker.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven.resources.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

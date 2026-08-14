@@ -1,0 +1,83 @@
+{{- $postLogoutRedirectUris := list (printf "https://%s/*" .Values.gateway.rootHost) (printf "https://%s/*" .Values.gateway.registryHost) (printf "https://%s/*" .Values.gateway.analyticsHost) "http://localhost:3000/*" }}
+{{- range $tenant := .Values.tenants }}
+{{- $postLogoutRedirectUris = append $postLogoutRedirectUris (printf "https://%s/*" $tenant.host) }}
+{{- end }}
+replicaCount: {{ .Values.identity.replicas }}
+imagePullSecrets: [{name: docker-io-credentials}]
+image:
+  repository: {{ .Values.identity.image.repository | quote }}
+  tag: {{ .Values.identity.image.tag | quote }}
+  digest: {{ .Values.identity.image.digest | quote }}
+  pullPolicy: {{ .Values.identity.image.pullPolicy | quote }}
+keycloak:
+  hostname: {{ .Values.gateway.authHost | quote }}
+  hostnameStrict: "true"
+  proxyHeaders: xforwarded
+  httpRelativePath: /
+  db:
+    credentialsSecret: {{ .Values.identity.databaseSecret | quote }}
+  adminCredentialsSecret: {{ .Values.identity.adminSecret | quote }}
+tls:
+  secretName: {{ .Values.identity.tlsSecret | quote }}
+realm:
+  import: bootstrap
+  realm: {{ .Values.identity.realm | quote }}
+  displayName: {{ .Values.identity.displayName | quote }}
+  loginTheme: {{ .Values.identity.loginTheme | quote }}
+  adminPublicClient:
+    clientId: {{ .Values.identity.publicClientId | quote }}
+    name: ForwardMeasure Public Client
+    redirectUri1: {{ printf "https://%s/*" .Values.bootstrapIdentity.tenantHost | quote }}
+    redirectUri2: http://localhost:3000/*
+    additionalRedirectUris:
+      {{- range $tenant := .Values.tenants }}
+      - {{ printf "https://%s/*" $tenant.host | quote }}
+      {{- end }}
+      - {{ printf "https://%s/*" .Values.gateway.rootHost | quote }}
+      - {{ printf "https://%s/*" .Values.gateway.registryHost | quote }}
+      - {{ printf "https://%s/*" .Values.gateway.analyticsHost | quote }}
+    webOrigin1: {{ printf "https://%s" .Values.bootstrapIdentity.tenantHost | quote }}
+    webOrigin2: http://localhost:3000
+    additionalWebOrigins:
+      {{- range $tenant := .Values.tenants }}
+      - {{ printf "https://%s" $tenant.host | quote }}
+      {{- end }}
+      - {{ printf "https://%s" .Values.gateway.rootHost | quote }}
+      - {{ printf "https://%s" .Values.gateway.registryHost | quote }}
+      - {{ printf "https://%s" .Values.gateway.analyticsHost | quote }}
+    audiences: [entity-intelligence-api, oks-api, platform-dashboard-api]
+    postLogoutRedirectUris: {{ join "##" $postLogoutRedirectUris | quote }}
+  adminConfidentialClient:
+    clientId: {{ .Values.identity.confidentialClientId | quote }}
+    name: ForwardMeasure Confidential Client
+  serviceClients:
+    {{- toYaml .Values.identity.serviceClients | nindent 4 }}
+  clientSecretsSecret: {{ .Values.identity.clientSecret | quote }}
+bootstrapAdminUser:
+  utilityImage:
+    repository: docker.io/forwardmeasure/ml-model-utilities
+    tag: latest
+    digest: sha256:eb705101bf88908ead1ed129580406b72570fbd76fadbbcf38912714b35034de
+    pullPolicy: IfNotPresent
+  passwordSecret: {{ .Values.identity.bootstrapSecret | quote }}
+  username: platform-admin
+  email: {{ .Values.gateway.acmeEmail | quote }}
+  firstName: Platform
+  lastName: Administrator
+  tenantDid: {{ .Values.bootstrapIdentity.tenantDid | quote }}
+  actorDid: {{ .Values.bootstrapIdentity.actorDid | quote }}
+  actorType: {{ .Values.bootstrapIdentity.actorType | quote }}
+  tenantGroupRoles: dossier-control,investigation-control,entity-control,resolution-control,evidence-control,audit-control,ingestion-control,screening-control,information-extraction-control,agent-control,workflow-control,workflow-execution-purge,human-task-control
+  platformRoles:
+    viewer: platform-viewer
+    accessAdmin: platform-access-admin
+    platformAdmin: platform-admin
+serviceAccount:
+  annotations: {}
+gcp:
+  workloadIdentity: {enabled: false}
+cloudSqlProxy:
+  enabled: false
+readinessProbe: {path: /health/ready}
+livenessProbe: {path: /health/live}
+startupProbe: {path: /health/ready}

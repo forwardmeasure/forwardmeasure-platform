@@ -1,0 +1,121 @@
+project_id    = "forwardmeasure-production"
+region        = "us-central1"
+environment   = "production"
+platform_name = "forwardmeasure"
+
+dns = {
+  root_domain         = "example.com"
+  managed_zone_name   = "example-com"
+  create_managed_zone = true
+}
+
+network = {
+  subnet_cidr             = "10.20.0.0/20"
+  pods_cidr               = "10.24.0.0/14"
+  services_cidr           = "10.28.0.0/20"
+  private_services_prefix = 16
+}
+
+gke = {
+  deletion_protection = true
+  release_channel     = "STABLE"
+  private_nodes       = true
+  private_endpoint    = false
+  master_ipv4_cidr    = "172.16.0.0/28"
+
+  # Add the fixed public ranges used by administrators and deployment runners.
+  master_authorized_networks = {
+    platform-administrators = "203.0.113.0/24"
+  }
+}
+
+cpu_node_pools = {
+  general = {
+    machine_type         = "e2-standard-8"
+    disk_size_gb         = 250
+    total_min_node_count = 3
+    total_max_node_count = 12
+  }
+
+  storage = {
+    machine_type         = "n2-highmem-16"
+    disk_type            = "pd-ssd"
+    disk_size_gb         = 1000
+    total_min_node_count = 3
+    total_max_node_count = 9
+    labels = {
+      workload = "stateful"
+    }
+    taints = [{
+      key    = "workload"
+      value  = "stateful"
+      effect = "NO_SCHEDULE"
+    }]
+  }
+}
+
+gpu_node_pools = {
+  inference = {
+    machine_type         = "g2-standard-12"
+    accelerator_type     = "nvidia-l4"
+    accelerator_count    = 1
+    total_min_node_count = 0
+    total_max_node_count = 4
+    spot                 = true
+  }
+}
+
+cloudsql = {
+  database_version    = "POSTGRES_18"
+  tier                = "db-custom-4-16384"
+  availability_type   = "REGIONAL"
+  disk_size_gb        = 250
+  deletion_protection = true
+}
+
+cloudsql_databases = ["entity_intelligence", "keycloak", "openworkflow", "superset"]
+
+cloudsql_users = {
+  entity_intelligence = {
+    password_version = 1
+  }
+  keycloak = {
+    password_version = 1
+  }
+  openworkflow = {
+    password_version = 1
+  }
+  superset = {
+    password_version = 1
+  }
+}
+
+# Passwords are deliberately absent. Supply an ephemeral JSON map to plan/apply:
+# export TF_VAR_cloudsql_user_passwords='{"entity_intelligence":"...","keycloak":"...","openworkflow":"...","superset":"..."}'
+
+cloudsql_extensions = {
+  keycloak = {
+    username   = "keycloak"
+    extensions = []
+  }
+  superset = {
+    username   = "superset"
+    extensions = ["uuid-ossp"]
+  }
+}
+
+buckets = {
+  entity-intelligence = {
+    versioning    = true
+    force_destroy = false
+  }
+  model-cache = {
+    versioning    = true
+    force_destroy = false
+  }
+}
+
+# Add one Secret Manager container for each tenant-bound OKS adapter client.
+additional_secret_ids = [
+  "platform-oks-operation-adapter-example-bank-client-secret",
+]

@@ -1,0 +1,202 @@
+platform:
+  domain: example.com
+  environment: production
+
+gcp:
+  projectId: replace-with-gcp-project
+  region: us-central1
+  clusterName: replace-with-gke-cluster
+  dnsServiceAccountEmail: replace-with-dns-sa@example.iam.gserviceaccount.com
+  externalSecretsServiceAccountEmail: replace-with-external-secrets-sa@example.iam.gserviceaccount.com
+  modelServiceAccountEmail: replace-with-model-sa@example.iam.gserviceaccount.com
+  modelCacheBucket: replace-with-model-cache-bucket
+
+namespaces:
+  platform: forwardmeasure-platform
+  istio: istio-system
+  certManager: cert-manager
+  externalSecrets: external-secrets
+  keycloak: keycloak
+  strimzi: strimzi-operator
+  kafka: kafka
+  registry: apicurio-registry
+  openSearch: opensearch-cluster
+  kserve: kserve
+  knativeOperator: knative-operator
+  knativeServing: knative-serving
+  knativeEventing: knative-eventing
+  modelServing: kserve-serving
+  docling: docling-serve
+  valkey: valkey
+  superset: superset
+
+versions:
+  platformDashboard: 1.0.0
+  gatewayApi: v1.5.1
+  istio: 1.30.2
+  certManager: v1.21.0
+  externalSecrets: 2.0.1
+  platformSecrets: 0.1.5
+  platformRouting: 0.0.11
+  keycloak: 0.0.22
+  strimzi: 1.1.0
+  kafka: 0.0.4
+  apicurioOperator: 0.1.2
+  apicurioDeployment: 0.1.2
+  openSearch: 0.1.4
+  kserve: v0.17.0
+  knativeOperator: 1.22.3
+  knativeResources: 0.0.18
+  modelCache: 0.1.8
+  modelServing: 0.1.26
+  docling: 0.0.7
+  valkey: 0.9.3
+  superset: 0.15.2
+
+gateway:
+  name: platform-gateway
+  className: istio
+  replicaCount: 2
+  loadBalancerIp: 192.0.2.10
+  rootHost: platform.example.com
+  tenantHost: "*.example.com"
+  authHost: auth.example.com
+  registryHost: registry.example.com
+  searchHost: search.example.com
+  analyticsHost: analytics.example.com
+  acmeEmail: platform-owner@example.com
+  clusterIssuer: letsencrypt-gcp-dns
+
+secretStore:
+  name: google-secret-manager
+  refreshInterval: 1h
+  serviceAccountName: external-secrets
+  remoteKeys:
+    dockerConfig: platform-container-registry-dockerconfigjson
+    keycloakDatabaseUsername: platform-keycloak-database-username
+    keycloakDatabasePassword: platform-keycloak-database-password
+    keycloakDatabaseUrl: platform-keycloak-database-url
+    keycloakAdminUsername: platform-keycloak-admin-username
+    keycloakAdminPassword: platform-keycloak-admin-password
+    keycloakBootstrapPassword: platform-keycloak-bootstrap-password
+    keycloakConfidentialClientSecret: platform-keycloak-confidential-client-secret
+    openSearchUsername: platform-opensearch-admin-username
+    openSearchPassword: platform-opensearch-admin-password
+    openSearchPasswordHash: platform-opensearch-admin-password-hash
+    openSearchCookie: platform-opensearch-admin-cookie
+    huggingFaceToken: platform-huggingface-token
+    supersetSecretKey: platform-superset-secret-key
+    # Store the complete SQLAlchemy URI so private IP, public IP and verified
+    # TLS Cloud SQL connections all use the same deployment contract.
+    supersetDatabaseUri: platform-superset-database-uri
+    supersetDatabaseHost: platform-superset-database-host
+    supersetDatabasePort: platform-superset-database-port
+    supersetDatabaseName: platform-superset-database-name
+    supersetDatabaseUsername: platform-superset-database-username
+    supersetDatabasePassword: platform-superset-database-password
+    supersetAdminUsername: platform-superset-admin-username
+    supersetAdminPassword: platform-superset-admin-password
+    supersetAdminEmail: platform-superset-admin-email
+    valkeyPassword: platform-valkey-password
+
+identity:
+  realm: forwardmeasure
+  displayName: ForwardMeasure
+  loginTheme: forwardmeasure
+  publicClientId: forwardmeasure-public
+  confidentialClientId: superset
+  databaseSecret: keycloak-db-credentials
+  adminSecret: keycloak-admin-credentials
+  bootstrapSecret: keycloak-bootstrap-admin-user-credentials
+  clientSecret: keycloak-realm-client-secrets
+  serviceClients:
+    - clientId: oks-operation-adapter-example
+      name: Example Tenant OKS Operation Adapter
+      secretKey: OKS_OPERATION_ADAPTER_EXAMPLE_CLIENT_SECRET
+      secretRemoteKey: platform-oks-operation-adapter-example-client-secret
+      realmRoles: [workflow-internal]
+      audiences: [entity-intelligence-internal]
+      claims:
+        tenant_did: did:web:tenant.example.com
+        actor_did: did:web:tenant.example.com:actors:oks-operation-adapter
+        actor_type: SERVICE
+  tlsSecret: keycloak-server-tls
+  replicas: 2
+  image:
+    repository: docker.io/forwardmeasure/forwardmeasure-keycloak
+    tag: 1.0.0
+    digest: ""
+    pullPolicy: IfNotPresent
+
+bootstrapIdentity:
+  tenantHost: tenant.example.com
+  tenantDid: did:web:tenant.example.com
+  actorDid: did:web:tenant.example.com:actors:platform-admin
+  actorType: HUMAN
+
+tenants:
+  - host: tenant.example.com
+    did: did:web:tenant.example.com
+    code: tenant
+    name: Example Tenant
+
+kafka:
+  clusterName: kafka-cluster
+  version: "4.0.0"
+  bootstrapServers: kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+  controllers: 3
+  brokers: 3
+  controllerStorage: 20Gi
+  brokerStorage: 100Gi
+
+registry:
+  name: platform-registry
+  replicas: 2
+  uiEnabled: true
+
+openSearch:
+  replicas: 3
+  storage: 100Gi
+  javaOpts: -Xms4g -Xmx4g
+  credentialsSecret: opensearch-admin-credentials
+
+models:
+  cacheSize: 512Gi
+  cachePvc: model-cache-pvc
+  cacheServiceAccount: model-cache-sa
+  docling:
+    mode: cpu
+    pipeline: standard
+    storage: 64Gi
+  ner:
+    enabled: true
+  relationshipExtraction:
+    enabled: true
+
+analytics:
+  valkeyReplicas: 3
+  supersetReplicas: 2
+  supersetWorkers: 2
+
+features:
+  openWebUi: false
+
+platformDashboard:
+  image:
+    repository: docker.io/forwardmeasure/forwardmeasure-platform-dashboard
+    tag: 1.0.0
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+    pullPolicy: IfNotPresent
+  replicas: 2
+  minReplicas: 2
+  maxReplicas: 6
+  probeTimeout: PT2S
+  observationTtl: PT10S
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {memory: 768Mi}
+
+chartSources:
+  # Use reviewed source until 0.1.4 is published.
+  openSearch: ../../../../helm-charts/charts/opensearch-cluster-helm-chart/helm-chart-sources
+  keycloak: ../../../../helm-charts/charts/keycloak-helm-chart/helm-chart-sources

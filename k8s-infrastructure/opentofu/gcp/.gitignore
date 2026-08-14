@@ -1,0 +1,13 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.auto.tfvars
+*.auto.tfvars.json
+backend.hcl
+environments/*.backend.hcl
+environments/*.tfvars
+generated/
+plans/
+
+!environments/*.example

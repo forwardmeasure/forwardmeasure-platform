@@ -54,6 +54,14 @@
       "mavenVersion": "1.0.0"
     },
     {
+      "id": "forwardmeasure-nlp",
+      "path": "../forwardmeasure-nlp",
+      "repository": "git@github.com:forwardmeasure/forwardmeasure-nlp.git",
+      "branch": "develop",
+      "revision": "f8580017b718ef44781fad9fdd64e8d4b05afed2",
+      "mavenVersion": "1.0.0"
+    },
+    {
       "id": "entity-intelligence",
       "path": "../entity-intelligence",
       "repository": "git@github.com:forwardmeasure/entity-intelligence.git",

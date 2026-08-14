@@ -1,0 +1,80 @@
+image:
+  repository: {{ .Values.platformDashboard.image.repository | quote }}
+  tag: {{ .Values.platformDashboard.image.tag | quote }}
+  digest: {{ .Values.platformDashboard.image.digest | quote }}
+  pullPolicy: {{ .Values.platformDashboard.image.pullPolicy | quote }}
+imagePolicy:
+  requireDigest: true
+imagePullSecrets: [docker-io-credentials]
+replicaCount: {{ .Values.platformDashboard.replicas }}
+autoscaling:
+  enabled: true
+  minReplicas: {{ .Values.platformDashboard.minReplicas }}
+  maxReplicas: {{ .Values.platformDashboard.maxReplicas }}
+resources: {{ toYaml .Values.platformDashboard.resources | nindent 2 }}
+oidc:
+  url: {{ printf "https://%s" .Values.gateway.authHost | quote }}
+  issuer: {{ printf "https://%s/realms/%s" .Values.gateway.authHost .Values.identity.realm | quote }}
+  realm: {{ .Values.identity.realm | quote }}
+  clientId: {{ .Values.identity.publicClientId | quote }}
+  audience: platform-dashboard-api
+tenants:
+  {{- range $tenant := .Values.tenants }}
+  - host: {{ $tenant.host | quote }}
+    did: {{ $tenant.did | quote }}
+    name: {{ $tenant.code | quote }}
+    displayName: {{ $tenant.name | quote }}
+  {{- end }}
+environment: {{ .Values.platform.environment | quote }}
+applications:
+  - id: oks-studio
+    name: OKS Studio
+    description: Author, publish, run and inspect durable Open Workflow definitions.
+    href: /workflows/
+  - id: entity-intelligence
+    name: Entity Intelligence
+    description: Ingest populations and evidence, screen, resolve entities and manage investigations.
+    href: /ei/
+probeTimeout: {{ .Values.platformDashboard.probeTimeout | quote }}
+observationTtl: {{ .Values.platformDashboard.observationTtl | quote }}
+route:
+  enabled: true
+  gatewayName: {{ .Values.gateway.name | quote }}
+  gatewayNamespace: {{ .Values.namespaces.istio | quote }}
+  listenerName: tenant-https
+  hostname: {{ .Values.gateway.tenantHost | quote }}
+components:
+  - id: keycloak
+    name: Identity And Access Management
+    category: IDENTITY
+    probe: HTTP
+    healthUri: {{ printf "http://keycloak.%s.svc.cluster.local:8080/realms/%s" .Values.namespaces.keycloak .Values.identity.realm | quote }}
+    consoleUri: {{ printf "https://%s/admin/%s/console/" .Values.gateway.authHost .Values.identity.realm | quote }}
+  - id: kafka
+    name: Apache Kafka
+    category: MESSAGING
+    probe: TCP
+    healthUri: {{ printf "tcp://%s" .Values.kafka.bootstrapServers | quote }}
+  - id: apicurio-registry
+    name: Apicurio Registry
+    category: SCHEMA_GOVERNANCE
+    probe: HTTP
+    healthUri: {{ printf "http://%s-app-service.%s.svc.cluster.local:8080/apis/registry/v3/system/info" .Values.registry.name .Values.namespaces.registry | quote }}
+    consoleUri: {{ printf "https://%s/" .Values.gateway.registryHost | quote }}
+  - id: opensearch
+    name: OpenSearch
+    category: SEARCH
+    probe: TCP
+    healthUri: {{ printf "tcp://opensearch-cluster-master.%s.svc.cluster.local:9200" .Values.namespaces.openSearch | quote }}
+    consoleUri: {{ printf "https://%s/" .Values.gateway.searchHost | quote }}
+  - id: superset
+    name: Apache Superset
+    category: ANALYTICS
+    probe: HTTP
+    healthUri: {{ printf "http://superset.%s.svc.cluster.local:8088/health" .Values.namespaces.superset | quote }}
+    consoleUri: {{ printf "https://%s/" .Values.gateway.analyticsHost | quote }}
+  - id: named-entity-recognition
+    name: Named Entity Recognition
+    category: MODEL_SERVING
+    probe: TCP
+    healthUri: {{ printf "tcp://ner-gliner-medium-v2-1-predictor.%s.svc.cluster.local:80" .Values.namespaces.modelServing | quote }}
