@@ -12,12 +12,7 @@ for command in kubectl helm helmfile yq jq gcloud; do
   }
 done
 
-ENVIRONMENT_FILES=("${HELMFILE_DIR}/environments/base.yaml")
-if [[ "${ENVIRONMENT}" == "gcp-greenfield-example" ]]; then
-  ENVIRONMENT_FILES+=("${HELMFILE_DIR}/environments/gcp-greenfield.example.yaml")
-elif [[ "${ENVIRONMENT}" != "base" ]]; then
-  ENVIRONMENT_FILES+=("${HELMFILE_DIR}/environments/${ENVIRONMENT}.yaml")
-fi
+mapfile -t ENVIRONMENT_FILES < <("${SCRIPT_DIR}/environment-files.sh" "${ENVIRONMENT}")
 
 MERGED_JSON="$(yq ea -o=json \
   '. as $item ireduce ({}; . * $item)' "${ENVIRONMENT_FILES[@]}")"
@@ -39,7 +34,7 @@ printf '%s' "${MERGED_JSON}" | jq -e '
 }
 
 printf '%s' "${MERGED_JSON}" | jq -e '
-  .platformDashboard.image.digest
+  .imageVersions.platformDashboard.digest
   | test("^sha256:[0-9a-f]{64}$")
     and . != "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 ' >/dev/null || {

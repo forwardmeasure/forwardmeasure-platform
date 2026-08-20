@@ -5,10 +5,10 @@
 replicaCount: {{ .Values.identity.replicas }}
 imagePullSecrets: [{name: docker-io-credentials}]
 image:
-  repository: {{ .Values.identity.image.repository | quote }}
-  tag: {{ .Values.identity.image.tag | quote }}
-  digest: {{ .Values.identity.image.digest | quote }}
-  pullPolicy: {{ .Values.identity.image.pullPolicy | quote }}
+  repository: {{ .Values.imageVersions.keycloak.repository | quote }}
+  tag: {{ .Values.imageVersions.keycloak.tag | quote }}
+  digest: {{ .Values.imageVersions.keycloak.digest | quote }}
+  pullPolicy: {{ .Values.imageVersions.keycloak.pullPolicy | quote }}
 keycloak:
   hostname: {{ .Values.gateway.authHost | quote }}
   hostnameStrict: "true"
@@ -55,9 +55,9 @@ realm:
   clientSecretsSecret: {{ .Values.identity.clientSecret | quote }}
 bootstrapAdminUser:
   utilityImage:
-    repository: docker.io/forwardmeasure/ml-model-utilities
-    tag: latest
-    digest: sha256:eb705101bf88908ead1ed129580406b72570fbd76fadbbcf38912714b35034de
+    repository: {{ .Values.imageVersions.modelUtilities.repository | quote }}
+    tag: {{ .Values.imageVersions.modelUtilities.tag | quote }}
+    digest: {{ .Values.imageVersions.modelUtilities.digest | quote }}
     pullPolicy: IfNotPresent
   passwordSecret: {{ .Values.identity.bootstrapSecret | quote }}
   username: platform-admin

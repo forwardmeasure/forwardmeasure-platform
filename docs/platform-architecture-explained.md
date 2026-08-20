@@ -1,5 +1,12 @@
 # How the Platform Fits Together: OKS, Entity Intelligence, and the Umbrella Repo
 
+> Historical note (2026-08-14): implementation details in this document were
+> derived from the rejected `entity-intelligence` repository. That repository
+> is throwaway reference material, not the baseline for the replacement at
+> `forwardmeasure-entity-intelligence`. The product boundaries remain valid;
+> concrete Entity Intelligence module and workflow details require revalidation
+> against the replacement implementation.
+
 *A gentle guide for someone who knows the code exists but not yet how it works.*
 
 *Written 2026-08-09. Grounded in the current source of `forwardmeasure-platform`, `openworkflow-kafka-streams`, `forwardmeasure-jpa`, and `entity-intelligence`. Where the codebase is honestly incomplete or has changed recently, this document says so rather than papering over it.*
@@ -22,7 +29,7 @@ You have three checked-out repositories that matter here, and they play three ge
 
 - **`entity-intelligence`** is a **business application** — entity screening and matching (checking names against watchlists, resolving duplicate identities, and so on). It is a *customer* of OKS: it writes its own workflow documents (in the Open Workflow shape) describing its business processes, and asks OKS to run them.
 
-- **`forwardmeasure-platform`** is neither of those. It does not contain the source code of either. Its own architecture doc is explicit about this: it is a **compatibility release train**, not a monorepo. Its top-level `pom.xml` lists OKS and entity-intelligence (plus several other sibling projects) as separate git checkouts sitting next to it — not as sub-modules it owns — with a comment in the file itself saying "these are sibling source reactors, not children that inherit this POM. Each project remains independently buildable and releasable" (`forwardmeasure-platform/pom.xml`). Its job is to build all the siblings together occasionally to prove a specific combination of versions is compatible, and to pin the exact tested git commit of each sibling in `platform-sources.json` for a release. A second, separate part of this same repo (`deploy/helmfile/`) is a deployment umbrella that installs shared infrastructure — Kafka, Keycloak, OpenSearch, and so on — but explicitly does *not* contain any product source code itself.
+- **`forwardmeasure-platform`** is neither of those. It does not contain the source code of either. It is a **compatibility release train**, not a monorepo: its BOM selects released component artifacts and its compatibility module tests their public contracts without compiling sibling repositories. Its dashboard provides the cross-component view, while `deploy/helmfile/` installs shared infrastructure such as Kafka, Keycloak, and OpenSearch.
 
 So: **OKS is the engine. Entity Intelligence is a car built to run on that engine. The platform repo is the test track and the parts catalogue — it doesn't build the car or the engine.**
 
@@ -30,8 +37,8 @@ So: **OKS is the engine. Entity Intelligence is a car built to run on that engin
 flowchart TB
     subgraph platform["forwardmeasure-platform"]
         direction TB
-        P1["Aggregator pom.xml<br/>(builds siblings together to test compatibility)"]
-        P2["platform-sources.json<br/>(pins the exact tested commit of each sibling)"]
+        P1["Compatibility BOM<br/>(selects released component artifacts)"]
+        P2["Artifact compatibility tests<br/>(verify public contracts)"]
         P3["deploy/helmfile<br/>(installs shared infra: Kafka, Keycloak, OpenSearch...)"]
     end
 

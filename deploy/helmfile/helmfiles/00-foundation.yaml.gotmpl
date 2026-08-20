@@ -10,13 +10,13 @@ releases:
   - name: istio-base
     namespace: {{ .Values.namespaces.istio }}
     chart: istio/base
-    version: {{ .Values.versions.istio | quote }}
+    version: {{ .Values.chartVersions.istio | quote }}
     labels: {stage: foundation, component: service-mesh}
 
   - name: istiod
     namespace: {{ .Values.namespaces.istio }}
     chart: istio/istiod
-    version: {{ .Values.versions.istio | quote }}
+    version: {{ .Values.chartVersions.istio | quote }}
     needs: [{{ .Values.namespaces.istio }}/istio-base]
     labels: {stage: foundation, component: service-mesh}
     values:
@@ -32,7 +32,7 @@ releases:
   - name: cert-manager
     namespace: {{ .Values.namespaces.certManager }}
     chart: jetstack/cert-manager
-    version: {{ .Values.versions.certManager | quote }}
+    version: {{ .Values.chartVersions.certManager | quote }}
     labels: {stage: foundation, component: certificates}
     values:
       - crds: {enabled: true, keep: true}
@@ -48,7 +48,7 @@ releases:
   - name: external-secrets
     namespace: {{ .Values.namespaces.externalSecrets }}
     chart: external-secrets/external-secrets
-    version: {{ .Values.versions.externalSecrets | quote }}
+    version: {{ .Values.chartVersions.externalSecrets | quote }}
     labels: {stage: foundation, component: secrets}
     values:
       - installCRDs: true

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>forwardmeasure-platform-build-contract-tests</artifactId>
+    <packaging>pom</packaging>
+    <name>ForwardMeasure Platform :: Contract Tests</name>
+
+    <modules>
+        <module>plain-java-consumer</module>
+        <module>quarkus-consumer</module>
+        <module>spring-consumer</module>
+        <module>micronaut-consumer</module>
+        <module>multi-framework-consumer</module>
+    </modules>
+</project>

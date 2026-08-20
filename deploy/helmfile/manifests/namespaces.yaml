@@ -8,6 +8,10 @@ metadata: {name: forwardmeasure-platform}
 ---
 apiVersion: v1
 kind: Namespace
+metadata: {name: forwardmeasure-openworkflow}
+---
+apiVersion: v1
+kind: Namespace
 metadata: {name: cert-manager}
 ---
 apiVersion: v1

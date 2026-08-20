@@ -8,13 +8,13 @@ releases:
   - name: knative-operator
     namespace: {{ .Values.namespaces.knativeOperator }}
     chart: knative-operator/knative-operator
-    version: {{ .Values.versions.knativeOperator | quote }}
+    version: {{ .Values.chartVersions.knativeOperator | quote }}
     labels: {stage: ml-serving, component: knative-operator}
 
   - name: knative-resources
     namespace: {{ .Values.namespaces.knativeOperator }}
     chart: forwardmeasure/knative-crd
-    version: {{ .Values.versions.knativeResources | quote }}
+    version: {{ .Values.chartVersions.knativeResources | quote }}
     needs: [{{ .Values.namespaces.knativeOperator }}/knative-operator]
     labels: {stage: ml-serving, component: knative}
     values:
@@ -33,7 +33,7 @@ releases:
   - name: kserve-crd
     namespace: {{ .Values.namespaces.kserve }}
     chart: oci://ghcr.io/kserve/charts/kserve-crd
-    version: {{ .Values.versions.kserve | quote }}
+    version: {{ .Values.chartVersions.kserve | quote }}
     labels: {stage: ml-serving, component: kserve-crd}
     hooks:
       - events: [postsync]
@@ -49,7 +49,7 @@ releases:
   - name: kserve
     namespace: {{ .Values.namespaces.kserve }}
     chart: oci://ghcr.io/kserve/charts/kserve-resources
-    version: {{ .Values.versions.kserve | quote }}
+    version: {{ .Values.chartVersions.kserve | quote }}
     needs: [{{ .Values.namespaces.kserve }}/kserve-crd]
     labels: {stage: ml-serving, component: kserve}
     values:
@@ -73,7 +73,7 @@ releases:
   - name: kserve-runtime-configs
     namespace: {{ .Values.namespaces.kserve }}
     chart: oci://ghcr.io/kserve/charts/kserve-runtime-configs
-    version: {{ .Values.versions.kserve | quote }}
+    version: {{ .Values.chartVersions.kserve | quote }}
     needs: [{{ .Values.namespaces.kserve }}/kserve]
     labels: {stage: ml-serving, component: kserve-runtimes}
     values:
@@ -96,7 +96,7 @@ releases:
   - name: model-cache
     namespace: {{ .Values.namespaces.modelServing }}
     chart: forwardmeasure/model-cache
-    version: {{ .Values.versions.modelCache | quote }}
+    version: {{ .Values.chartVersions.modelCache | quote }}
     labels: {stage: ml-serving, component: model-cache}
     values:
       - size: {{ .Values.models.cacheSize | quote }}
@@ -123,7 +123,7 @@ releases:
   - name: docling
     namespace: {{ .Values.namespaces.docling }}
     chart: forwardmeasure/docling-serve
-    version: {{ .Values.versions.docling | quote }}
+    version: {{ .Values.chartVersions.docling | quote }}
     labels: {stage: ml-serving, component: document-parsing}
     values:
       - mode: {{ .Values.models.docling.mode | quote }}
@@ -143,7 +143,7 @@ releases:
   - name: named-entity-recognition
     namespace: {{ .Values.namespaces.modelServing }}
     chart: forwardmeasure/kserve-model-serving
-    version: {{ .Values.versions.modelServing | quote }}
+    version: {{ .Values.chartVersions.modelServing | quote }}
     needs:
       - {{ .Values.namespaces.kserve }}/kserve
       - {{ .Values.namespaces.modelServing }}/model-cache

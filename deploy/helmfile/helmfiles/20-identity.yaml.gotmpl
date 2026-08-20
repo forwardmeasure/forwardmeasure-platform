@@ -5,7 +5,10 @@ repositories:
 releases:
   - name: keycloak
     namespace: {{ .Values.namespaces.keycloak }}
-    chart: {{ .Values.chartSources.keycloak | quote }}
+    chart: {{ .Values.chartSources.keycloak.chart | quote }}
+    {{ if eq .Values.chartSources.keycloak.mode "repository" }}
+    version: {{ .Values.chartVersions.keycloak | quote }}
+    {{ end }}
     labels: {stage: identity, component: keycloak}
     values:
       - ../releases/keycloak.yaml.gotmpl

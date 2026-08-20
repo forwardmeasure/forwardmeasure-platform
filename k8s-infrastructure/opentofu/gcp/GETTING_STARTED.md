@@ -339,8 +339,8 @@ Create and edit the corresponding environment files in the sibling projects:
 cp ../../../../openworkflow-kafka-streams/deploy/helmfile/environments/gcp-greenfield.example.yaml \
   ../../../../openworkflow-kafka-streams/deploy/helmfile/environments/production.yaml
 
-cp ../../../../entity-intelligence/deploy/helmfile/environments/gcp-greenfield.example.yaml \
-  ../../../../entity-intelligence/deploy/helmfile/environments/production.yaml
+cp ../../../../forwardmeasure-entity-intelligence/deploy/helmfile/environments/gcp-greenfield.example.yaml \
+  ../../../../forwardmeasure-entity-intelligence/deploy/helmfile/environments/production.yaml
 ```
 
 For both files, set the same tenant ID, code, hostname and DID. Also set:

@@ -1,32 +1,53 @@
 # Architecture
 
-`forwardmeasure-platform` has three responsibilities:
+`forwardmeasure-platform` has five responsibilities:
 
-1. Aggregate independently owned sibling reactors for a clean, end-to-end build.
-2. Publish the compatibility BOM representing one tested set of artifacts.
-3. Bind a platform release to immutable source revisions.
+1. Publish the shared Java parent, core dependency BOM and framework overlay BOMs.
+2. Publish a compatibility BOM representing one tested set of released artifacts.
+3. Validate shared build behavior and cross-component public contracts.
+4. Aggregate the Apache-licensed component repositories into one source build.
+5. Own shared deployment infrastructure.
 
-It intentionally does not provide a shared Maven parent. Build plugins and
-framework choices remain owned by each component. A successful isolated build
-proves a component is internally sound; a successful platform build proves the
-selected components are mutually compatible.
+It does not own product source. Each component keeps its own repository,
+modules, version, product BOM, tests and release. The Platform root aggregates
+those sibling repositories for a single complete build. Open-source Java
+components inherit `com.forwardmeasure.platform:forwardmeasure-platform` and
+can also be built independently against the published parent and applicable
+Platform BOMs.
 
-Object storage is an independently releasable foundation in the train. Its
-framework-neutral API and cloud providers precede OKS and Entity Intelligence
-in the aggregate reactor so consumers resolve the exact source-built artifacts.
+```text
+forwardmeasure-platform parent + core/framework BOMs
+        |
+        v
+single open-source source reactor
+        |
+        v
+independently released component BOMs and artifacts
+        |
+        v
+forwardmeasure-platform-bom + build/artifact compatibility tests
+        |
+        +-- Platform Operations dashboard deployment
+        `-- shared infrastructure deployment
+```
 
-ForwardMeasure Agents follows OKS in the reactor because an immutable agent
-release binds to one exact admitted OKS workflow release and invokes that same
-execution model. Entity Intelligence follows both so domain applications can
-consume governed agent and workflow clients without copying either contract.
+OpenWorkflow's Pekko and Kafka engines are one unified product entry. The
+platform imports `openworkflow-bom` and never imports the OpenWorkflow parent or
+lists the retired standalone engines as parallel products.
 
-The source manifest supports `WORKTREE` only while assembling a development
-train. A release requires exact commits and clean repositories. This prevents a
-platform version from describing unrepeatable local state.
+The compatibility train records released artifact versions because those are
+the inputs it resolves and tests. Git revision provenance remains with each
+component release through Maven SCM metadata, signed tags, SBOMs, and build
+attestations; a second hand-maintained `platform-sources.json` is intentionally
+not used.
 
-API specifications and generated clients remain owned by their service
-repositories. The platform reactor verifies that consumers compile against the
-source-built client artifacts; it does not copy or republish their contracts.
+API specifications and generated clients remain owned and published by their
+service repositories. The platform verifies consumers against those artifacts;
+it does not copy their contracts.
+
+The shared deployment owns common infrastructure such as Keycloak, messaging,
+search, and routing. Product deployments supply product configuration and
+consume shared endpoints without deploying duplicate infrastructure.
 
 The cross-product UI composition and ownership boundaries are defined in
 [`ui-architecture.md`](ui-architecture.md).

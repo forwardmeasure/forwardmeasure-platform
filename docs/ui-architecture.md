@@ -49,14 +49,14 @@ not by OKS or Entity Intelligence. The intended packages are:
   scatter/gather, step-data inspection, and human-task presentation;
 - `@forwardmeasure/ui-testing`: browser fixtures and accessibility helpers.
 
-Entity Intelligence currently incubates the first foundation and component
-packages inside `entity-intelligence-ui`. OKS and the Platform Dashboard must
-not depend on packages named or owned by Entity Intelligence. Once the visual
-and application contracts stabilize, the neutral
-packages move to a dedicated `forwardmeasure-ui` repository and join the
-`forwardmeasure-platform` source reactor. Until a package registry is justified,
-the TypeScript packages can use the same Maven-JAR packaging pattern as the
-generated API clients.
+The rejected `entity-intelligence` implementation is not the source of shared
+UI packages. OKS, the replacement Entity Intelligence Workbench, and the
+Platform Dashboard must not depend on cross-product packages named or owned by
+one product. When the visual and application contracts stabilize, the neutral
+packages belong in a dedicated `forwardmeasure-ui` repository and publish
+versioned artifacts consumed by the platform compatibility train. TypeScript
+packages can use the same Maven-JAR packaging pattern as the generated API
+clients.
 
 ## API Ownership
 
@@ -67,9 +67,12 @@ Each back-end repository owns its API specifications and generated clients:
 - ForwardMeasure Agents owns `forwardmeasure-agent-contracts`,
   `forwardmeasure-agent-api-client-java`, and
   `forwardmeasure-agent-api-client-typescript`;
-- Entity Intelligence owns `entity-intelligence-contracts`,
-  `entity-intelligence-api-client-java`, and
-  `entity-intelligence-api-client-typescript`.
+- Entity Intelligence owns its canonical OpenAPI sources,
+  `forwardmeasure-entity-intelligence-api-models-java`,
+  `forwardmeasure-entity-intelligence-api-client-java`,
+  `forwardmeasure-entity-intelligence-api-client-typescript`,
+  `forwardmeasure-entity-intelligence-api-client-python`, and
+  `forwardmeasure-entity-intelligence-api-server-jaxrs`.
 
 Applications consume those artifacts. They do not copy specifications or run a
 second generator with local options. Thin UI adapters may add authentication,

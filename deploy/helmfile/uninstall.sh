@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ENVIRONMENT="${1:-gcp-greenfield}"
+ENVIRONMENT="${1:?Usage: $0 <configured-environment>}"
 
 for stage in dashboard analytics ml-serving search messaging identity configuration; do
   helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \

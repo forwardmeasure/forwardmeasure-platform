@@ -17,10 +17,13 @@ The repositories have different responsibilities:
   implementation and production evidence described below. Much of the relevant
   work is currently uncommitted in a mixed working tree; never copy the entire
   diff blindly or revert unrelated changes.
-- `/home/pn/Documents/code/forwardmeasure/entity-intelligence` is the new
-  authoritative product implementation. Its architecture is not a file-for-file
-  copy of Data Fabric, so port behavioral contracts and tests into the correct
-  greenfield modules.
+- `/home/pn/Documents/code/forwardmeasure/forwardmeasure-entity-intelligence`
+  is the new authoritative product implementation. Its architecture is not a
+  file-for-file copy of Data Fabric, so port behavioral contracts and tests
+  into the correct greenfield modules.
+- `/home/pn/Documents/code/forwardmeasure/entity-intelligence` is a rejected,
+  throwaway implementation. It may be inspected for algorithms or tests only;
+  it is not an implementation or architectural baseline.
 - `/home/pn/Documents/code/forwardmeasure/forwardmeasure-platform` is the
   compatibility release train and greenfield deployment umbrella. It must not
   absorb product source code. After the port, it must pin and verify the new
@@ -980,20 +983,19 @@ auditable.
 ### ForwardMeasure Platform admission
 
 - [ ] Commit and push the greenfield implementation to
-      `entity-intelligence:develop`.
-- [ ] Replace the current `entity-intelligence` revision in
-      `forwardmeasure-platform/platform-sources.json` with the immutable port
-      commit.
-- [ ] Ensure the manifest Maven version matches the component release.
+      `forwardmeasure-entity-intelligence:develop`.
+- [ ] Publish the immutable Entity Intelligence release with SCM metadata,
+      SBOM, and provenance attestation.
+- [ ] Select that released Maven version in `forwardmeasure-platform-bom`.
 - [ ] Carry required OpenSearch/Spark/GCS settings into the greenfield
-      `entity-intelligence/deploy` and umbrella Helmfile values; do not copy
+      `forwardmeasure-entity-intelligence/deploy` and umbrella Helmfile values;
+      do not copy
       retiring Data Fabric paths.
-- [ ] Run `./scripts/verify-source-manifest.sh development` while assembling.
 - [ ] Run the full platform `mvn -B clean verify` on Java 25/Maven 3.9.9+.
 - [ ] Run `./deploy/validate-greenfield.sh <environment>` and inspect rendered
       images, immutable references, resources, secrets, and index settings.
-- [ ] Before release, pin only exact clean commits and run
-      `./scripts/verify-source-manifest.sh release`.
+- [ ] Before release, verify the selected artifact attestations and immutable
+      container references.
 - [ ] Execute a representative ingestion plus population screening in the
       greenfield environment and repeat the canary/data-quality checks.
 
@@ -1009,7 +1011,8 @@ entity-intelligence-screening-optimisations-handoff.md
 Read the entire document first. Validate each behavioral requirement against
 the Data Fabric source references and map it to the new architecture; do not
 copy the mixed Data Fabric working tree wholesale. Implement the changes and
-regression tests in /home/pn/Documents/code/forwardmeasure/entity-intelligence.
+regression tests in
+/home/pn/Documents/code/forwardmeasure/forwardmeasure-entity-intelligence.
 Preserve the controlled long-name recall fallback, but benchmark recall@K,
 candidate volume, and saturation. Port the pinned GLEIF resource/update
 process, shared typed-signal projection, identifier aliases, and hard known-kind

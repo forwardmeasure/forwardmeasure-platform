@@ -6,7 +6,7 @@ releases:
   - name: platform-secrets
     namespace: {{ .Values.namespaces.externalSecrets }}
     chart: forwardmeasure/platform-secrets
-    version: {{ .Values.versions.platformSecrets | quote }}
+    version: {{ .Values.chartVersions.platformSecrets | quote }}
     labels: {stage: configuration, component: secrets}
     values:
       - ../releases/platform-secrets.yaml.gotmpl
@@ -14,7 +14,7 @@ releases:
   - name: platform-routing
     namespace: {{ .Values.namespaces.istio }}
     chart: forwardmeasure/platform-routing
-    version: {{ .Values.versions.platformRouting | quote }}
+    version: {{ .Values.chartVersions.platformRouting | quote }}
     needs: [{{ .Values.namespaces.istio }}/platform-certificates]
     labels: {stage: configuration, component: routing}
     values:

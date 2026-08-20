@@ -41,6 +41,35 @@ No value is inherited from the retiring Data Fabric project. Copy
 `environments/gcp-greenfield.example.yaml`, replace its placeholders, add the
 new environment to `helmfile.yaml.gotmpl`, and validate before installation.
 
+## Configuration ownership
+
+The Helmfile values are deliberately layered in this order:
+
+1. `environments/chart-versions.yaml` contains versions for repository and OCI
+   Helm charts. Local chart versions remain in their `Chart.yaml` files.
+2. `environments/image-versions.yaml` contains container repositories, tags,
+   optional immutable digests, and pull policies.
+3. `environments/base.yaml` contains cloud-neutral platform configuration.
+4. `environments/<environment>.yaml` contains the cloud project, domain,
+   service-account, bucket, address, sizing, and secret-store values for one
+   deployment.
+
+Do not put image tags into `chart-versions.yaml`, and do not put Helm chart
+versions into `base.yaml`. A `latest` image is accepted only when an immutable
+SHA-256 digest is also supplied.
+
+`chartSources` supports two explicit modes:
+
+- `local`: `chart` is a reviewed source directory and Helm uses its
+  `Chart.yaml` version.
+- `repository`: `chart` is a repository-qualified chart name and Helmfile uses
+  the corresponding entry in `chart-versions.yaml`.
+
+The Keycloak and OpenSearch wrappers currently use reviewed local sources.
+After publishing them, change only their `chartSources.*.mode` and
+`chartSources.*.chart` values; their release versions already have dedicated
+entries in `chart-versions.yaml`.
+
 The umbrella `deploy/validate-greenfield.sh` and `deploy/install-greenfield.sh`
 commands also ask the proprietary Entity Intelligence repository to render its
 tenant-aware OKS integration policy into a temporary file. That file is passed
@@ -58,6 +87,12 @@ names and restore version constraints on those releases.
 ```bash
 ./deploy/helmfile/validate.sh gcp-greenfield-example
 ./deploy/helmfile/install.sh gcp-greenfield
+```
+
+A single stage can be applied during controlled maintenance:
+
+```bash
+./deploy/helmfile/install.sh gcp-greenfield messaging
 ```
 
 Uninstall deliberately retains the foundational controllers and namespaces:

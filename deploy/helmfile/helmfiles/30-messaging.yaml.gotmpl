@@ -8,7 +8,7 @@ releases:
   - name: strimzi-operator
     namespace: {{ .Values.namespaces.strimzi }}
     chart: strimzi/strimzi-kafka-operator
-    version: {{ .Values.versions.strimzi | quote }}
+    version: {{ .Values.chartVersions.strimzi | quote }}
     labels: {stage: messaging, component: kafka-operator}
     values:
       - watchNamespaces:
@@ -17,7 +17,7 @@ releases:
   - name: kafka
     namespace: {{ .Values.namespaces.kafka }}
     chart: forwardmeasure/kafka
-    version: {{ .Values.versions.kafka | quote }}
+    version: {{ .Values.chartVersions.kafka | quote }}
     labels: {stage: messaging, component: kafka}
     needs: [{{ .Values.namespaces.strimzi }}/strimzi-operator]
     values:
@@ -45,13 +45,13 @@ releases:
   - name: apicurio-registry-operator
     namespace: {{ .Values.namespaces.registry }}
     chart: forwardmeasure/apicurio-registry-operator
-    version: {{ .Values.versions.apicurioOperator | quote }}
+    version: {{ .Values.chartVersions.apicurioOperator | quote }}
     labels: {stage: messaging, component: registry-operator}
 
   - name: apicurio-registry
     namespace: {{ .Values.namespaces.registry }}
     chart: forwardmeasure/apicurio-registry-deployment
-    version: {{ .Values.versions.apicurioDeployment | quote }}
+    version: {{ .Values.chartVersions.apicurioDeployment | quote }}
     labels: {stage: messaging, component: registry}
     needs:
       - {{ .Values.namespaces.registry }}/apicurio-registry-operator

@@ -6,12 +6,46 @@ ENVIRONMENT="${1:-gcp-greenfield-example}"
 OUTPUT="$(mktemp)"
 trap 'rm -f "${OUTPUT}"' EXIT
 
-for command in helm helmfile yq; do
+for command in helm helmfile yq jq rg; do
   command -v "${command}" >/dev/null || {
     echo "Required command is unavailable: ${command}" >&2
     exit 1
   }
 done
+
+"${SCRIPT_DIR}/scripts/environment-files.sh" "${ENVIRONMENT}" >/dev/null
+
+yq -e '.chartVersions | type == "!!map" and length > 0' \
+  "${SCRIPT_DIR}/environments/chart-versions.yaml" >/dev/null
+yq -e 'has("versions") | not' "${SCRIPT_DIR}/environments/base.yaml" >/dev/null
+yq -e 'has("chartVersions") | not' "${SCRIPT_DIR}/environments/base.yaml" >/dev/null
+yq -e 'has("imageVersions") | not' "${SCRIPT_DIR}/environments/base.yaml" >/dev/null
+yq -o=json '.imageVersions' "${SCRIPT_DIR}/environments/image-versions.yaml" \
+  | jq -e '
+      [.. | objects | select(has("repository"))]
+      | length > 0
+        and all(
+          (.repository | type == "string" and length > 0)
+          and (((.tag // "") | length > 0) or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
+          and (((.digest // "") == "") or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
+          and (((.tag // "") != "latest") or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
+        )' >/dev/null
+yq -o=json '.chartSources' "${SCRIPT_DIR}/environments/base.yaml" \
+  | jq -e 'all(.[]; (.mode == "local" or .mode == "repository") and (.chart | length > 0))' >/dev/null
+
+while IFS= read -r chart_key; do
+  rg -q "\\.Values\\.chartVersions\\.${chart_key}([^A-Za-z0-9_]|$)" \
+    "${SCRIPT_DIR}/helmfiles" || {
+      echo "Unused platform chart version: ${chart_key}" >&2
+      exit 1
+    }
+done < <(yq -r '.chartVersions | keys | .[]' "${SCRIPT_DIR}/environments/chart-versions.yaml")
+
+if rg -n 'version:[[:space:]]+\{\{[[:space:]]+\.Values\.' "${SCRIPT_DIR}/helmfiles" \
+    | grep -v '\.Values\.chartVersions\.'; then
+  echo "A platform Helm release version is not sourced from chartVersions." >&2
+  exit 1
+fi
 
 yq eval-all --exit-status \
   '[.] | map(select(.apiVersion != "v1" or .kind != "Namespace" or .metadata.name == null)) | length == 0' \

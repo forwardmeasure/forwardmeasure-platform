@@ -13,6 +13,7 @@ gcp:
 
 namespaces:
   platform: forwardmeasure-platform
+  openworkflow: forwardmeasure-openworkflow
   istio: istio-system
   certManager: cert-manager
   externalSecrets: external-secrets
@@ -30,28 +31,8 @@ namespaces:
   valkey: valkey
   superset: superset
 
-versions:
-  platformDashboard: 1.0.0
-  gatewayApi: v1.5.1
-  istio: 1.30.2
-  certManager: v1.21.0
-  externalSecrets: 2.0.1
-  platformSecrets: 0.1.5
-  platformRouting: 0.0.11
-  keycloak: 0.0.22
-  strimzi: 1.1.0
-  kafka: 0.0.4
-  apicurioOperator: 0.1.2
-  apicurioDeployment: 0.1.2
-  openSearch: 0.1.4
-  kserve: v0.17.0
-  knativeOperator: 1.22.3
-  knativeResources: 0.0.18
-  modelCache: 0.1.8
-  modelServing: 0.1.26
-  docling: 0.0.7
-  valkey: 0.9.3
-  superset: 0.15.2
+gatewayApi:
+  version: v1.5.1
 
 gateway:
   name: platform-gateway
@@ -109,6 +90,7 @@ identity:
   adminSecret: keycloak-admin-credentials
   bootstrapSecret: keycloak-bootstrap-admin-user-credentials
   clientSecret: keycloak-realm-client-secrets
+  openworkflowCredentialsSecret: openworkflow-identity-credentials
   serviceClients:
     - clientId: oks-operation-adapter-example
       name: Example Tenant OKS Operation Adapter
@@ -122,11 +104,6 @@ identity:
         actor_type: SERVICE
   tlsSecret: keycloak-server-tls
   replicas: 2
-  image:
-    repository: docker.io/forwardmeasure/forwardmeasure-keycloak
-    tag: 1.0.0
-    digest: ""
-    pullPolicy: IfNotPresent
 
 bootstrapIdentity:
   tenantHost: tenant.example.com
@@ -182,11 +159,6 @@ features:
   openWebUi: false
 
 platformDashboard:
-  image:
-    repository: docker.io/forwardmeasure/forwardmeasure-platform-dashboard
-    tag: 1.0.0
-    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-    pullPolicy: IfNotPresent
   replicas: 2
   minReplicas: 2
   maxReplicas: 6
@@ -198,5 +170,9 @@ platformDashboard:
 
 chartSources:
   # Use reviewed source until 0.1.4 is published.
-  openSearch: ../../../../helm-charts/charts/opensearch-cluster-helm-chart/helm-chart-sources
-  keycloak: ../../../../helm-charts/charts/keycloak-helm-chart/helm-chart-sources
+  openSearch:
+    mode: local
+    chart: ../../../../helm-charts/charts/opensearch-cluster-helm-chart/helm-chart-sources
+  keycloak:
+    mode: local
+    chart: ../../../../helm-charts/charts/keycloak-helm-chart/helm-chart-sources

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+  agreements. See the NOTICE file distributed with this work for additional information regarding
+  copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.forwardmeasure.platform</groupId>
+    <artifactId>forwardmeasure-platform</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <artifactId>forwardmeasure-platform-compatibility-tests</artifactId>
+  <name>ForwardMeasure Platform Artifact Compatibility Tests</name>
+  <dependencies>
+    <dependency>
+      <groupId>com.forwardmeasure.openworkflow</groupId>
+      <artifactId>openworkflow-authorization-api</artifactId>
+      <version>${forwardmeasure.openworkflow.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.forwardmeasure.openworkflow</groupId>
+      <artifactId>openworkflow-engine-api</artifactId>
+      <version>${forwardmeasure.openworkflow.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.forwardmeasure.openworkflow</groupId>
+      <artifactId>openworkflow-definition-management-models</artifactId>
+      <version>${forwardmeasure.openworkflow.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.forwardmeasure.openworkflow</groupId>
+      <artifactId>openworkflow-execution-models</artifactId>
+      <version>${forwardmeasure.openworkflow.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

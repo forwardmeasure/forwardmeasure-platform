@@ -8,17 +8,21 @@ helmDefaults:
 environments:
   base:
     values:
+      - environments/chart-versions.yaml
+      - environments/image-versions.yaml
       - environments/base.yaml
   gcp-greenfield-example:
     values:
+      - environments/chart-versions.yaml
+      - environments/image-versions.yaml
       - environments/base.yaml
       - environments/gcp-greenfield.example.yaml
 
 ---
 
 {{- $layers := dict
-  "base" (list "environments/base.yaml")
-  "gcp-greenfield-example" (list "environments/base.yaml" "environments/gcp-greenfield.example.yaml")
+  "base" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml")
+  "gcp-greenfield-example" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml" "environments/gcp-greenfield.example.yaml")
 }}
 {{- $values := index $layers .Environment.Name | default (list) }}
 

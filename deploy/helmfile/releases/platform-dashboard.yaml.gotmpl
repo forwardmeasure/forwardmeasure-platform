@@ -1,8 +1,8 @@
 image:
-  repository: {{ .Values.platformDashboard.image.repository | quote }}
-  tag: {{ .Values.platformDashboard.image.tag | quote }}
-  digest: {{ .Values.platformDashboard.image.digest | quote }}
-  pullPolicy: {{ .Values.platformDashboard.image.pullPolicy | quote }}
+  repository: {{ .Values.imageVersions.platformDashboard.repository | quote }}
+  tag: {{ .Values.imageVersions.platformDashboard.tag | quote }}
+  digest: {{ .Values.imageVersions.platformDashboard.digest | quote }}
+  pullPolicy: {{ .Values.imageVersions.platformDashboard.pullPolicy | quote }}
 imagePolicy:
   requireDigest: true
 imagePullSecrets: [docker-io-credentials]
@@ -27,8 +27,8 @@ tenants:
   {{- end }}
 environment: {{ .Values.platform.environment | quote }}
 applications:
-  - id: oks-studio
-    name: OKS Studio
+  - id: openworkflow-studio
+    name: OpenWorkflow Studio
     description: Author, publish, run and inspect durable Open Workflow definitions.
     href: /workflows/
   - id: entity-intelligence
@@ -44,6 +44,22 @@ route:
   listenerName: tenant-https
   hostname: {{ .Values.gateway.tenantHost | quote }}
 components:
+  - id: openworkflow-definition
+    name: OpenWorkflow Definition API
+    category: ORCHESTRATION
+    probe: HTTP
+    healthUri: {{ printf "http://openworkflow-definition-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
+    consoleUri: /workflows/
+  - id: openworkflow-kafka
+    name: OpenWorkflow Kafka Engine
+    category: ORCHESTRATION
+    probe: HTTP
+    healthUri: {{ printf "http://openworkflow-kafka.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
+  - id: openworkflow-pekko
+    name: OpenWorkflow Pekko Engine
+    category: ORCHESTRATION
+    probe: HTTP
+    healthUri: {{ printf "http://openworkflow-pekko-postgresql.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
   - id: keycloak
     name: Identity And Access Management
     category: IDENTITY

@@ -2,7 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ENVIRONMENT="${1:?Usage: $0 <configured-environment>}"
+ENVIRONMENT="${1:?Usage: $0 <configured-environment> [stage]}"
+REQUESTED_STAGE="${2:-}"
 
 for command in kubectl helm helmfile yq; do
   command -v "${command}" >/dev/null || {
@@ -11,10 +12,11 @@ for command in kubectl helm helmfile yq; do
   }
 done
 
+"${SCRIPT_DIR}/validate.sh" "${ENVIRONMENT}"
 "${SCRIPT_DIR}/scripts/preflight.sh" "${ENVIRONMENT}"
 
 kubectl apply -f "${SCRIPT_DIR}/manifests/namespaces.yaml"
-GATEWAY_API_VERSION="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" versions.gatewayApi)"
+GATEWAY_API_VERSION="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" gatewayApi.version)"
 kubectl apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml"
 
 apply_stage() {
@@ -23,6 +25,11 @@ apply_stage() {
   helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \
     --environment "${ENVIRONMENT}" --selector "stage=${stage}" apply
 }
+
+if [[ -n "${REQUESTED_STAGE}" ]]; then
+  apply_stage "${REQUESTED_STAGE}"
+  exit 0
+fi
 
 apply_stage foundation
 

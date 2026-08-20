@@ -4,27 +4,22 @@
   <parent>
     <groupId>com.forwardmeasure.platform</groupId>
     <artifactId>forwardmeasure-platform</artifactId>
-    <version>${revision}</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>forwardmeasure-platform-bom</artifactId>
   <packaging>pom</packaging>
   <name>ForwardMeasure Platform BOM</name>
 
-  <properties>
-    <forwardmeasure.testcontainers.version>1.0.0</forwardmeasure.testcontainers.version>
-    <forwardmeasure.database-migrations.version>1.0.0</forwardmeasure.database-migrations.version>
-    <forwardmeasure.jpa.version>1.0.0</forwardmeasure.jpa.version>
-    <forwardmeasure.object-storage.version>1.0.0</forwardmeasure.object-storage.version>
-    <openworkflow.kafka-streams.version>1.0.0</openworkflow.kafka-streams.version>
-    <forwardmeasure.agents.version>1.0.0</forwardmeasure.agents.version>
-    <forwardmeasure.nlp.version>1.0.0</forwardmeasure.nlp.version>
-    <entity-intelligence.version>1.0.0</entity-intelligence.version>
-    <forwardmeasure.platform.version>1.0.0</forwardmeasure.platform.version>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-core-bom</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>com.forwardmeasure.testcontainers</groupId>
         <artifactId>forwardmeasure-testcontainers-bom</artifactId>
@@ -53,19 +48,10 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- The OKS parent currently exposes the complete OKS dependency-management surface. -->
       <dependency>
         <groupId>com.forwardmeasure.openworkflow</groupId>
-        <artifactId>openworkflow-kafka-streams-parent</artifactId>
-        <version>${openworkflow.kafka-streams.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <!-- ForwardMeasure Agents currently exposes dependency management from its parent. -->
-      <dependency>
-        <groupId>com.forwardmeasure.agents</groupId>
-        <artifactId>forwardmeasure-agents-parent</artifactId>
-        <version>${forwardmeasure.agents.version}</version>
+        <artifactId>openworkflow-bom</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -76,28 +62,20 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- Entity Intelligence currently exposes its dependency-management surface from its parent. -->
       <dependency>
-        <groupId>com.forwardmeasure.entityintelligence</groupId>
-        <artifactId>entity-intelligence-parent</artifactId>
-        <version>${entity-intelligence.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
+        <groupId>com.forwardmeasure.platform.operations</groupId>
+        <artifactId>operations-api-models</artifactId>
+        <version>${forwardmeasure.platform-operations.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.forwardmeasure.platform</groupId>
-        <artifactId>forwardmeasure-platform-dashboard-contract</artifactId>
-        <version>${forwardmeasure.platform.version}</version>
+        <groupId>com.forwardmeasure.platform.operations</groupId>
+        <artifactId>operations-api-server-jaxrs</artifactId>
+        <version>${forwardmeasure.platform-operations.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.forwardmeasure.platform</groupId>
-        <artifactId>forwardmeasure-platform-dashboard-api-java</artifactId>
-        <version>${forwardmeasure.platform.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.forwardmeasure.platform</groupId>
-        <artifactId>forwardmeasure-platform-dashboard-client-typescript</artifactId>
-        <version>${forwardmeasure.platform.version}</version>
+        <groupId>com.forwardmeasure.platform.operations</groupId>
+        <artifactId>operations-api-client-typescript</artifactId>
+        <version>${forwardmeasure.platform-operations.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -5,7 +5,10 @@ repositories:
 releases:
   - name: opensearch-cluster
     namespace: {{ .Values.namespaces.openSearch }}
-    chart: {{ .Values.chartSources.openSearch | quote }}
+    chart: {{ .Values.chartSources.openSearch.chart | quote }}
+    {{ if eq .Values.chartSources.openSearch.mode "repository" }}
+    version: {{ .Values.chartVersions.openSearch | quote }}
+    {{ end }}
     labels: {stage: search, component: opensearch}
     values:
       - ../releases/opensearch.yaml.gotmpl

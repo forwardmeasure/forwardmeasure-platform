@@ -1,5 +1,10 @@
 # Production UI Delivery Architecture Audit
 
+> Historical note (2026-08-14): Entity Intelligence findings in this audit
+> describe the rejected `entity-intelligence` implementation. They are retained
+> as historical evidence and are not acceptance evidence for the replacement
+> `forwardmeasure-entity-intelligence` project.
+
 ## Purpose
 
 This document is the release gate for the current cross-repository UI delivery.

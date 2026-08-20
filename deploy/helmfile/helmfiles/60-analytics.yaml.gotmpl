@@ -8,7 +8,7 @@ releases:
   - name: valkey
     namespace: {{ .Values.namespaces.valkey }}
     chart: valkey/valkey
-    version: {{ .Values.versions.valkey | quote }}
+    version: {{ .Values.chartVersions.valkey | quote }}
     labels: {stage: analytics, component: cache}
     values:
       - auth:
@@ -31,7 +31,7 @@ releases:
   - name: superset
     namespace: {{ .Values.namespaces.superset }}
     chart: superset/superset
-    version: {{ .Values.versions.superset | quote }}
+    version: {{ .Values.chartVersions.superset | quote }}
     labels: {stage: analytics, component: superset}
     values:
       - ../releases/superset.yaml.gotmpl

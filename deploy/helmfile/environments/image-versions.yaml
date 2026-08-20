@@ -1,0 +1,18 @@
+imageVersions:
+  keycloak:
+    repository: docker.io/forwardmeasure/forwardmeasure-keycloak
+    tag: "1.0.0"
+    digest: ""
+    pullPolicy: IfNotPresent
+
+  platformDashboard:
+    repository: docker.io/forwardmeasure/forwardmeasure-platform-operations
+    tag: "1.0.0"
+    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+    pullPolicy: IfNotPresent
+
+  modelUtilities:
+    repository: docker.io/forwardmeasure/ml-model-utilities
+    tag: latest
+    digest: sha256:eb705101bf88908ead1ed129580406b72570fbd76fadbbcf38912714b35034de
+    pullPolicy: IfNotPresent
