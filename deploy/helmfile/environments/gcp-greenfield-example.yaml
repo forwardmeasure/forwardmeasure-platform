@@ -1,6 +1,6 @@
 # Copy to a private environment file and replace every placeholder. This file
 # intentionally contains no credentials; all secret values reside in Google
-# Secret Manager and are referenced by name from environments/base.yaml.
+# Secret Manager and are referenced by name from environments/base.yaml.gotmpl.
 platform:
   domain: new-platform.example
 
@@ -21,6 +21,10 @@ gateway:
   registryHost: registry.new-platform.example
   searchHost: search.new-platform.example
   analyticsHost: analytics.new-platform.example
+  # Must be set here, not left to base.yaml.gotmpl's own studioHost - each
+  # environment file has its own scoped $domain, so base's studioHost would
+  # otherwise render with base's own placeholder domain, not this cluster's.
+  studioHost: studio.new-platform.example
   acmeEmail: platform-owner@new-platform.example
 
 bootstrapIdentity:
@@ -35,15 +39,20 @@ tenants:
     code: example-bank
     name: Example Bank
 
+# helmfile values merging replaces lists wholesale, not per-element - if this
+# cluster also deploys forwardmeasure-openworkflow, copy base.yaml.gotmpl's
+# "openworkflow" identity.serviceClients entry into this list too, or it'll
+# be silently dropped for this cluster (confirmed the hard way against the
+# real gcp-openworkflow-prod cluster - same fix applied there).
 identity:
   serviceClients:
-    - clientId: oks-operation-adapter-example-bank
-      name: Example Bank OKS Operation Adapter
-      secretKey: OKS_OPERATION_ADAPTER_EXAMPLE_BANK_CLIENT_SECRET
-      secretRemoteKey: platform-oks-operation-adapter-example-bank-client-secret
+    - clientId: example-bank-operation-adapter
+      name: Example Bank Operation Adapter
+      secretKey: EXAMPLE_BANK_OPERATION_ADAPTER_CLIENT_SECRET
+      secretRemoteKey: platform-example-bank-operation-adapter-client-secret
       realmRoles: [workflow-internal]
       audiences: [entity-intelligence-internal]
       claims:
         tenant_did: did:web:example-bank.new-platform.example
-        actor_did: did:web:example-bank.new-platform.example:actors:oks-operation-adapter
+        actor_did: did:web:example-bank.new-platform.example:actors:operation-adapter
         actor_type: SERVICE

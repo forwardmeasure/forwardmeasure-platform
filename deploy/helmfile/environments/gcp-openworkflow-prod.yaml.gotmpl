@@ -1,0 +1,72 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# kriyagentic.com / genai-llm-393115 / openworkflow-prod (GKE, us-central1).
+# gcp.*ServiceAccountEmail and gcp.modelCacheBucket below match what
+# openworkflow-k8s-setup's terraform/gcp actually created - see its
+# workload_identities "dns"/"eso"/"model-svc" entries and the model_cache
+# bucket in terraform.tfvars. secretStore is deliberately left at base's
+# fake-secret-store default rather than overridden here - see
+# platform-secrets.yaml.gotmpl and its openworkflow-prod credentials layer.
+# {{- $domain := "kriyagentic.com" }}
+platform:
+  domain: {{ $domain | quote }}
+  environment: production
+
+gcp:
+  projectId: genai-llm-393115
+  region: us-central1
+  clusterName: openworkflow-prod
+  dnsServiceAccountEmail: openworkflow-prod-dns@genai-llm-393115.iam.gserviceaccount.com
+  externalSecretsServiceAccountEmail: openworkflow-prod-eso@genai-llm-393115.iam.gserviceaccount.com
+  modelServiceAccountEmail: openworkflow-prod-model-svc@genai-llm-393115.iam.gserviceaccount.com
+  modelCacheBucket: genai-llm-393115-openworkflow-prod-model-cache
+  keycloakServiceAccountEmail: openworkflow-prod-keycloak@genai-llm-393115.iam.gserviceaccount.com
+  keycloakCloudSqlInstance: openworkflow-prod-postgres
+
+gateway:
+  loadBalancerIp: 34.71.159.15
+  rootHost: {{ printf "platform.%s" $domain | quote }}
+  tenantHost: {{ printf "*.%s" $domain | quote }}
+  authHost: {{ printf "auth.%s" $domain | quote }}
+  registryHost: {{ printf "registry.%s" $domain | quote }}
+  searchHost: {{ printf "search.%s" $domain | quote }}
+  analyticsHost: {{ printf "analytics.%s" $domain | quote }}
+  # Must be redeclared here, not left to base.yaml.gotmpl's own studioHost -
+  # each environment .gotmpl file has its own scoped $domain (a helmfile
+  # limitation confirmed earlier this session), so base's studioHost would
+  # otherwise render with base's own placeholder domain instead of this
+  # cluster's real one, even though gateway.* deep-merges correctly.
+  studioHost: {{ printf "studio.%s" $domain | quote }}
+  acmeEmail: pn@forwardmeasure.com
+
+# No identity.serviceClients override here (previously: `serviceClients: []`,
+# added when nothing OpenWorkflow-specific existed yet) - base.yaml.gotmpl's
+# identity.serviceClients now has a real "openworkflow" entry, and helmfile
+# values merging replaces lists wholesale rather than merging them, so an
+# empty override here would silently wipe it out for this cluster.
+
+bootstrapIdentity:
+  tenantHost: {{ printf "lux.%s" $domain | quote }}
+  tenantDid: {{ printf "did:web:lux.%s" $domain | quote }}
+  actorDid: {{ printf "did:web:lux.%s:actors:platform-admin" $domain | quote }}
+  actorType: HUMAN
+
+tenants:
+  - host: {{ printf "lux.%s" $domain | quote }}
+    did: {{ printf "did:web:lux.%s" $domain | quote }}
+    code: lux
+    name: Lux

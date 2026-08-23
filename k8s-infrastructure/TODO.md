@@ -18,7 +18,7 @@
 - [x] Provide a start-to-finish GCP operator guide with commands, explanations and expected results.
 - [ ] Remove the manual Helmfile environment-registration step across the platform, OKS and Entity Intelligence repositories.
 - [ ] Apply in a new GCP project and record the real infrastructure acceptance result.
-- [ ] Run `deploy/validate-greenfield.sh` against the generated GCP environment.
+- [ ] Run `deploy/validate-platform.sh` against the generated GCP environment.
 - [ ] Install the platform, OKS and Entity Intelligence into that cluster and record browser/API acceptance.
 
 ## AWS — subsequent phase

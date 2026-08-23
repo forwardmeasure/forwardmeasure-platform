@@ -361,23 +361,24 @@ as deployment tooling work in `k8s-infrastructure/TODO.md`.
 From the `forwardmeasure-platform` repository root, run:
 
 ```bash
-./deploy/validate-greenfield.sh production
+./deploy/validate-platform.sh production
 ```
 
-This renders and validates the shared platform, OKS and Entity Intelligence
-without installing them.
+This renders and validates the ForwardMeasure platform - shared services plus
+every product built on them - without installing anything.
 
-When validation passes, install all three tiers:
+When validation passes, install (or update) it:
 
 ```bash
-./deploy/install-greenfield.sh production
+./deploy/install-platform.sh production
 ```
 
 The installer deploys, in order:
 
-1. the shared platform services;
-2. OKS; and
-3. Entity Intelligence.
+1. the shared platform services; and
+2. OpenWorkflow.
+
+Entity Intelligence is a planned addition to this list, not installed yet.
 
 It then waits for the configured readiness checks. A successful command means
 the Kubernetes releases are installed; browser and API acceptance testing is

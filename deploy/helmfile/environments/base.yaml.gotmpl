@@ -1,15 +1,30 @@
-platform:
-  domain: example.com
-  environment: production
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# {{- $domain := "example.com" }}
+# No cloud selected at this tier - see environments/gcp.yaml for the
+# cloud-wide layer and environments/gcp-openworkflow-prod.yaml.gotmpl (or
+# gcp-greenfield-example.yaml) for a real cluster's values. cloudProvider
+# drives which cloud-specific release overlays render (see helmfiles/*
+# $cloud derivation) - "" means none of them do.
+cloudProvider: ""
 
-gcp:
-  projectId: replace-with-gcp-project
-  region: us-central1
-  clusterName: replace-with-gke-cluster
-  dnsServiceAccountEmail: replace-with-dns-sa@example.iam.gserviceaccount.com
-  externalSecretsServiceAccountEmail: replace-with-external-secrets-sa@example.iam.gserviceaccount.com
-  modelServiceAccountEmail: replace-with-model-sa@example.iam.gserviceaccount.com
-  modelCacheBucket: replace-with-model-cache-bucket
+platform:
+  domain: {{ $domain | quote }}
+  environment: production
 
 namespaces:
   platform: forwardmeasure-platform
@@ -39,17 +54,35 @@ gateway:
   className: istio
   replicaCount: 2
   loadBalancerIp: 192.0.2.10
-  rootHost: platform.example.com
-  tenantHost: "*.example.com"
-  authHost: auth.example.com
-  registryHost: registry.example.com
-  searchHost: search.example.com
-  analyticsHost: analytics.example.com
+  # Every host below is derived from platform.domain rather than repeated as
+  # an independent literal - the previous form (five separate hardcoded
+  # hostnames) is exactly what let gateway.authHost drift out of sync with
+  # the real domain elsewhere in a sibling repo's environment file. One
+  # source of truth here instead.
+  rootHost: {{ printf "platform.%s" $domain | quote }}
+  tenantHost: {{ printf "*.%s" $domain | quote }}
+  authHost: {{ printf "auth.%s" $domain | quote }}
+  registryHost: {{ printf "registry.%s" $domain | quote }}
+  searchHost: {{ printf "search.%s" $domain | quote }}
+  analyticsHost: {{ printf "analytics.%s" $domain | quote }}
+  # Matches forwardmeasure-openworkflow's own platformTld-derived
+  # keycloakDnsName/Studio hostname exactly (both repos set $domain to the
+  # same literal per real cluster - confirmed for gcp-openworkflow-prod).
+  studioHost: {{ printf "studio.%s" $domain | quote }}
   acmeEmail: platform-owner@example.com
-  clusterIssuer: letsencrypt-gcp-dns
+  # clusterIssuer deliberately not set here - it's a cloud-specific ACME
+  # DNS-01 solver name (letsencrypt-gcp-dns for GCP's Cloud DNS solver, a
+  # different solver/name entirely on another cloud). Set by
+  # environments/gcp.yaml (or an equivalent future cloud tier), not base.
 
 secretStore:
-  name: google-secret-manager
+  # Matches the forwardmeasure/platform-secrets chart's own default
+  # (clusterSecretStore.enabled: false, name: fake-secret-store) - same
+  # "fake for now" state data-fabric runs today with this identical chart.
+  # A real environment's values layer overrides this name (to
+  # google-secret-manager) alongside an explicit clusterSecretStore.provider
+  # block when migrating off the fake store - see platform-secrets.yaml.gotmpl.
+  name: fake-secret-store
   refreshInterval: 1h
   serviceAccountName: external-secrets
   remoteKeys:
@@ -61,6 +94,7 @@ secretStore:
     keycloakAdminPassword: platform-keycloak-admin-password
     keycloakBootstrapPassword: platform-keycloak-bootstrap-password
     keycloakConfidentialClientSecret: platform-keycloak-confidential-client-secret
+    openworkflowClientSecret: platform-openworkflow-client-secret
     openSearchUsername: platform-opensearch-admin-username
     openSearchPassword: platform-opensearch-admin-password
     openSearchPasswordHash: platform-opensearch-admin-password-hash
@@ -79,6 +113,12 @@ secretStore:
     supersetAdminPassword: platform-superset-admin-password
     supersetAdminEmail: platform-superset-admin-email
     valkeyPassword: platform-valkey-password
+    # Unlike every other key above, this one has a real, already-generated
+    # value the moment openworkflow-k8s-setup's Terraform is applied (the
+    # Cloud SQL runtime user's password) - it can never correctly be a fake
+    # placeholder the way an undecided key can. See the credentials file
+    # itself (gitignored, not committed) for where the real value goes.
+    openworkflowDatabasePassword: platform-openworkflow-database-password
 
 identity:
   realm: forwardmeasure
@@ -101,6 +141,25 @@ identity:
       claims:
         tenant_did: did:web:tenant.example.com
         actor_did: did:web:tenant.example.com:actors:oks-operation-adapter
+        actor_type: SERVICE
+    # forwardmeasure-openworkflow's own confidential client - used by
+    # openworkflow-operation-adapter-* for authorization decisions
+    # (OPENWORKFLOW_AUTHORIZATION_CLIENT_ID defaults to "openworkflow", see
+    # openworkflow-deployments/operation-adapter/*/application.yaml) and by
+    # openworkflow-definition-management-*/openworkflow-execution-management-*
+    # (OPENWORKFLOW_CLIENT_SECRET). Previously missing entirely - nothing in
+    # this realm created a client literally named "openworkflow", even
+    # though platform-secrets already tried to sync an OPENWORKFLOW_CLIENT_SECRET
+    # value (wrongly reusing Superset's own confidential-client secret).
+    - clientId: openworkflow
+      name: OpenWorkflow Service Client
+      secretKey: OPENWORKFLOW_CLIENT_SECRET
+      secretRemoteKey: platform-openworkflow-client-secret
+      realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
+      audiences: [openworkflow-api]
+      claims:
+        tenant_did: did:web:tenant.example.com
+        actor_did: did:web:tenant.example.com:actors:openworkflow
         actor_type: SERVICE
   tlsSecret: keycloak-server-tls
   replicas: 2

@@ -992,7 +992,7 @@ auditable.
       do not copy
       retiring Data Fabric paths.
 - [ ] Run the full platform `mvn -B clean verify` on Java 25/Maven 3.9.9+.
-- [ ] Run `./deploy/validate-greenfield.sh <environment>` and inspect rendered
+- [ ] Run `./deploy/validate-platform.sh <environment>` and inspect rendered
       images, immutable references, resources, secrets, and index settings.
 - [ ] Before release, verify the selected artifact attestations and immutable
       container references.

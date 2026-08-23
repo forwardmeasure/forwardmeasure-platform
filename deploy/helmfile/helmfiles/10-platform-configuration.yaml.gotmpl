@@ -1,29 +1,72 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 repositories:
   - name: forwardmeasure
     url: https://forwardmeasure.github.io/helm-charts
 
+{{- $envParts := splitList "-" .Environment.Name }}
+{{- $cloud := .Values | get "cloudProvider" "" }}
+{{- $cluster := rest $envParts | join "-" }}
+
 releases:
+  # A secret-store backend has no cloud-neutral defaults - unlike every
+  # other release here, platform-secrets doesn't render at all unless a
+  # cloud is selected (matches data-fabric's own platform-secrets release
+  # exactly). $cluster's credentials layer (e.g. gcp/openworkflow-prod.
+  # credentials.yaml.gotmpl) is gitignored, real-value-bearing, and only
+  # referenced when both cloud and cluster are known.
   - name: platform-secrets
     namespace: {{ .Values.namespaces.externalSecrets }}
     chart: forwardmeasure/platform-secrets
     version: {{ .Values.chartVersions.platformSecrets | quote }}
+    installed: {{ if $cloud }}true{{ else }}false{{ end }}
     labels: {stage: configuration, component: secrets}
     values:
-      - ../releases/platform-secrets.yaml.gotmpl
+    {{- if $cloud }}
+      - ../releases/platform-secrets/{{ $cloud }}/base.yaml.gotmpl
+    {{- end }}
+    {{- if and $cloud $cluster }}
+      # Fake-provider placeholder data (plus one real value), layered on top
+      # - see that file's own header for what replaces it when migrating to
+      # a real backend.
+      - ../releases/platform-secrets/{{ $cloud }}/{{ $cluster }}.credentials.yaml.gotmpl
+    {{- end }}
 
+  # Both of these need a real ACME DNS-01 solver (clusterIssuer/gcpProject),
+  # which only exists once a cloud is selected - same reasoning as
+  # platform-secrets above. Not deployable at the base tier.
   - name: platform-routing
     namespace: {{ .Values.namespaces.istio }}
     chart: forwardmeasure/platform-routing
     version: {{ .Values.chartVersions.platformRouting | quote }}
+    installed: {{ if $cloud }}true{{ else }}false{{ end }}
     needs: [{{ .Values.namespaces.istio }}/platform-certificates]
     labels: {stage: configuration, component: routing}
+    {{- if $cloud }}
     values:
       - ../releases/platform-routing.yaml.gotmpl
+    {{- end }}
 
   - name: platform-certificates
     namespace: {{ .Values.namespaces.istio }}
     chart: ../charts/platform-bootstrap
+    installed: {{ if $cloud }}true{{ else }}false{{ end }}
     labels: {stage: configuration, component: certificates}
+    {{- if $cloud }}
     values:
       - certificates:
           enabled: true
@@ -58,3 +101,4 @@ releases:
             - {name: registry-https, hostname: {{ .Values.gateway.registryHost | quote }}, tlsSecret: registry-tls}
             - {name: search-https, hostname: {{ .Values.gateway.searchHost | quote }}, tlsSecret: search-tls}
             - {name: analytics-https, hostname: {{ .Values.gateway.analyticsHost | quote }}, tlsSecret: analytics-tls}
+    {{- end }}

@@ -33,13 +33,23 @@ browser.
 Terraform must provide the GCP project, VPC, GKE cluster, static gateway IP,
 Cloud SQL databases/users, GCS buckets, Cloud DNS zone, Google service
 accounts, Workload Identity bindings, and the Secret Manager entries listed in
-`environments/base.yaml`. Database addresses may be private or public. Public
-PostgreSQL endpoints must require verified TLS; complete connection URLs are
-stored in Secret Manager rather than reconstructed by Helm.
+`environments/gcp.yaml` and its cluster leaf file (e.g.
+`environments/gcp-openworkflow-prod.yaml.gotmpl`). Database addresses may be
+private or public. Public PostgreSQL endpoints must require verified TLS;
+complete connection URLs are stored in Secret Manager rather than
+reconstructed by Helm.
 
-No value is inherited from the retiring Data Fabric project. Copy
-`environments/gcp-greenfield.example.yaml`, replace its placeholders, add the
-new environment to `helmfile.yaml.gotmpl`, and validate before installation.
+No value is inherited from the retiring Data Fabric project. To stand up a
+new cluster on an already-supported cloud, copy
+`environments/gcp-greenfield-example.yaml`, replace its placeholders, add the
+new environment name to `helmfile.yaml.gotmpl`'s `environments:` block and
+`$layers` dict (and to `scripts/environment-files.sh`), and validate before
+installation. To support a new cloud entirely, add an
+`environments/<cloud>.yaml` cloud-wide tier (mirroring `environments/gcp.yaml`)
+and `<cloud>/` overlay directories under `releases/` for whichever releases
+need cloud-specific values (Workload Identity annotations, storage CSI
+drivers, and similar) - see `releases/keycloak/gcp/`,
+`releases/cert-manager/gcp/`, `releases/model-cache/gcp/` for the pattern.
 
 ## Configuration ownership
 
@@ -49,10 +59,20 @@ The Helmfile values are deliberately layered in this order:
    Helm charts. Local chart versions remain in their `Chart.yaml` files.
 2. `environments/image-versions.yaml` contains container repositories, tags,
    optional immutable digests, and pull policies.
-3. `environments/base.yaml` contains cloud-neutral platform configuration.
-4. `environments/<environment>.yaml` contains the cloud project, domain,
-   service-account, bucket, address, sizing, and secret-store values for one
-   deployment.
+3. `environments/base.yaml.gotmpl` contains cloud-neutral platform configuration.
+4. `environments/<cloud>.yaml` (e.g. `gcp.yaml`) contains cloud-wide defaults
+   shared by every cluster on that cloud - present only for environments that
+   select a cloud (not `base`).
+5. `environments/<cloud>-<cluster>.yaml[.gotmpl]` contains the real project,
+   domain, service-account, bucket, address, sizing, and secret-store values
+   for one specific cluster.
+
+Release-level values follow the same split where a release's own rendered
+values genuinely differ by cloud: `releases/<name>/base.yaml.gotmpl` (cloud-
+neutral) plus `releases/<name>/<cloud>/base.yaml.gotmpl` (cloud-specific),
+included conditionally in the release's orchestrating `helmfiles/*.yaml.gotmpl`
+file based on `cloudProvider`. Most releases don't need this split at all -
+only add it where content genuinely changes per cloud.
 
 Do not put image tags into `chart-versions.yaml`, and do not put Helm chart
 versions into `base.yaml`. A `latest` image is accepted only when an immutable
@@ -70,14 +90,11 @@ After publishing them, change only their `chartSources.*.mode` and
 `chartSources.*.chart` values; their release versions already have dedicated
 entries in `chart-versions.yaml`.
 
-The umbrella `deploy/validate-greenfield.sh` and `deploy/install-greenfield.sh`
-commands also ask the proprietary Entity Intelligence repository to render its
-tenant-aware OKS integration policy into a temporary file. That file is passed
-to the generic OKS Helmfile as an explicit state-values overlay and then
-deleted. This preserves product ownership: the shared platform and OKS sources
-contain no Entity Intelligence endpoints, while the composed deployment still
-installs the endpoint bindings, resource bindings, outbound authorization and
-OAuth secret references required by Entity Intelligence workflows.
+The umbrella `deploy/validate-platform.sh` and `deploy/install-platform.sh`
+commands install or update the ForwardMeasure platform as a whole: shared
+platform services plus every product built on them. Today that's the shared
+services here plus OpenWorkflow (`forwardmeasure-openworkflow/deploy/helmfile`);
+Entity Intelligence is a planned addition, not wired into these commands yet.
 
 The corrected OpenSearch and Keycloak wrappers are consumed from the sibling
 `helm-charts` checkout until versions `0.1.4` and `0.0.22` are published.
@@ -86,17 +103,17 @@ names and restore version constraints on those releases.
 
 ```bash
 ./deploy/helmfile/validate.sh gcp-greenfield-example
-./deploy/helmfile/install.sh gcp-greenfield
+./deploy/helmfile/install.sh gcp-greenfield-example
 ```
 
 A single stage can be applied during controlled maintenance:
 
 ```bash
-./deploy/helmfile/install.sh gcp-greenfield messaging
+./deploy/helmfile/install.sh gcp-greenfield-example messaging
 ```
 
 Uninstall deliberately retains the foundational controllers and namespaces:
 
 ```bash
-./deploy/helmfile/uninstall.sh gcp-greenfield
+./deploy/helmfile/uninstall.sh gcp-greenfield-example
 ```

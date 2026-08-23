@@ -1,3 +1,19 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 helmDefaults:
   wait: true
   waitForJobs: true
@@ -10,19 +26,43 @@ environments:
     values:
       - environments/chart-versions.yaml
       - environments/image-versions.yaml
-      - environments/base.yaml
+      - environments/base.yaml.gotmpl
+  # Cloud-wide GCP layer, no cluster tier - useful for confirming the gcp.yaml
+  # layer alone renders correctly. Not used for a real install.
+  gcp:
+    values:
+      - environments/chart-versions.yaml
+      - environments/image-versions.yaml
+      - environments/base.yaml.gotmpl
+      - environments/gcp.yaml
+  # Named gcp-openworkflow-prod (cloud-cluster), not just production, so
+  # this matches exactly what forwardmeasure-openworkflow's own helmfile
+  # registers - install-platform.sh passes one environment name to both
+  # repos' installs. openworkflow's own persistence-profile choice
+  # (postgresql vs cassandra for this cluster) lives inside that repo's own
+  # gcp-openworkflow-prod.yaml.gotmpl as a plain value, not in this name.
+  gcp-openworkflow-prod:
+    values:
+      - environments/chart-versions.yaml
+      - environments/image-versions.yaml
+      - environments/base.yaml.gotmpl
+      - environments/gcp.yaml
+      - environments/gcp-openworkflow-prod.yaml.gotmpl
   gcp-greenfield-example:
     values:
       - environments/chart-versions.yaml
       - environments/image-versions.yaml
-      - environments/base.yaml
-      - environments/gcp-greenfield.example.yaml
+      - environments/base.yaml.gotmpl
+      - environments/gcp.yaml
+      - environments/gcp-greenfield-example.yaml
 
 ---
 
 {{- $layers := dict
-  "base" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml")
-  "gcp-greenfield-example" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml" "environments/gcp-greenfield.example.yaml")
+  "base" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl")
+  "gcp" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml")
+  "gcp-openworkflow-prod" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml" "environments/gcp-openworkflow-prod.yaml.gotmpl")
+  "gcp-greenfield-example" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml" "environments/gcp-greenfield-example.yaml")
 }}
 {{- $values := index $layers .Environment.Name | default (list) }}
 

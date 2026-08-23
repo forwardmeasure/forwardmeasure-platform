@@ -1,8 +1,27 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 repositories:
   - name: forwardmeasure
     url: https://forwardmeasure.github.io/helm-charts
   - name: knative-operator
     url: https://knative.github.io/operator
+
+{{- $envParts := splitList "-" .Environment.Name }}
+{{- $cloud := .Values | get "cloudProvider" "" }}
 
 releases:
   - name: knative-operator
@@ -97,28 +116,18 @@ releases:
     namespace: {{ .Values.namespaces.modelServing }}
     chart: forwardmeasure/model-cache
     version: {{ .Values.chartVersions.modelCache | quote }}
+    # persistentVolume.csi.driver is a hard chart-level requirement whenever
+    # persistentVolume.create is true (fails template rendering, not just a
+    # runtime concern) - there's no cloud-neutral CSI driver to fall back
+    # to, so this can't render at all without a cloud's own gcp/base.yaml.gotmpl-
+    # equivalent overlay supplying one.
+    installed: {{ if $cloud }}true{{ else }}false{{ end }}
     labels: {stage: ml-serving, component: model-cache}
     values:
-      - size: {{ .Values.models.cacheSize | quote }}
-        storageClass: {create: false}
-        persistentVolume:
-          create: true
-          name: platform-model-cache-pv
-          accessMode: ReadWriteMany
-          mountOptions: [implicit-dirs, uid=1000, gid=1000, file-mode=0777, dir-mode=0777]
-          csi:
-            driver: gcsfuse.csi.storage.gke.io
-            volumeHandle: {{ .Values.gcp.modelCacheBucket | quote }}
-            volumeAttributes: {gcsfuseLoggingSeverity: warning}
-        persistentVolumeClaim:
-          create: true
-          name: {{ .Values.models.cachePvc | quote }}
-        serviceAccount:
-          create: true
-          name: {{ .Values.models.cacheServiceAccount | quote }}
-          annotations:
-            iam.gke.io/gcp-service-account: {{ .Values.gcp.modelServiceAccountEmail | quote }}
-        imagePullSecrets: [{name: docker-io-credentials}]
+      - ../releases/model-cache/base.yaml.gotmpl
+    {{- if eq $cloud "gcp" }}
+      - ../releases/model-cache/gcp/base.yaml.gotmpl
+    {{- end }}
 
   - name: docling
     namespace: {{ .Values.namespaces.docling }}
@@ -126,19 +135,10 @@ releases:
     version: {{ .Values.chartVersions.docling | quote }}
     labels: {stage: ml-serving, component: document-parsing}
     values:
-      - mode: {{ .Values.models.docling.mode | quote }}
-        pipeline: {{ .Values.models.docling.pipeline | quote }}
-        persistence:
-          create: true
-          existingClaim: ""
-          size: {{ .Values.models.docling.storage | quote }}
-        modelDownload: {enabled: true}
-        hfToken: {secretName: huggingface-token, secretKey: token}
-        serviceAccount:
-          create: true
-          name: docling
-          annotations:
-            iam.gke.io/gcp-service-account: {{ .Values.gcp.modelServiceAccountEmail | quote }}
+      - ../releases/docling/base.yaml.gotmpl
+    {{- if eq $cloud "gcp" }}
+      - ../releases/docling/gcp/base.yaml.gotmpl
+    {{- end }}
 
   - name: named-entity-recognition
     namespace: {{ .Values.namespaces.modelServing }}

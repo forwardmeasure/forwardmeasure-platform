@@ -3,3 +3,10 @@ target/
 *.out
 .idea/
 .vscode/
+
+# Contains one real secret value (not a placeholder) - see this file's own
+# header comment. Scoped to this specific real cluster's file, not the whole
+# *.credentials.yaml.gotmpl naming convention - other clusters/examples
+# using that same convention (e.g. gcp/greenfield-example.credentials.yaml.gotmpl)
+# are safe, placeholder-only files meant to be committed.
+deploy/helmfile/releases/platform-secrets/gcp/openworkflow-prod.credentials.yaml.gotmpl
