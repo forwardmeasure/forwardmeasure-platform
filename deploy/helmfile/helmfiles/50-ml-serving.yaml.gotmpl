@@ -29,6 +29,8 @@ releases:
     chart: knative-operator/knative-operator
     version: {{ .Values.chartVersions.knativeOperator | quote }}
     labels: {stage: ml-serving, component: knative-operator}
+    values:
+      - ../releases/knative-operator/base.yaml.gotmpl
 
   - name: knative-resources
     namespace: {{ .Values.namespaces.knativeOperator }}
@@ -37,23 +39,15 @@ releases:
     needs: [{{ .Values.namespaces.knativeOperator }}/knative-operator]
     labels: {stage: ml-serving, component: knative}
     values:
-      - knativeVersion: "1.22.1"
-        serving:
-          namespace: {{ .Values.namespaces.knativeServing | quote }}
-          istioNamespace: {{ .Values.namespaces.istio | quote }}
-          gatewayName: {{ .Values.gateway.name | quote }}
-          config:
-            domain: {{ printf "models.%s" .Values.platform.domain | quote }}
-        eventing:
-          namespace: {{ .Values.namespaces.knativeEventing | quote }}
-          kafka:
-            bootstrapServers: {{ .Values.kafka.bootstrapServers | quote }}
+      - ../releases/knative-resources/base.yaml.gotmpl
 
   - name: kserve-crd
     namespace: {{ .Values.namespaces.kserve }}
     chart: oci://ghcr.io/kserve/charts/kserve-crd
     version: {{ .Values.chartVersions.kserve | quote }}
     labels: {stage: ml-serving, component: kserve-crd}
+    values:
+      - ../releases/kserve-crd/base.yaml.gotmpl
     hooks:
       - events: [postsync]
         command: sh
@@ -72,22 +66,7 @@ releases:
     needs: [{{ .Values.namespaces.kserve }}/kserve-crd]
     labels: {stage: ml-serving, component: kserve}
     values:
-      - kserve:
-          controller:
-            deploymentMode: Knative
-            gateway:
-              domain: {{ printf "models.%s" .Values.platform.domain | quote }}
-              urlScheme: https
-              disableIstioVirtualHost: false
-              ingressGateway:
-                enableGatewayApi: true
-                createGateway: false
-                gateway: {{ printf "%s/%s" .Values.namespaces.istio .Values.gateway.name | quote }}
-                className: istio
-              localGateway:
-                gateway: {{ printf "%s/knative-local-gateway" .Values.namespaces.knativeServing | quote }}
-                gatewayService: {{ printf "knative-local-gateway-platform.%s.svc.cluster.local" .Values.namespaces.istio | quote }}
-          certManager: {enabled: "true"}
+      - ../releases/kserve/base.yaml.gotmpl
 
   - name: kserve-runtime-configs
     namespace: {{ .Values.namespaces.kserve }}
@@ -96,21 +75,7 @@ releases:
     needs: [{{ .Values.namespaces.kserve }}/kserve]
     labels: {stage: ml-serving, component: kserve-runtimes}
     values:
-      - kserve:
-          llmisvcConfigs: {enabled: false}
-          servingruntime:
-            enabled: true
-            tensorflow: {disabled: true}
-            pmmlserver: {disabled: true}
-            paddleserver: {disabled: true}
-            predictiveserver: {disabled: true}
-            lgbserver: {disabled: false}
-            sklearnserver: {disabled: false}
-            xgbserver: {disabled: false}
-            mlserver: {disabled: false}
-            torchserve: {disabled: false}
-            huggingfaceserver: {disabled: false, imagePullPolicy: IfNotPresent}
-            tritonserver: {disabled: false, imagePullPolicy: IfNotPresent}
+      - ../releases/kserve-runtime-configs/base.yaml.gotmpl
 
   - name: model-cache
     namespace: {{ .Values.namespaces.modelServing }}
@@ -149,7 +114,5 @@ releases:
       - {{ .Values.namespaces.modelServing }}/model-cache
     labels: {stage: ml-serving, component: named-entity-recognition}
     values:
-      - ../../kserve/named-entity-recognition.values.yaml
-      - modelCache:
-          pvcName: {{ .Values.models.cachePvc | quote }}
-          serviceAccountName: {{ .Values.models.cacheServiceAccount | quote }}
+      - ../releases/named-entity-recognition/model.values.yaml
+      - ../releases/named-entity-recognition/base.yaml.gotmpl

@@ -28,10 +28,15 @@ for command in kubectl helm helmfile yq jq gcloud; do
   }
 done
 
-mapfile -t ENVIRONMENT_FILES < <("${SCRIPT_DIR}/environment-files.sh" "${ENVIRONMENT}")
-
-MERGED_JSON="$(yq ea -o=json \
-  '. as $item ireduce ({}; . * $item)' "${ENVIRONMENT_FILES[@]}")"
+# Rendered via `helmfile build`, not a raw multi-file yq merge of the
+# environment files directly - several of those are .gotmpl files with
+# unrendered Go-template expressions in scalar values (e.g. tenants[].did),
+# and yq parsing that raw text misreads `{{ }}` as YAML flow-mapping
+# syntax, silently corrupting the value instead of erroring. Confirmed the
+# hard way: this previously failed the tenant/service-client check below
+# with garbage instead of the real (correct) rendered DIDs.
+MERGED_JSON="$(helmfile --file "${HELMFILE_DIR}/helmfile.yaml.gotmpl" \
+  --environment "${ENVIRONMENT}" build 2>/dev/null | yq -o=json '.renderedvalues')"
 printf '%s' "${MERGED_JSON}" | jq -e '
   (.tenants | type == "array" and length > 0)
   and (.identity.serviceClients | type == "array")
@@ -105,14 +110,23 @@ if [[ "${ACTIVE_PROJECT}" != "${PROJECT_ID}" ]]; then
   exit 1
 fi
 
-while IFS= read -r secret_name; do
-  gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null
-done < <(printf '%s' "${MERGED_JSON}" | jq -r '.secretStore.remoteKeys[]')
+# Meaningless while this cluster stays on the fake ClusterSecretStore
+# provider (a deliberate, standing decision - not being reopened here):
+# remoteKey/secretRemoteKey values are then just internal keys matched
+# against that provider's own literal data list, not real GCP Secret
+# Manager secret names, so there's nothing real for gcloud to find. Only
+# runs once secretStore.name says a real provider is actually in use.
+SECRET_STORE_NAME="$(value secretStore.name)"
+if [[ "${SECRET_STORE_NAME}" != "fake-secret-store" ]]; then
+  while IFS= read -r secret_name; do
+    gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null
+  done < <(printf '%s' "${MERGED_JSON}" | jq -r '.secretStore.remoteKeys[]')
 
-while IFS= read -r secret_name; do
-  gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null
-done < <(printf '%s' "${MERGED_JSON}" \
-  | jq -r '.identity.serviceClients[].secretRemoteKey')
+  while IFS= read -r secret_name; do
+    gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null
+  done < <(printf '%s' "${MERGED_JSON}" \
+    | jq -r '.identity.serviceClients[].secretRemoteKey')
+fi
 
 gcloud storage buckets describe "gs://${MODEL_BUCKET}" --project "${PROJECT_ID}" >/dev/null
 kubectl cluster-info >/dev/null

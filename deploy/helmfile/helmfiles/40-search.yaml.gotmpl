@@ -35,5 +35,5 @@ releases:
     labels: {stage: search, component: opensearch}
     {{- if $cloud }}
     values:
-      - ../releases/opensearch.yaml.gotmpl
+      - ../releases/opensearch-cluster/base.yaml.gotmpl
     {{- end }}

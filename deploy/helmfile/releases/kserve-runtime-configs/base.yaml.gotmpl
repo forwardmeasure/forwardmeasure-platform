@@ -14,10 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-releases:
-  - name: forwardmeasure-platform-dashboard
-    namespace: {{ .Values.namespaces.platform }}
-    chart: ../charts/platform-dashboard
-    labels: {stage: dashboard, component: platform-dashboard}
-    values:
-      - ../releases/platform-dashboard/base.yaml.gotmpl
+kserve:
+  llmisvcConfigs: {enabled: false}
+  servingruntime:
+    enabled: true
+    tensorflow: {disabled: true}
+    pmmlserver: {disabled: true}
+    paddleserver: {disabled: true}
+    predictiveserver: {disabled: true}
+    lgbserver: {disabled: false}
+    sklearnserver: {disabled: false}
+    xgbserver: {disabled: false}
+    mlserver: {disabled: false}
+    torchserve: {disabled: false}
+    huggingfaceserver: {disabled: false, imagePullPolicy: IfNotPresent}
+    tritonserver: {disabled: false, imagePullPolicy: IfNotPresent}

@@ -113,12 +113,15 @@ secretStore:
     supersetAdminPassword: platform-superset-admin-password
     supersetAdminEmail: platform-superset-admin-email
     valkeyPassword: platform-valkey-password
-    # Unlike every other key above, this one has a real, already-generated
-    # value the moment openworkflow-k8s-setup's Terraform is applied (the
-    # Cloud SQL runtime user's password) - it can never correctly be a fake
-    # placeholder the way an undecided key can. See the credentials file
-    # itself (gitignored, not committed) for where the real value goes.
-    openworkflowDatabasePassword: platform-openworkflow-database-password
+    # openworkflowRuntimeDatabasePassword/openworkflowAdministratorDatabasePassword
+    # deliberately NOT declared here - their real Secret Manager names are
+    # keyed on openworkflow-k8s-setup's Terraform `var.name` (e.g.
+    # "openworkflow-prod-openworkflow-runtime"), which is per-cluster, not a
+    # fixed platform-wide convention like every other key above. A prior,
+    # invented "platform-openworkflow-database-password" name here pointed at
+    # a secret that never existed (confirmed via `gcloud secrets describe` -
+    # NOT_FOUND) - real names belong in each real cluster's own environment
+    # file. See environments/gcp-openworkflow-prod.yaml.gotmpl.
 
 identity:
   realm: forwardmeasure
@@ -131,6 +134,13 @@ identity:
   bootstrapSecret: keycloak-bootstrap-admin-user-credentials
   clientSecret: keycloak-realm-client-secrets
   openworkflowCredentialsSecret: openworkflow-identity-credentials
+  # Matches openworkflow-k8s-setup/terraform/gcp's
+  # var.database_administrator_username default - a fixed convention, not a
+  # secret. Used only by forwardmeasure-openworkflow's migrations Job to
+  # create/rotate the runtime role and apply schema migrations; never granted
+  # to a runtime workload (see openworkflow-k8s-setup/docs/operations.md's
+  # "Database role provisioning" section).
+  openworkflowAdministratorUsername: openworkflow_migration
   serviceClients:
     - clientId: oks-operation-adapter-example
       name: Example Tenant OKS Operation Adapter

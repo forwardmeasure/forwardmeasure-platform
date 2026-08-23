@@ -14,10 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-releases:
-  - name: forwardmeasure-platform-dashboard
-    namespace: {{ .Values.namespaces.platform }}
-    chart: ../charts/platform-dashboard
-    labels: {stage: dashboard, component: platform-dashboard}
-    values:
-      - ../releases/platform-dashboard/base.yaml.gotmpl
+kserve:
+  controller:
+    deploymentMode: Knative
+    gateway:
+      domain: {{ printf "models.%s" .Values.platform.domain | quote }}
+      urlScheme: https
+      disableIstioVirtualHost: false
+      ingressGateway:
+        enableGatewayApi: true
+        createGateway: false
+        gateway: {{ printf "%s/%s" .Values.namespaces.istio .Values.gateway.name | quote }}
+        className: istio
+      localGateway:
+        gateway: {{ printf "%s/knative-local-gateway" .Values.namespaces.knativeServing | quote }}
+        gatewayService: {{ printf "knative-local-gateway-platform.%s.svc.cluster.local" .Values.namespaces.istio | quote }}
+  certManager: {enabled: "true"}

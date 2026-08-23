@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-releases:
-  - name: forwardmeasure-platform-dashboard
-    namespace: {{ .Values.namespaces.platform }}
-    chart: ../charts/platform-dashboard
-    labels: {stage: dashboard, component: platform-dashboard}
-    values:
-      - ../releases/platform-dashboard/base.yaml.gotmpl
+# Model-serving-runtime-shape values (deploymentMode, resources, storageUri)
+# live in ./model.values.yaml, layered before this file - kept as a
+# separate file (not merged into this one) since it's model tuning, not
+# this file's cloud/platform wiring, but both now live under this
+# release's own directory, matching every other release.
+modelCache:
+  pvcName: {{ .Values.models.cachePvc | quote }}
+  serviceAccountName: {{ .Values.models.cacheServiceAccount | quote }}

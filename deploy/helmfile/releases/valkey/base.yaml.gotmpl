@@ -14,10 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-releases:
-  - name: forwardmeasure-platform-dashboard
-    namespace: {{ .Values.namespaces.platform }}
-    chart: ../charts/platform-dashboard
-    labels: {stage: dashboard, component: platform-dashboard}
-    values:
-      - ../releases/platform-dashboard/base.yaml.gotmpl
+auth:
+  enabled: true
+  usersExistingSecret: valkey-auth
+  aclUsers:
+    default:
+      permissions: "~* &* +@all"
+      passwordKey: password
+replica:
+  enabled: true
+  replicas: {{ sub .Values.analytics.valkeyReplicas 1 }}
+  replicationUser: default
+  minReplicasToWrite: 1
+  persistence: {size: 20Gi, accessModes: [ReadWriteOnce]}
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {memory: 1Gi}

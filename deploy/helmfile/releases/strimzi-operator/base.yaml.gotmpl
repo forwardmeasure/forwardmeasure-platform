@@ -14,10 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-releases:
-  - name: forwardmeasure-platform-dashboard
-    namespace: {{ .Values.namespaces.platform }}
-    chart: ../charts/platform-dashboard
-    labels: {stage: dashboard, component: platform-dashboard}
-    values:
-      - ../releases/platform-dashboard/base.yaml.gotmpl
+watchNamespaces:
+  - {{ .Values.namespaces.kafka | quote }}

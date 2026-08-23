@@ -31,6 +31,8 @@ releases:
     chart: istio/base
     version: {{ .Values.chartVersions.istio | quote }}
     labels: {stage: foundation, component: service-mesh}
+    values:
+      - ../releases/istio-base/base.yaml.gotmpl
 
   - name: istiod
     namespace: {{ .Values.namespaces.istio }}
@@ -39,14 +41,7 @@ releases:
     needs: [{{ .Values.namespaces.istio }}/istio-base]
     labels: {stage: foundation, component: service-mesh}
     values:
-      - pilot:
-          replicaCount: 2
-        autoscaleEnabled: false
-        global:
-          proxy:
-            resources:
-              requests: {cpu: 100m, memory: 128Mi}
-              limits: {memory: 512Mi}
+      - ../releases/istiod/base.yaml.gotmpl
 
   - name: cert-manager
     namespace: {{ .Values.namespaces.certManager }}

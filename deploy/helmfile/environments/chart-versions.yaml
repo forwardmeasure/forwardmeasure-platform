@@ -20,7 +20,7 @@ chartVersions:
   externalSecrets: "2.0.1"
   platformSecrets: "0.1.5"
   platformRouting: "0.0.11"
-  keycloak: "0.0.22"
+  keycloak: "0.0.23"
   strimzi: "1.1.0"
   kafka: "0.0.4"
   apicurioOperator: "0.1.2"

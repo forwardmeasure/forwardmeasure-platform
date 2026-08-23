@@ -53,11 +53,38 @@ gateway:
   studioHost: {{ printf "studio.%s" $domain | quote }}
   acmeEmail: pn@forwardmeasure.com
 
-# No identity.serviceClients override here (previously: `serviceClients: []`,
-# added when nothing OpenWorkflow-specific existed yet) - base.yaml.gotmpl's
-# identity.serviceClients now has a real "openworkflow" entry, and helmfile
-# values merging replaces lists wholesale rather than merging them, so an
-# empty override here would silently wipe it out for this cluster.
+# Overrides (replaces, not merges - helmfile deep-merges maps but replaces
+# lists wholesale) base.yaml.gotmpl's identity.serviceClients entirely:
+# drops the oks-operation-adapter-example placeholder (pinned to the
+# fictional tenant.example.com, never a real tenant here) and re-scopes the
+# openworkflow service client to this cluster's one real tenant (lux)
+# instead of the same placeholder DID it inherited by copy-paste. Confirmed
+# via forwardmeasure-platform's own preflight.sh: it requires every
+# .tenants[] entry to have exactly one matching SERVICE identity client by
+# tenant_did - neither placeholder-scoped entry satisfied that for lux.
+identity:
+  serviceClients:
+    - clientId: openworkflow
+      name: OpenWorkflow Service Client
+      secretKey: OPENWORKFLOW_CLIENT_SECRET
+      secretRemoteKey: platform-openworkflow-client-secret
+      realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
+      audiences: [openworkflow-api]
+      claims:
+        tenant_did: {{ printf "did:web:lux.%s" $domain | quote }}
+        actor_did: {{ printf "did:web:lux.%s:actors:openworkflow" $domain | quote }}
+        actor_type: SERVICE
+
+secretStore:
+  # Cluster-specific - see base.yaml.gotmpl's comment on why these aren't
+  # declared there. Values are keys into this cluster's own
+  # platform-secrets/gcp/openworkflow-prod.credentials.yaml.gotmpl (fake
+  # ClusterSecretStore provider, deliberately not real GCP Secret Manager -
+  # see that file's own header). Real values still come from GCP Secret
+  # Manager, fetched live via `gcloud` at render time in that same file.
+  remoteKeys:
+    openworkflowRuntimeDatabasePassword: platform-openworkflow-database-password
+    openworkflowAdministratorDatabasePassword: platform-openworkflow-database-administrator-password
 
 bootstrapIdentity:
   tenantHost: {{ printf "lux.%s" $domain | quote }}

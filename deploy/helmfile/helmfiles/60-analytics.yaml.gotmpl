@@ -27,22 +27,7 @@ releases:
     version: {{ .Values.chartVersions.valkey | quote }}
     labels: {stage: analytics, component: cache}
     values:
-      - auth:
-          enabled: true
-          usersExistingSecret: valkey-auth
-          aclUsers:
-            default:
-              permissions: "~* &* +@all"
-              passwordKey: password
-        replica:
-          enabled: true
-          replicas: {{ sub .Values.analytics.valkeyReplicas 1 }}
-          replicationUser: default
-          minReplicasToWrite: 1
-          persistence: {size: 20Gi, accessModes: [ReadWriteOnce]}
-        resources:
-          requests: {cpu: 100m, memory: 256Mi}
-          limits: {memory: 1Gi}
+      - ../releases/valkey/base.yaml.gotmpl
 
   - name: superset
     namespace: {{ .Values.namespaces.superset }}
@@ -50,4 +35,4 @@ releases:
     version: {{ .Values.chartVersions.superset | quote }}
     labels: {stage: analytics, component: superset}
     values:
-      - ../releases/superset.yaml.gotmpl
+      - ../releases/superset/base.yaml.gotmpl

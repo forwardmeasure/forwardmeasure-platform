@@ -79,7 +79,16 @@ secrets:
       # dedicated service client (identity.serviceClients, clientId:
       # openworkflow) and its own remote key.
       - {secretKey: OPENWORKFLOW_CLIENT_SECRET, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowClientSecret | quote }} }
-      - {secretKey: OPENWORKFLOW_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowDatabasePassword | quote }} }
+      # Runtime credential (role: openworkflow) - used by application
+      # services and by the migrations Job to create runtime-scoped tenant
+      # schema objects. Never used to connect as admin.
+      - {secretKey: OPENWORKFLOW_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowRuntimeDatabasePassword | quote }} }
+      # Administrator credential (role: openworkflow_migration) - used only
+      # by the migrations Job to create/rotate the runtime role, run schema
+      # DDL, and grant runtime privileges. See
+      # openworkflow-k8s-setup/docs/operations.md's "Database role
+      # provisioning" section. Never granted to a runtime workload.
+      - {secretKey: OPENWORKFLOW_ADMIN_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowAdministratorDatabasePassword | quote }} }
   - name: huggingface-token
     enabled: true
     namespaces: [{{ .Values.namespaces.modelServing }}, {{ .Values.namespaces.docling }}]

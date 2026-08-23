@@ -27,8 +27,7 @@ releases:
     version: {{ .Values.chartVersions.strimzi | quote }}
     labels: {stage: messaging, component: kafka-operator}
     values:
-      - watchNamespaces:
-          - {{ .Values.namespaces.kafka | quote }}
+      - ../releases/strimzi-operator/base.yaml.gotmpl
 
   - name: kafka
     namespace: {{ .Values.namespaces.kafka }}
@@ -37,14 +36,7 @@ releases:
     labels: {stage: messaging, component: kafka}
     needs: [{{ .Values.namespaces.strimzi }}/strimzi-operator]
     values:
-      - clusterName: {{ .Values.kafka.clusterName | quote }}
-        kafkaVersion: {{ .Values.kafka.version | quote }}
-        controllers:
-          replicas: {{ .Values.kafka.controllers }}
-          storage: {size: {{ .Values.kafka.controllerStorage | quote }}, deleteClaim: false}
-        brokers:
-          replicas: {{ .Values.kafka.brokers }}
-          storage: {size: {{ .Values.kafka.brokerStorage | quote }}, deleteClaim: false}
+      - ../releases/kafka/base.yaml.gotmpl
 
   - name: registry-topics
     namespace: {{ .Values.namespaces.kafka }}
@@ -52,17 +44,15 @@ releases:
     labels: {stage: messaging, component: registry-topics}
     needs: [{{ .Values.namespaces.kafka }}/kafka]
     values:
-      - kafkaTopics:
-          enabled: true
-          namespace: {{ .Values.namespaces.kafka | quote }}
-          clusterName: {{ .Values.kafka.clusterName | quote }}
-          names: [apicurio-kafkasql-journal, apicurio-kafkasql-snapshots, apicurio-registry-events]
+      - ../releases/registry-topics/base.yaml.gotmpl
 
   - name: apicurio-registry-operator
     namespace: {{ .Values.namespaces.registry }}
     chart: forwardmeasure/apicurio-registry-operator
     version: {{ .Values.chartVersions.apicurioOperator | quote }}
     labels: {stage: messaging, component: registry-operator}
+    values:
+      - ../releases/apicurio-registry-operator/base.yaml.gotmpl
 
   - name: apicurio-registry
     namespace: {{ .Values.namespaces.registry }}
@@ -73,4 +63,4 @@ releases:
       - {{ .Values.namespaces.registry }}/apicurio-registry-operator
       - {{ .Values.namespaces.kafka }}/registry-topics
     values:
-      - ../releases/apicurio.yaml.gotmpl
+      - ../releases/apicurio-registry/base.yaml.gotmpl

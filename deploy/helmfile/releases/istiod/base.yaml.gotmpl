@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-releases:
-  - name: forwardmeasure-platform-dashboard
-    namespace: {{ .Values.namespaces.platform }}
-    chart: ../charts/platform-dashboard
-    labels: {stage: dashboard, component: platform-dashboard}
-    values:
-      - ../releases/platform-dashboard/base.yaml.gotmpl
+pilot:
+  replicaCount: 2
+autoscaleEnabled: false
+global:
+  proxy:
+    resources:
+      requests: {cpu: 100m, memory: 128Mi}
+      limits: {memory: 512Mi}

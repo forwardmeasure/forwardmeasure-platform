@@ -14,10 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-releases:
-  - name: forwardmeasure-platform-dashboard
-    namespace: {{ .Values.namespaces.platform }}
-    chart: ../charts/platform-dashboard
-    labels: {stage: dashboard, component: platform-dashboard}
-    values:
-      - ../releases/platform-dashboard/base.yaml.gotmpl
+knativeVersion: "1.22.1"
+serving:
+  namespace: {{ .Values.namespaces.knativeServing | quote }}
+  istioNamespace: {{ .Values.namespaces.istio | quote }}
+  gatewayName: {{ .Values.gateway.name | quote }}
+  config:
+    domain: {{ printf "models.%s" .Values.platform.domain | quote }}
+eventing:
+  namespace: {{ .Values.namespaces.knativeEventing | quote }}
+  kafka:
+    bootstrapServers: {{ .Values.kafka.bootstrapServers | quote }}

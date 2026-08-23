@@ -21,7 +21,12 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 ENVIRONMENT="${1:?environment is required}"
 KEY="${2:?value key is required}"
 
-mapfile -t FILES < <("${SCRIPT_DIR}/scripts/environment-files.sh" "${ENVIRONMENT}")
-
-yq ea '. as $item ireduce ({}; . * $item)' "${FILES[@]}" \
+# Rendered via `helmfile build`, not a raw multi-file yq merge of the
+# environment files directly - several are .gotmpl files with unrendered
+# Go-template expressions in scalar values, and yq parsing that raw text
+# misreads `{{ }}` as YAML flow-mapping syntax, silently corrupting the
+# value instead of erroring. Confirmed the hard way via preflight.sh's own
+# use of the same pattern (see its fix for the concrete failure mode).
+helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" --environment "${ENVIRONMENT}" build 2>/dev/null \
+  | yq '.renderedvalues' \
   | yq -r ".${KEY} // \"\""
