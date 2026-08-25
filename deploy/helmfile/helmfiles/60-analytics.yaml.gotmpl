@@ -20,6 +20,8 @@ repositories:
   - name: superset
     url: https://apache.github.io/superset
 
+{{- $cloud := .Values | get "cloudProvider" "" }}
+
 releases:
   - name: valkey
     namespace: {{ .Values.namespaces.valkey }}
@@ -36,3 +38,6 @@ releases:
     labels: {stage: analytics, component: superset}
     values:
       - ../releases/superset/base.yaml.gotmpl
+    {{- if eq $cloud "gcp" }}
+      - ../releases/superset/gcp/base.yaml.gotmpl
+    {{- end }}

@@ -25,7 +25,9 @@ releases:
     namespace: {{ .Values.namespaces.strimzi }}
     chart: strimzi/strimzi-kafka-operator
     version: {{ .Values.chartVersions.strimzi | quote }}
-    labels: {stage: messaging, component: kafka-operator}
+    labels:
+      stage: messaging
+      component: kafka-operator
     values:
       - ../releases/strimzi-operator/base.yaml.gotmpl
 
@@ -33,16 +35,22 @@ releases:
     namespace: {{ .Values.namespaces.kafka }}
     chart: forwardmeasure/kafka
     version: {{ .Values.chartVersions.kafka | quote }}
-    labels: {stage: messaging, component: kafka}
-    needs: [{{ .Values.namespaces.strimzi }}/strimzi-operator]
+    labels:
+      stage: messaging
+      component: kafka
+    needs:
+      - {{ .Values.namespaces.strimzi }}/strimzi-operator
     values:
       - ../releases/kafka/base.yaml.gotmpl
 
   - name: registry-topics
     namespace: {{ .Values.namespaces.kafka }}
     chart: ../charts/platform-bootstrap
-    labels: {stage: messaging, component: registry-topics}
-    needs: [{{ .Values.namespaces.kafka }}/kafka]
+    labels:
+      stage: messaging
+      component: registry-topics
+    needs:
+      - {{ .Values.namespaces.kafka }}/kafka
     values:
       - ../releases/registry-topics/base.yaml.gotmpl
 
@@ -50,7 +58,9 @@ releases:
     namespace: {{ .Values.namespaces.registry }}
     chart: forwardmeasure/apicurio-registry-operator
     version: {{ .Values.chartVersions.apicurioOperator | quote }}
-    labels: {stage: messaging, component: registry-operator}
+    labels:
+      stage: messaging
+      component: registry-operator
     values:
       - ../releases/apicurio-registry-operator/base.yaml.gotmpl
 
@@ -58,7 +68,9 @@ releases:
     namespace: {{ .Values.namespaces.registry }}
     chart: forwardmeasure/apicurio-registry-deployment
     version: {{ .Values.chartVersions.apicurioDeployment | quote }}
-    labels: {stage: messaging, component: registry}
+    labels:
+      stage: messaging
+      component: registry
     needs:
       - {{ .Values.namespaces.registry }}/apicurio-registry-operator
       - {{ .Values.namespaces.kafka }}/registry-topics

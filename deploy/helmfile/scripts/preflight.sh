@@ -35,8 +35,19 @@ done
 # syntax, silently corrupting the value instead of erroring. Confirmed the
 # hard way: this previously failed the tenant/service-client check below
 # with garbage instead of the real (correct) rendered DIDs.
+#
+# select(di==0): `helmfile build` emits one document per top-level
+# helmfiles: entry (9 of them), each carrying its own renderedvalues: block
+# - without narrowing to one, this concatenates 9 identical JSON objects,
+# which happened to not break the jq -e checks below (jq's exit status
+# reflects only the last object in the stream, and all 9 are identical) but
+# is fragile and was never actually correct - environment-value.sh's use of
+# the same unnarrowed pattern for scalar lookups silently corrupted every
+# value it returned (confirmed the hard way via the actorType check
+# failing on "HUMAN\n---\nHUMAN\n---\n..."). Narrowing here too rather than
+# relying on the objects staying identical.
 MERGED_JSON="$(helmfile --file "${HELMFILE_DIR}/helmfile.yaml.gotmpl" \
-  --environment "${ENVIRONMENT}" build 2>/dev/null | yq -o=json '.renderedvalues')"
+  --environment "${ENVIRONMENT}" build 2>/dev/null | yq -o=json 'select(di==0) | .renderedvalues')"
 printf '%s' "${MERGED_JSON}" | jq -e '
   (.tenants | type == "array" and length > 0)
   and (.identity.serviceClients | type == "array")
@@ -104,11 +115,27 @@ done
   exit 1
 }
 
-ACTIVE_PROJECT="$(gcloud config get-value project 2>/dev/null)"
-if [[ "${ACTIVE_PROJECT}" != "${PROJECT_ID}" ]]; then
-  echo "Active gcloud project ${ACTIVE_PROJECT} does not match ${PROJECT_ID}." >&2
-  exit 1
-fi
+# Every gcloud call below already passes --project explicitly, so gcloud's
+# own ambient default project (`gcloud config get-value project`) is
+# irrelevant to them - checking it was only ever a proxy for "did you set
+# up kubectl correctly," since `gcloud container clusters get-credentials`
+# normally sets both at once. That's the wrong thing to check directly:
+# confirmed the hard way - a real run had kubectl's context already
+# correctly pointed at gke_genai-llm-393115_us-central1_openworkflow-prod
+# while the ambient gcloud project was stale from unrelated work in the
+# same shell, and this blocked an otherwise-safe deploy on that
+# irrelevant mismatch. Checking kubectl's actual context instead - the
+# thing every subsequent kubectl/helmfile-apply call in this script and in
+# install.sh actually depends on. gke_<project>_<zone-or-region>_<cluster>
+# is GKE's fixed context-naming convention, not something invented here.
+ACTIVE_CONTEXT="$(kubectl config current-context 2>/dev/null || true)"
+case "${ACTIVE_CONTEXT}" in
+  gke_"${PROJECT_ID}"_*_"${CLUSTER_NAME}") ;;
+  *)
+    echo "kubectl's current context (${ACTIVE_CONTEXT:-none}) does not target cluster ${CLUSTER_NAME} in project ${PROJECT_ID}." >&2
+    exit 1
+    ;;
+esac
 
 # Meaningless while this cluster stays on the fake ClusterSecretStore
 # provider (a deliberate, standing decision - not being reopened here):

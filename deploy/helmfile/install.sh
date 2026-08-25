@@ -18,6 +18,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# One level above this repo's own root - where install-platform.sh already
+# finds forwardmeasure-openworkflow as a sibling checkout. Needed below to
+# run its migrations stage before Keycloak/Superset exist.
+WORKSPACE_DIR="$(cd -- "${SCRIPT_DIR}/../../.." && pwd)"
 ENVIRONMENT="${1:?Usage: $0 <configured-environment> [stage]}"
 REQUESTED_STAGE="${2:-}"
 
@@ -59,11 +63,28 @@ apply_stage configuration
 SECRET_STORE="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" secretStore.name)"
 kubectl wait --for=condition=Ready --timeout=180s "clustersecretstore/${SECRET_STORE}"
 
-for namespace in keycloak apicurio-registry opensearch-cluster kserve-serving docling-serve valkey superset; do
+OPENWORKFLOW_NAMESPACE="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" namespaces.openworkflow)"
+
+for namespace in keycloak apicurio-registry opensearch-cluster kserve-serving docling-serve valkey superset "${OPENWORKFLOW_NAMESPACE}"; do
   if kubectl --namespace "${namespace}" get externalsecret >/dev/null 2>&1; then
     kubectl --namespace "${namespace}" wait --for=condition=Ready --timeout=300s externalsecret --all
   fi
 done
+
+# Keycloak's/Superset's Postgres roles don't exist until OpenWorkflow's
+# migrations Job creates them (OpenWorkflowTenantMigrator.ensureRuntimeRole) -
+# Terraform only ever generates their passwords in Secret Manager, never the
+# role. Must run before apply_stage identity/analytics below: otherwise their
+# own helm --wait blocks forever on a pod that can't start without a role
+# nothing has created yet. Single stage, not the full openworkflow install.sh -
+# stage=migrations now also carries openworkflow-identity (see
+# forwardmeasure-openworkflow's helmfiles/foundation.yaml.gotmpl), the
+# ServiceAccount its Cloud SQL Auth Proxy sidecar needs - deliberately not
+# stage=foundation, whose other release has its own Keycloak-readiness hook
+# and would reintroduce this same deadlock. install-platform.sh's own final,
+# unconditional full install.sh call re-runs this stage again later - both
+# operations it performs are idempotent, so that's safe, not wasted work.
+"${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/install.sh" "${ENVIRONMENT}" migrations
 
 apply_stage identity
 apply_stage messaging

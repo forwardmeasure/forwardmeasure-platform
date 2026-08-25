@@ -65,6 +65,16 @@ releases:
     version: {{ .Values.chartVersions.kserve | quote }}
     needs: [{{ .Values.namespaces.kserve }}/kserve-crd]
     labels: {stage: ml-serving, component: kserve}
+    # No helmDefaults.wait anywhere in this repo, so set per-release here
+    # instead of changing that shared behavior. named-entity-recognition
+    # and kserve-runtime-configs both needs: this release, but `needs`
+    # only waits for `helm upgrade --install` to return, not for the
+    # controller pod to actually be Ready - confirmed the hard way: a real
+    # install hit "no endpoints available for service
+    # kserve-webhook-server-service" because kserve-controller-manager's
+    # webhook wasn't serving yet when those releases' admission webhook
+    # calls landed, even though `needs` ordering was already correct.
+    wait: true
     values:
       - ../releases/kserve/base.yaml.gotmpl
 

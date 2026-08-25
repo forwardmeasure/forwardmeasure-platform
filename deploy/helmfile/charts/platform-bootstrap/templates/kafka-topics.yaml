@@ -16,20 +16,27 @@
 #
 {{- if .Values.kafkaTopics.enabled }}
 {{- $root := . }}
-{{- range .Values.kafkaTopics.names }}
+{{- range .Values.kafkaTopics.topics }}
 ---
 apiVersion: kafka.strimzi.io/v1
 kind: KafkaTopic
 metadata:
-  name: {{ . | replace "." "-" | trunc 63 | trimSuffix "-" }}
+  name: {{ .name | replace "." "-" | trunc 63 | trimSuffix "-" }}
   namespace: {{ $root.Values.kafkaTopics.namespace }}
   labels:
     strimzi.io/cluster: {{ $root.Values.kafkaTopics.clusterName }}
 spec:
-  topicName: {{ . | quote }}
-  partitions: {{ $root.Values.kafkaTopics.partitions }}
-  replicas: {{ $root.Values.kafkaTopics.replicas }}
+  topicName: {{ .name | quote }}
+  partitions: {{ .partitions | default $root.Values.kafkaTopics.partitions }}
+  replicas: {{ .replicas | default $root.Values.kafkaTopics.replicas }}
+  # Per-topic config (e.g. retention.ms/retention.bytes for a compacted or
+  # event-sourced-storage topic like Apicurio's kafkasql journal/snapshots -
+  # confirmed the hard way: Apicurio Registry refuses to start against a
+  # topic still on the cluster's default 7-day retention, since it treats
+  # these topics as its own persistent store, not expiring data) merges
+  # over, never replaces, the min.insync.replicas every topic here needs.
   config:
-    min.insync.replicas: "2"
+    {{- $config := merge (.config | default dict) (dict "min.insync.replicas" "2") }}
+    {{- toYaml $config | nindent 4 }}
 {{- end }}
 {{- end }}

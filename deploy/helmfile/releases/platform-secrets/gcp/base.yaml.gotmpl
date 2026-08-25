@@ -89,6 +89,17 @@ secrets:
       # openworkflow-k8s-setup/docs/operations.md's "Database role
       # provisioning" section. Never granted to a runtime workload.
       - {secretKey: OPENWORKFLOW_ADMIN_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowAdministratorDatabasePassword | quote }} }
+      # Keycloak's and Superset's own runtime-role passwords - not
+      # openworkflow's concern normally, but the migrations Job's admin
+      # workload identity is the only one in this cluster authorized
+      # (administrator_database_keys in Terraform) to provision every
+      # declared runtime database's role, and that identity is namespace-
+      # locked to openworkflow (Kubernetes ServiceAccounts can't cross
+      # namespaces), so this is the only place that can actually reach
+      # them. See openworkflow-k8s-setup/docs/operations.md's "Database
+      # role provisioning" section.
+      - {secretKey: OPENWORKFLOW_RUNTIME_DATABASE_KEYCLOAK_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakDatabasePassword | quote }} }
+      - {secretKey: OPENWORKFLOW_RUNTIME_DATABASE_SUPERSET_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.supersetDatabasePassword | quote }} }
   - name: huggingface-token
     enabled: true
     namespaces: [{{ .Values.namespaces.modelServing }}, {{ .Values.namespaces.docling }}]

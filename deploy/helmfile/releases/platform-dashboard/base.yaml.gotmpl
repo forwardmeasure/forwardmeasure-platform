@@ -65,7 +65,12 @@ components:
     category: ORCHESTRATION
     probe: HTTP
     healthUri: {{ printf "http://openworkflow-definition-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
-    consoleUri: /workflows/
+    # Was a bare relative path (/workflows/) - every other component here
+    # uses an absolute https:// URL, and the dashboard's own
+    # PlatformDashboardConfigurationValidator rejects anything else
+    # ("Platform console URI must be an HTTP(S) URI"), confirmed the hard
+    # way. OpenWorkflow Studio is this capability's actual console/UI.
+    consoleUri: {{ printf "https://%s/" .Values.gateway.studioHost | quote }}
   - id: openworkflow-kafka
     name: OpenWorkflow Kafka Engine
     category: ORCHESTRATION

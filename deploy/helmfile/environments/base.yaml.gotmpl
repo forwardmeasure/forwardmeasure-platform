@@ -126,7 +126,13 @@ secretStore:
 identity:
   realm: forwardmeasure
   displayName: ForwardMeasure
-  loginTheme: forwardmeasure
+  # keycloak.v2 is Keycloak's own built-in theme - matches
+  # imageVersions.keycloak now pointing at the stock quay.io/keycloak/keycloak
+  # image, not a custom-themed one. A prior "forwardmeasure" theme name here
+  # only existed in a never-built, never-committed custom image
+  # (forwardmeasure-platform-operations/operations-keycloak-theme) - dropped,
+  # not something in actual use.
+  loginTheme: keycloak.v2
   publicClientId: forwardmeasure-public
   confidentialClientId: superset
   databaseSecret: keycloak-db-credentials
@@ -188,7 +194,11 @@ tenants:
 
 kafka:
   clusterName: kafka-cluster
-  version: "4.0.0"
+  # Was 4.0.0 - not a version the deployed Strimzi operator (1.2.0) supports
+  # at all (confirmed via the Kafka CR's own status condition:
+  # UnsupportedKafkaVersionException, "Supported versions are: [4.2.0,
+  # 4.2.1, 4.3.0, 4.3.1]" - no broker pods were ever created for it).
+  version: "4.3.1"
   bootstrapServers: kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
   controllers: 3
   brokers: 3

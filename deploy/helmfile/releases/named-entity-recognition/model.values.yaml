@@ -17,6 +17,13 @@
 deploymentMode: Serverless
 podAnnotations:
   traffic.sidecar.istio.io/excludeInboundPorts: "8080"
+  # Required for the model-cache PVC (backed by the gcsfuse.csi.storage.gke.io
+  # driver) to mount at all - without it, GKE's mutating webhook never
+  # injects the gke-gcsfuse sidecar container the CSI node plugin expects,
+  # and every pod using this PVC fails with "failed to find the sidecar
+  # container in Pod spec". Confirmed the hard way against this same
+  # InferenceService.
+  gke-gcsfuse/volumes: "true"
 externalModelCache: true
 vllmRuntime: {enabled: false}
 huggingFace:

@@ -18,11 +18,24 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ENVIRONMENT="${1:?Usage: $0 <configured-environment>}"
+ENVIRONMENT="${1:?Usage: $0 <configured-environment> [--full]}"
+FULL="${2:-}"
 
 for stage in dashboard analytics ml-serving search messaging identity configuration; do
   helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \
     --environment "${ENVIRONMENT}" --selector "stage=${stage}" destroy
 done
 
-echo "Foundation releases and namespaces were retained intentionally."
+if [[ "${FULL}" == "--full" ]]; then
+  # istio-base, istiod, cert-manager, external-secrets - the mesh/cert-
+  # manager/external-secrets operators and their CRDs, not anything they
+  # configure (that's already gone above). Kept as a separate, explicit
+  # opt-in rather than the default: a real teardown-and-reinstall test
+  # needs this too, but most callers re-running uninstall/install in a
+  # loop don't want to re-pull/reinstall CRDs every time.
+  helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \
+    --environment "${ENVIRONMENT}" --selector "stage=foundation" destroy
+  echo "Foundation releases destroyed for ${ENVIRONMENT}. Namespaces were retained."
+else
+  echo "Foundation releases and namespaces were retained intentionally. Pass --full to also tear down istio/cert-manager/external-secrets."
+fi

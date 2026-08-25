@@ -18,4 +18,18 @@ kafkaTopics:
   enabled: true
   namespace: {{ .Values.namespaces.kafka | quote }}
   clusterName: {{ .Values.kafka.clusterName | quote }}
-  names: [apicurio-kafkasql-journal, apicurio-kafkasql-snapshots, apicurio-registry-events]
+  topics:
+    # kafkasql-journal/kafkasql-snapshots are Apicurio's own KafkaSQL
+    # storage engine's persistent store, not expiring data - confirmed the
+    # hard way, Apicurio refused to start against apicurio-kafkasql-journal
+    # still on the cluster's default 7-day retention
+    # (RuntimeAssertionFailedException: "must have retention.ms=-1 and
+    # retention.bytes=-1 to prevent accidental loss of data"). snapshots is
+    # the same storage engine's other core topic, same requirement.
+    # registry-events is a separate outbound notification topic, not core
+    # storage - the cluster's default retention is fine for it.
+    - name: apicurio-kafkasql-journal
+      config: {retention.ms: "-1", retention.bytes: "-1"}
+    - name: apicurio-kafkasql-snapshots
+      config: {retention.ms: "-1", retention.bytes: "-1"}
+    - name: apicurio-registry-events

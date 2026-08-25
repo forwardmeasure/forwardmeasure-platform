@@ -100,9 +100,14 @@ if [[ "${ENVIRONMENT}" != "base" ]]; then
   grep -q 'name: platform-registry-app-service' "${OUTPUT}"
   grep -q 'name: forwardmeasure-platform-dashboard' "${OUTPUT}"
   grep -q 'value: /platform' "${OUTPUT}"
-  grep -q 'forwardmeasure/forwardmeasure-keycloak' "${OUTPUT}"
+  # Stock quay.io/keycloak/keycloak image with the built-in keycloak.v2
+  # theme, not a custom-themed forwardmeasure/forwardmeasure-keycloak image
+  # - that image was never built (forwardmeasure-platform-operations has
+  # zero commits, ever, on any branch - confirmed directly, not something
+  # in real use), and its login theme along with it.
+  grep -q 'quay.io/keycloak/keycloak' "${OUTPUT}"
   grep -q 'name: REALM_LOGIN_THEME' "${OUTPUT}"
-  grep -q 'value: "forwardmeasure"' "${OUTPUT}"
+  grep -q 'value: "keycloak.v2"' "${OUTPUT}"
   grep -Eq 'value: ["]?/apis/registry["]?' "${OUTPUT}"
   grep -q 'SQLALCHEMY_DATABASE_URI' "${OUTPUT}"
   grep -q 'secretKey: username' "${OUTPUT}"

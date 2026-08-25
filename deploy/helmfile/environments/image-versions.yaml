@@ -16,15 +16,31 @@
 #
 imageVersions:
   keycloak:
-    repository: docker.io/forwardmeasure/forwardmeasure-keycloak
-    tag: "1.0.0"
+    repository: quay.io/keycloak/keycloak
+    tag: "26.5"
     digest: ""
     pullPolicy: IfNotPresent
+
+  # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
+  # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own
+  # comment for why this replaces the stock apache/superset image.
+  # Tag is not "6.1.0" (the chart's own appVersion) deliberately - this
+  # chart's own image template is a hardcoded repository:tag with no digest
+  # support at all, and GKE's Docker Hub pull-through mirror cached a stale
+  # manifest for that tag across two rebuilds/re-pushes, confirmed the hard
+  # way (imagePullPolicy: Always didn't help - the mirror, not kubelet, was
+  # serving the stale content). A tag string that's never been pushed
+  # before has nothing stale to serve. Bump this suffix again on any future
+  # rebuild under this same base version.
+  superset:
+    repository: docker.io/forwardmeasure/superset
+    tag: "6.1.0"
+    pullPolicy: Always
 
   platformDashboard:
     repository: docker.io/forwardmeasure/forwardmeasure-platform-operations
     tag: "1.0.0"
-    digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+    digest: sha256:a04e1adc8a8189ed1db2fbb6857cc9efde9982e65e86a38ed7fad1cf116bf740
     pullPolicy: IfNotPresent
 
   modelUtilities:
@@ -32,3 +48,30 @@ imageVersions:
     tag: latest
     digest: sha256:eb705101bf88908ead1ed129580406b72570fbd76fadbbcf38912714b35034de
     pullPolicy: IfNotPresent
+
+  # Cloud SQL Auth Proxy sidecar - used by keycloak (via keycloak-helm-chart's
+  # own cloudSqlProxy.image, overridden below) and superset (see
+  # releases/superset/gcp/base.yaml.gotmpl). One version here instead of a
+  # separate pin per consumer.
+  cloudSqlProxy:
+    repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
+    tag: "2.21.1"
+
+  # apicurio-registry-operator-helm-chart bakes these into its own
+  # values.yaml with no consumer override wired up before now - upgrading
+  # meant editing helm-charts, bumping its chart version, and publishing,
+  # just to change an image tag. Wired through here instead (see
+  # releases/apicurio-registry-operator/base.yaml.gotmpl) so every future
+  # bump is a one-line change in this repo, no helm-charts touch needed.
+  apicurioOperator:
+    repository: quay.io/apicurio/apicurio-registry-3-operator
+    tag: "3.3.1"
+  apicurioRegistryApp:
+    repository: quay.io/apicurio/apicurio-registry
+    tag: "3.3.1"
+  apicurioRegistryUi:
+    repository: quay.io/apicurio/apicurio-registry-ui
+    tag: "3.3.1"
+  apicurioRegistryGitopsSync:
+    repository: quay.io/apicurio/apicurio-registry-gitops-sync
+    tag: "3.3.1"

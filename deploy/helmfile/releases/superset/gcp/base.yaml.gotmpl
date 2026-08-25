@@ -1,0 +1,127 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# GKE Workload Identity binding plus a Cloud SQL Auth Proxy sidecar on every
+# pod that talks to Postgres directly - the upstream apache/superset chart
+# has no built-in cloudSqlProxy convenience (unlike forwardmeasure's own
+# keycloak-helm-chart, see releases/keycloak/gcp/base.yaml.gotmpl's
+# identical fix), so this is wired by hand. Confirmed the hard way: without
+# any of this, supersetNode/supersetWorker/init all hang forever on their
+# own wait-for-postgres init container - superset-env's DB_HOST is
+# "localhost" (see platform-secrets' platform-superset-database-host),
+# which nothing was ever listening on.
+#
+# name must be superset-runtime, not this chart's own default (superset,
+# from superset.fullname) - Terraform's applied tfvars grants
+# roles/iam.workloadIdentityUser to exactly
+# genai-llm-393115.svc.id.goog[superset/superset-runtime], matching the
+# <component>-runtime convention used for every other workload identity in
+# this cluster.
+serviceAccount:
+  create: true
+  name: superset-runtime
+  annotations:
+    iam.gke.io/gcp-service-account: {{ .Values.gcp.supersetServiceAccountEmail | quote }}
+
+# cloud-sql-proxy's securityContext sets runAsUser explicitly, not just
+# runAsNonRoot: true - this chart's own pod securityContext defaults to
+# runAsUser: 0 (Superset's own image runs as root), and a container without
+# its own runAsUser inherits the pod's - confirmed the hard way: kubelet
+# rejected the combination outright ("container's runAsUser breaks
+# non-root policy") rather than silently running as root. 65532 is
+# cloud-sql-proxy's own distroless image default (gcr.io/distroless's
+# standard "nonroot" UID).
+{{- $cloudSqlProxy := dict
+  "name" "cloud-sql-proxy"
+  "restartPolicy" "Always"
+  "image" (printf "%s:%s" .Values.imageVersions.cloudSqlProxy.repository .Values.imageVersions.cloudSqlProxy.tag)
+  "args" (list "--structured-logs" "--port=5432" "--private-ip" (printf "%s:%s:%s" .Values.gcp.projectId .Values.gcp.region .Values.gcp.keycloakCloudSqlInstance))
+  "securityContext" (dict "runAsNonRoot" true "runAsUser" 65532 "allowPrivilegeEscalation" false)
+}}
+
+{{- $waitForPostgres := `SECONDS=0
+wait_for() {
+  local host=$1 port=$2 name=$3
+  until (exec 3<>/dev/tcp/"$host"/"$port") 2>/dev/null; do
+    if [ "$SECONDS" -ge 120 ]; then
+      echo "timeout waiting for $name at $host:$port after 120s" >&2
+      exit 1
+    fi
+    echo "waiting for $name at $host:$port (elapsed ${SECONDS}s)"
+    sleep 2
+  done
+  echo "$name at $host:$port is up"
+}
+wait_for "$DB_HOST" "$DB_PORT" postgres
+` }}
+
+{{- $supersetImage := printf "%s:%s" .Values.imageVersions.superset.repository .Values.imageVersions.superset.tag }}
+
+{{- $waitPostgresContainer := dict
+  "name" "wait-for-postgres"
+  "image" $supersetImage
+  "imagePullPolicy" "IfNotPresent"
+  "envFrom" (list (dict "secretRef" (dict "name" "superset-env")))
+  "command" (list "/bin/bash" "-c" $waitForPostgres)
+}}
+
+# REDIS_HOST/REDIS_PORT set explicitly, not just envFrom: superset-env -
+# they come from this chart's extraEnv (releases/superset/base.yaml.gotmpl),
+# a sibling release-overlay file whose values aren't visible here (same
+# "release overlay files can't see each other's values" limitation as
+# elsewhere in this repo). Without this, wait-for-postgres-redis silently
+# waited on an empty host:port forever - confirmed the hard way ("waiting
+# for redis at : (elapsed ...)").
+{{- $waitPostgresRedisContainer := dict
+  "name" "wait-for-postgres-redis"
+  "image" $supersetImage
+  "imagePullPolicy" "IfNotPresent"
+  "envFrom" (list (dict "secretRef" (dict "name" "superset-env")))
+  "env" (list
+    (dict "name" "REDIS_HOST" "value" (printf "valkey.%s.svc.cluster.local" .Values.namespaces.valkey))
+    (dict "name" "REDIS_PORT" "value" "6379")
+  )
+  "command" (list "/bin/bash" "-c" (print $waitForPostgres "wait_for \"$REDIS_HOST\" \"$REDIS_PORT\" redis\n"))
+}}
+
+# Full initContainers override, not extraInitContainers - the chart always
+# renders its own default initContainers (wait-for-postgres[-redis]) before
+# extraInitContainers (confirmed directly in its deployment*.yaml/
+# init-job.yaml templates: two separate, sequential conditional blocks, no
+# way to interleave them), and that default init container hangs forever
+# without cloud-sql-proxy already listening on localhost:5432 - exactly
+# backwards from what extraInitContainers can produce. A native
+# (restartPolicy: Always) sidecar only unblocks the container *after* it in
+# the list, so cloud-sql-proxy must come first. The wait-for-postgres[-redis]
+# entries below are the chart's own default script verbatim (see `helm show
+# values superset/superset` for supersetNode/supersetWorker/init) - keep in
+# sync if the chart's default ever changes.
+supersetNode:
+  initContainers:
+    {{- toYaml (list $cloudSqlProxy $waitPostgresContainer) | nindent 4 }}
+
+supersetWorker:
+  initContainers:
+    {{- toYaml (list $cloudSqlProxy $waitPostgresRedisContainer) | nindent 4 }}
+
+init:
+  # Same reasoning as above, plus a second one: init's real work (superset
+  # db upgrade/init) runs in a regular container that must actually exit
+  # for the Job to complete, but the proxy never exits on its own - a
+  # native sidecar is what lets it run without blocking Job completion.
+  # Same mechanism openworkflow-migrations' own Job already uses.
+  initContainers:
+    {{- toYaml (list $cloudSqlProxy $waitPostgresContainer) | nindent 4 }}

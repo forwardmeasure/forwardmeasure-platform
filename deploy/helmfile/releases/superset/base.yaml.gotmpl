@@ -14,12 +14,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# docker.io/forwardmeasure/superset (not the stock apache/superset image)
+# bakes in psycopg2-binary at build time - see
+# data-fabric-devops-utils/docker-images/superset's Dockerfile/
+# requirements.txt, the same image data-fabric's own platform-helmlines-setup
+# already uses. The stock image ships driver-agnostic - no Postgres DBAPI at
+# all, despite SQLALCHEMY_DATABASE_URI (below) being a plain postgresql://
+# URI - confirmed the hard way running against it directly: every one of
+# supersetNode/supersetWorker/init crashed identically on
+# ModuleNotFoundError: No module named 'psycopg2' the moment it actually
+# reached the database. A bootstrapScript pip-install-at-startup patch
+# worked too but re-runs on every pod start/restart; baked into the image
+# is the real fix, matching how this problem is already solved elsewhere in
+# the ecosystem.
+image:
+  repository: {{ .Values.imageVersions.superset.repository | quote }}
+  tag: {{ .Values.imageVersions.superset.tag | quote }}
+  pullPolicy: {{ .Values.imageVersions.superset.pullPolicy | quote }}
+
 secretEnv: {create: false}
 envFromSecret: superset-env
 redis: {enabled: false}
 postgresql: {enabled: false}
 serviceAccount: {create: true}
-imagePullSecrets: [docker-io-credentials]
+imagePullSecrets: [{name: docker-io-credentials}]
 supersetNode:
   replicas: {enabled: true, replicaCount: {{ .Values.analytics.supersetReplicas }}}
   podDisruptionBudget: {enabled: true, minAvailable: null, maxUnavailable: 1}
@@ -62,14 +80,32 @@ configOverrides:
 init:
   enabled: true
   createAdmin: false
+  # Logging/error-handling style matches data-fabric's own proven
+  # platform-helmlines-setup/releases/superset/base.yaml.gotmpl - admin
+  # creation itself still uses explicit --username/--email/--password flags
+  # sourced from ADMIN_USERNAME/ADMIN_EMAIL/ADMIN_PASSWORD (createAdmin:
+  # false above disables this chart's own native flag-driven admin
+  # creation), not data-fabric's "$@" positional-args form - this
+  # deployment's init Job doesn't pass those, so copying that form verbatim
+  # would silently create an admin with empty credentials.
   initscript: |-
     #!/bin/sh
     set -eu
+    echo "Running DB migrations..."
     superset db upgrade
+    echo "Initializing roles..."
     superset init
+    echo "Creating admin (ignore if exists)..."
+    set +e
     superset fab create-admin \
       --username "${ADMIN_USERNAME}" \
       --firstname Platform \
       --lastname Administrator \
       --email "${ADMIN_EMAIL}" \
-      --password "${ADMIN_PASSWORD}" || true
+      --password "${ADMIN_PASSWORD}"
+    rc=$?
+    set -e
+    if [ "$rc" -ne 0 ]; then
+      echo "create-admin returned non-zero ($rc). Continuing."
+    fi
+    echo "Init job completed successfully."

@@ -20,7 +20,19 @@
 # GCP SA key - keycloak-helm-chart's cloudSqlProxy.ambientCredentials flag
 # (added alongside this file) makes that possible; without it this chart
 # only supported the older static-key mechanism.
+#
+# name must be keycloak-runtime, not this chart's own default
+# (keycloak-service-account) - Terraform's real applied tfvars grants
+# roles/iam.workloadIdentityUser to exactly
+# genai-llm-393115.svc.id.goog[keycloak/keycloak-runtime], matching the
+# <component>-runtime convention used for every other workload identity in
+# this cluster (openworkflow-runtime, superset-runtime). Confirmed the
+# hard way: without this override, the mismatch left cloud-sql-proxy
+# unable to get an access token at all (403 on
+# iam.serviceAccounts.getAccessToken), which kept Keycloak itself from
+# ever reaching its database.
 serviceAccount:
+  name: keycloak-runtime
   annotations:
     iam.gke.io/gcp-service-account: {{ .Values.gcp.keycloakServiceAccountEmail | quote }}
 
@@ -28,3 +40,10 @@ cloudSqlProxy:
   enabled: true
   ambientCredentials: true
   instanceConnectionName: {{ printf "%s:%s:%s" .Values.gcp.projectId .Values.gcp.region .Values.gcp.keycloakCloudSqlInstance | quote }}
+  # Externalized so a version bump is a one-line change in
+  # environments/image-versions.yaml instead of editing keycloak-helm-chart
+  # (which otherwise pins its own default) - same reasoning as
+  # imageVersions.apicurioOperator's own comment there.
+  image:
+    repository: {{ .Values.imageVersions.cloudSqlProxy.repository | quote }}
+    tag: {{ .Values.imageVersions.cloudSqlProxy.tag | quote }}

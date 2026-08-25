@@ -34,6 +34,15 @@ securityConfig:
 opensearch:
   replicas: {{ .Values.openSearch.replicas }}
   opensearchJavaOpts: {{ .Values.openSearch.javaOpts | quote }}
+  # Chart default (4Gi, matching -Xmx2G) OOMKilled every master node on a
+  # real deploy - confirmed the hard way (Exit Code 137, "OOMKilled") -
+  # OpenSearch 3.x's security/performance-analyzer plugin startup needs
+  # more headroom above the JVM heap than that chart default budgets for.
+  # Node pool has ample spare capacity (~60Gi allocatable per node, only
+  # two nodes) for this bump.
+  resources:
+    requests: {memory: 6Gi}
+    limits: {memory: 6Gi}
   persistence:
     enabled: true
     size: {{ .Values.openSearch.storage | quote }}
@@ -46,11 +55,37 @@ opensearch:
       plugins.security.ssl.transport.pemcert_filepath: /usr/share/opensearch/config/certs/tls.crt
       plugins.security.ssl.transport.pemkey_filepath: /usr/share/opensearch/config/certs/tls.key
       plugins.security.ssl.transport.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/ca.crt
+      # Nodes connect to each other by pod IP, not DNS name, and pod IPs
+      # are ephemeral - a cert can't practically carry every future pod's
+      # IP as a SAN. Confirmed the hard way: node-to-node TLS failed with
+      # "No subject alternative names matching IP address ... found"
+      # (java.security.cert.CertificateException), which blocked cluster
+      # formation entirely and surfaced downstream as securityadmin.sh
+      # hanging waiting for a yellow cluster state. nodes_dn above is the
+      # real authorization boundary here (only a cert with an authorized
+      # DN can join), so skipping hostname verification on transport is
+      # the standard, accepted trade-off for exactly this k8s scenario -
+      # not a security regression, since nodes_dn is unaffected.
+      plugins.security.ssl.transport.enforce_hostname_verification: false
       plugins.security.ssl.http.enabled: true
       plugins.security.ssl.http.pemcert_filepath: /usr/share/opensearch/config/certs/tls.crt
       plugins.security.ssl.http.pemkey_filepath: /usr/share/opensearch/config/certs/tls.key
       plugins.security.ssl.http.pemtrustedcas_filepath: /usr/share/opensearch/config/certs/ca.crt
+      # The node certificate's actual Subject CN is the public gateway
+      # hostname (certificates.node.dnsName below), not an internal
+      # service DNS name - it's one cert covering both the external HTTPS
+      # listener and inter-node transport auth, with the internal names
+      # only present as SANs. nodes_dn matches against the certificate's
+      # DN, not its SANs, so the DN it actually presents must be listed
+      # here too - confirmed the hard way: without this, every node
+      # rejected every other node's cert with "could not securely connect
+      # to the cluster... present in the nodes_dn list", which surfaces as
+      # securityadmin.sh hanging (H2StreamResetException) since the
+      # cluster can never form a quorum. The two internal names are kept
+      # in case a future cert split ever gives transport its own,
+      # differently-named certificate.
       plugins.security.nodes_dn:
+        - "CN={{ .Values.gateway.searchHost }}"
         - "CN=opensearch-cluster-master"
         - "CN=opensearch-cluster-master.{{ .Values.namespaces.openSearch }}.svc.cluster.local"
       plugins.security.authcz.admin_dn:

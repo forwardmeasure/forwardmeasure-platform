@@ -38,7 +38,9 @@ kafkaTopics:
   clusterName: kafka-cluster
   partitions: 12
   replicas: 3
-  names: []
+  # Each entry: {name, config: {}, partitions: (defaults to above),
+  # replicas: (defaults to above)}.
+  topics: []
 
 gateway:
   enabled: false
