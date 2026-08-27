@@ -18,7 +18,7 @@ imageVersions:
   keycloak:
     repository: quay.io/keycloak/keycloak
     tag: "26.7.2"
-    digest: "sha256:eb81d22bb82bc358ee10bdd4ab15dea2caae0add01416a1b146e2c7c7eb9cfab"
+    digest: "sha256:c2a17fe407e892196d0b7cf9cef54e60952d6c372a9205f661a9efa0911463b0"
     pullPolicy: IfNotPresent
   # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
   # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own
