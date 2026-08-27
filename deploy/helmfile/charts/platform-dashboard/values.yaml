@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 image:
-  repository: docker.io/forwardmeasure/forwardmeasure-platform-operations
+  repository: docker.io/forwardmeasure/forwardmeasure-platform-operations-quarkus
   tag: 1.0.0
   digest: ""
   pullPolicy: IfNotPresent

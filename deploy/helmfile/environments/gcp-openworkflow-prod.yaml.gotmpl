@@ -22,6 +22,9 @@
 # fake-secret-store default rather than overridden here - see
 # platform-secrets.yaml.gotmpl and its openworkflow-prod credentials layer.
 # {{- $domain := "kriyagentic.com" }}
+# {{- $tenantCode := "lux" }}
+# {{- $tenantHost := printf "%s.%s" $tenantCode $domain }}
+# {{- $tenantDid := printf "did:web:%s" $tenantHost }}
 platform:
   domain: {{ $domain | quote }}
   environment: production
@@ -72,8 +75,8 @@ identity:
       realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
       audiences: [openworkflow-api]
       claims:
-        tenant_did: {{ printf "did:web:lux.%s" $domain | quote }}
-        actor_did: {{ printf "did:web:lux.%s:actors:openworkflow" $domain | quote }}
+        tenant_did: {{ $tenantDid | quote }}
+        actor_did: {{ printf "%s:actors:openworkflow" $tenantDid | quote }}
         actor_type: SERVICE
 
 secretStore:
@@ -88,13 +91,13 @@ secretStore:
     openworkflowAdministratorDatabasePassword: platform-openworkflow-database-administrator-password
 
 bootstrapIdentity:
-  tenantHost: {{ printf "lux.%s" $domain | quote }}
-  tenantDid: {{ printf "did:web:lux.%s" $domain | quote }}
-  actorDid: {{ printf "did:web:lux.%s:actors:platform-admin" $domain | quote }}
+  tenantHost: {{ $tenantHost | quote }}
+  tenantDid: {{ $tenantDid | quote }}
+  actorDid: {{ printf "%s:actors:platform-admin" $tenantDid | quote }}
   actorType: HUMAN
 
 tenants:
-  - host: {{ printf "lux.%s" $domain | quote }}
-    did: {{ printf "did:web:lux.%s" $domain | quote }}
-    code: lux
-    name: Lux
+  - host: {{ $tenantHost | quote }}
+    did: {{ $tenantDid | quote }}
+    code: {{ $tenantCode | quote }}
+    name: {{ $tenantCode | title | quote }}

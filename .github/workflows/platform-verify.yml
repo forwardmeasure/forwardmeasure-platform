@@ -87,7 +87,7 @@ jobs:
           server-password: GITHUB_TOKEN
 
       - name: Build Complete Open-Source Reactor
-        run: mvn -B clean verify
+        run: mvn -f reactor.xml -B clean verify
         working-directory: forwardmeasure-platform
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

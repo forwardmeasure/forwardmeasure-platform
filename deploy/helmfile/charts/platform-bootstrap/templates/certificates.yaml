@@ -58,5 +58,12 @@ metadata:
 spec:
   secretName: {{ .Values.certificates.gateway.tenantSecret }}
   issuerRef: {name: {{ .Values.certificates.issuer.name }}, kind: ClusterIssuer}
-  dnsNames: [{{ .Values.certificates.gateway.tenantHost | quote }}]
+  # One SAN per tenant, not a "*.<domain>" wildcard - see
+  # certificates.gateway.tenantHosts's own comment in values.yaml for why a
+  # wildcard here is a real security/routing hazard, not just a style
+  # preference.
+  dnsNames:
+    {{- range .Values.certificates.gateway.tenantHosts }}
+    - {{ . | quote }}
+    {{- end }}
 {{- end }}

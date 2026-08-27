@@ -17,10 +17,9 @@
 imageVersions:
   keycloak:
     repository: quay.io/keycloak/keycloak
-    tag: "26.5"
-    digest: ""
+    tag: "26.7.2"
+    digest: "sha256:eb81d22bb82bc358ee10bdd4ab15dea2caae0add01416a1b146e2c7c7eb9cfab"
     pullPolicy: IfNotPresent
-
   # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
   # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own
   # comment for why this replaces the stock apache/superset image.
@@ -36,19 +35,25 @@ imageVersions:
     repository: docker.io/forwardmeasure/superset
     tag: "6.1.0"
     pullPolicy: Always
-
   platformDashboard:
-    repository: docker.io/forwardmeasure/forwardmeasure-platform-operations
+    # Quarkus specifically - deploy/helmfile/charts/platform-dashboard's
+    # deployment.yaml only wires QUARKUS_CONFIG_LOCATIONS, not the Spring/
+    # Micronaut equivalents. Was unsuffixed and shared with the spring/
+    # micronaut bindings below it - confirmed the hard way: all three publish
+    # to the same tag by default, so whichever framework's module built last
+    # in the reactor silently overwrote whatever the others had just pushed,
+    # and the chart kept deploying that (usually mismatched) image with no
+    # error until the pod crashed on a config placeholder the wrong
+    # framework doesn't set.
+    repository: docker.io/forwardmeasure/forwardmeasure-platform-operations-quarkus
     tag: "1.0.0"
-    digest: sha256:a04e1adc8a8189ed1db2fbb6857cc9efde9982e65e86a38ed7fad1cf116bf740
-    pullPolicy: IfNotPresent
-
+    digest: sha256:bc70955685e5f586c82e0861ee50dfff1089c3dc534db5448501b27eab92d44f
+    pullPolicy: Always
   modelUtilities:
     repository: docker.io/forwardmeasure/ml-model-utilities
     tag: latest
     digest: sha256:eb705101bf88908ead1ed129580406b72570fbd76fadbbcf38912714b35034de
     pullPolicy: IfNotPresent
-
   # Cloud SQL Auth Proxy sidecar - used by keycloak (via keycloak-helm-chart's
   # own cloudSqlProxy.image, overridden below) and superset (see
   # releases/superset/gcp/base.yaml.gotmpl). One version here instead of a
@@ -56,7 +61,6 @@ imageVersions:
   cloudSqlProxy:
     repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
     tag: "2.21.1"
-
   # apicurio-registry-operator-helm-chart bakes these into its own
   # values.yaml with no consumer override wired up before now - upgrading
   # meant editing helm-charts, bumping its chart version, and publishing,

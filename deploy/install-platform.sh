@@ -30,6 +30,10 @@ PLATFORM_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 WORKSPACE_DIR="$(cd -- "${PLATFORM_DIR}/.." && pwd)"
 ENVIRONMENT="${1:?Usage: $0 <configured-environment>}"
 
+"${SCRIPT_DIR}/scripts/sync-image-digests.sh" \
+  "${SCRIPT_DIR}/helmfile/environments/image-versions.yaml" \
+  "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/environments/image-versions.yaml"
+
 "${SCRIPT_DIR}/helmfile/install.sh" "${ENVIRONMENT}"
 "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/install.sh" "${ENVIRONMENT}"
 

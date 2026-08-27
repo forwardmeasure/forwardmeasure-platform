@@ -26,7 +26,30 @@ image:
   digest: {{ .Values.imageVersions.keycloak.digest | quote }}
   pullPolicy: {{ .Values.imageVersions.keycloak.pullPolicy | quote }}
 keycloak:
-  hostname: {{ .Values.gateway.authHost | quote }}
+  # Full URL, not a bare hostname - confirmed live (port-forwarding straight
+  # to keycloak-internal:8080 and querying .well-known/openid-configuration)
+  # that a bare hostname value only pins the *host* part of every advertised
+  # endpoint (token_endpoint, jwks_uri, issuer, ...); Keycloak's v2 hostname
+  # provider still derives the *port* from X-Forwarded-Port when present and
+  # from the raw connection otherwise. proxyHeaders: xforwarded below
+  # supplies that header correctly for traffic that actually comes through
+  # the Gateway (443), but any in-cluster/backchannel caller that reaches
+  # Keycloak directly on its own port 8080 - e.g. openworkflow-*-quarkus's
+  # OIDC discovery via keycloak-internal.keycloak.svc.cluster.local:8080 -
+  # got back endpoint URLs of the form auth.kriyagentic.com:8080, which
+  # nothing serves (the public Gateway only listens on 443 for this host,
+  # and internal DNS doesn't route the public hostname to the internal
+  # Service either way) - confirmed as the exact cause of definition-
+  # management-quarkus's CrashLoopBackOff (Connection refused connecting to
+  # auth.kriyagentic.com:8080 during OIDC startup). A full scheme+host+port
+  # URL makes Keycloak use this literal value for every advertised endpoint
+  # unconditionally, independent of how a given request actually reached
+  # it - the documented fix for exactly this reverse-proxy-plus-backchannel
+  # shape. Port 443 confirmed live as the auth-https Gateway listener's
+  # actual port (kubectl get gateway platform-gateway -o jsonpath
+  # ...listeners[]), spelled out explicitly rather than left to an assumed
+  # https-default.
+  hostname: {{ printf "https://%s:443" .Values.gateway.authHost | quote }}
   hostnameStrict: "true"
   proxyHeaders: xforwarded
   httpRelativePath: /
@@ -37,6 +60,22 @@ tls:
   secretName: {{ .Values.identity.tlsSecret | quote }}
 realm:
   import: bootstrap
+  # Chart default is "scripts,authorization" - adds "organization" so
+  # Keycloak's native Organizations feature (what OpenWorkflow's own AuthZEN
+  # authorization reads: a nested `organization` JWT claim) is actually
+  # available. Server-level flag - KC_FEATURES, see statefulset.yaml - so
+  # this alone only unlocks the API/admin-console surface; the realm itself
+  # still needs organizationsEnabled: true (forwardmeasure-realm.json).
+  #
+  # "authzen" enables Keycloak's own /realms/{realm}/authzen/access/v1/
+  # evaluation endpoint (OpenID AuthZEN 1.0, Keycloak's own experimental PDP
+  # API - see AuthzenAuthorizationService, which calls exactly this path).
+  # Experimental, not bundled into "authorization" or any preview set - has
+  # to be named explicitly. Confirmed live: without it, every request to
+  # that endpoint 404s regardless of how the client's own Authorization
+  # Services (resources/scopes/policies) are configured - the route itself
+  # isn't registered.
+  features: "scripts,authorization,organization,authzen"
   realm: {{ .Values.identity.realm | quote }}
   displayName: {{ .Values.identity.displayName | quote }}
   loginTheme: {{ .Values.identity.loginTheme | quote }}
@@ -93,6 +132,21 @@ bootstrapAdminUser:
   # auditor/administrator) - additive, not a replacement, since the platform
   # admin needs both entity-intelligence's and OpenWorkflow's roles.
   tenantGroupRoles: dossier-control,investigation-control,entity-control,resolution-control,evidence-control,audit-control,ingestion-control,screening-control,information-extraction-control,agent-control,workflow-control,workflow-execution-purge,human-task-control,workflow-author,workflow-approver,workflow-publisher,workflow-execution-controller,workflow-auditor,workflow-administrator
+  # These are plain realm roles above (tenantGroupRoles), not what
+  # KeycloakOrganizationClaims reads - that needs the platform admin to be a
+  # member of the tenant's Keycloak Organization AND of one of its
+  # client-role-mapped groups, which TenantOrganizationReconciler
+  # deliberately never assigns on its own. Defaults to the first configured
+  # tenant so the platform admin can exercise OpenWorkflow end-to-end
+  # without a separate per-tenant grant; environments with no tenants yet
+  # leave this empty and configure_tenant_organization_membership() skips.
+  {{- if .Values.tenants }}
+  tenantOrganizationAlias: {{ (index .Values.tenants 0).code | quote }}
+  tenantOrganizationRole: workflow-administrator
+  {{- else }}
+  tenantOrganizationAlias: ""
+  tenantOrganizationRole: ""
+  {{- end }}
   platformRoles:
     viewer: platform-viewer
     accessAdmin: platform-access-admin

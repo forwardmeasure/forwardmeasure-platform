@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements. See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License. You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!--
+Standalone compatibility-verification reactor for the whole Apache-licensed ForwardMeasure stack
+(see README.md's "Artifact compatibility" section and .github/workflows/platform-verify.yml,
+which builds this file's module list, not pom.xml's). Deliberately not named pom.xml and
+deliberately not a parent of anything and has no parent of its own - the whole point is that
+nothing ever discovers this file by walking a <parent> chain. Run with:
+
+    mvn -f reactor.xml -B clean install
+
+This is never installed or deployed as a real artifact - it exists purely to drive a local
+multi-repo build. See pom.xml's own <modules> comment for why the sibling repos used to be listed
+there directly instead, and why that broke every Quarkus module's local build ecosystem-wide.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.forwardmeasure.platform</groupId>
+  <artifactId>forwardmeasure-compatibility-reactor</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <name>ForwardMeasure Compatibility Reactor</name>
+  <description>Local-build-only aggregator for the whole Apache-licensed ForwardMeasure stack - never installed or deployed</description>
+
+  <modules>
+    <module>.</module>
+    <module>../forwardmeasure-testcontainers</module>
+    <module>../forwardmeasure-database-migrations</module>
+    <module>../forwardmeasure-jpa</module>
+    <module>../forwardmeasure-object-storage</module>
+    <module>../forwardmeasure-nlp</module>
+    <module>../forwardmeasure-entity-matching</module>
+    <module>../forwardmeasure-openworkflow</module>
+    <module>../forwardmeasure-platform-operations</module>
+  </modules>
+</project>

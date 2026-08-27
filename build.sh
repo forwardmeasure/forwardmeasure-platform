@@ -1,1 +1,2 @@
-mvn -Drat.skip=true -DskipTests -Pcontainer-image -Dcontainer-image.tag=1.0.0 -Dquarkus.container-image.push=true clean install
+cd /home/pn/Documents/code/forwardmeasure/forwardmeasure-platform
+mvn -f reactor.xml -Pcontainer-image -Drat.skip=true -Dcontainer-image.push=true -DskipTests clean install

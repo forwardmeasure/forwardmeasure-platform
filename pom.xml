@@ -36,12 +36,14 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
   <scm>
     <connection>scm:git:https://github.com/forwardmeasure/forwardmeasure-platform.git</connection>
     <developerConnection>scm:git:git@github.com:forwardmeasure/forwardmeasure-platform.git</developerConnection>
     <url>https://github.com/forwardmeasure/forwardmeasure-platform</url>
     <tag>HEAD</tag>
   </scm>
+  
   <issueManagement>
     <system>GitHub</system>
     <url>https://github.com/forwardmeasure/forwardmeasure-platform/issues</url>
@@ -185,6 +187,24 @@
     </repository>
   </repositories>
 
+  <!--
+  Only this repo's own modules - no sibling repos (testcontainers, database-migrations, jpa,
+  object-storage, nlp, entity-matching, openworkflow, platform-operations). Those used to be
+  listed here directly, but that made this pom BOTH the shared parent every module inherits from
+  AND a mega-reactor aggregating the whole ecosystem - and Quarkus's own bootstrap resolver
+  (quarkus-bootstrap-maven-resolver, used for quarkus:dev and generate-code-tests) discovers its
+  "workspace" by walking up the <parent> chain to the topmost pom and then treats every <module>
+  reachable from there as local, reading each one's RAW un-flattened source pom.xml directly
+  instead of its properly-flattened, installed artifact. Since every module in every one of these
+  repos has this pom as an ancestor, that meant ANY Quarkus module build anywhere in the ecosystem
+  could fail on an unrelated sibling repo's un-flattened ${revision} parent reference - confirmed
+  live via -X debug output tracing a build failure in forwardmeasure-openworkflow straight back to
+  forwardmeasure-jpa's raw source pom, even though the actual, correctly-flattened
+  forwardmeasure-jpa-tenancy:1.0.0 artifact was already resolving fine through normal Maven.
+  The cross-repo compatibility-verification reactor this used to also serve (see README.md and
+  .github/workflows/platform-verify.yml) still exists - it just lives in reactor.xml now, which
+  is not anyone's parent, so Quarkus's workspace walk never reaches it.
+  -->
   <modules>
     <module>forwardmeasure-platform-core-bom</module>
     <module>forwardmeasure-platform-quarkus-bom</module>
@@ -192,14 +212,6 @@
     <module>forwardmeasure-platform-micronaut-bom</module>
     <module>forwardmeasure-platform-policy-maven-plugin</module>
     <module>forwardmeasure-platform-build-contract-tests</module>
-    <module>../forwardmeasure-testcontainers</module>
-    <module>../forwardmeasure-database-migrations</module>
-    <module>../forwardmeasure-jpa</module>
-    <module>../forwardmeasure-object-storage</module>
-    <module>../forwardmeasure-nlp</module>
-    <module>../forwardmeasure-entity-matching</module>
-    <module>../forwardmeasure-openworkflow</module>
-    <module>../forwardmeasure-platform-operations</module>
     <module>forwardmeasure-platform-bom</module>
     <module>forwardmeasure-platform-compatibility-tests</module>
   </modules>
@@ -808,6 +820,20 @@
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
           <version>${fabric8.docker.version}</version>
+          <!--
+          Wires docker.skip.push (defaults true above; the push-container-image profile below
+          flips it false when -Dcontainer-image.push=true is passed) into the plugin's actual
+          skipPush parameter. Centralized here, in the shared pluginManagement, so every
+          fabric8-based leaf module across every repo in this ecosystem gets correct push-gating
+          automatically - previously this was declared per-repo (forwardmeasure-openworkflow had
+          its own copy) and several leaf poms (forwardmeasure-nlp's
+          named-entity-recognition-service; forwardmeasure-platform-operations' spring, micronaut
+          and operations-keycloak-theme modules) had no push execution bound at all, so they only
+          ever built images, never pushed them, with no error.
+          -->
+          <configuration>
+            <skipPush>${docker.skip.push}</skipPush>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>com.forwardmeasure.platform</groupId>
@@ -965,6 +991,31 @@
     </plugins>
   </build>
   <profiles>
+    <!--
+    Centralized here so every repo that inherits from this pom (directly or transitively) gets
+    correct -Pcontainer-image / -Dcontainer-image.push=true behavior without redeclaring it -
+    forwardmeasure-openworkflow had its own copy of the container-image.build override;
+    forwardmeasure-platform-operations and forwardmeasure-nlp had none at all, which meant their
+    Quarkus-based images (quarkus.container-image.build reads container-image.build) never
+    actually built when -Pcontainer-image was passed, let alone pushed - the property stayed at
+    this pom's own default (false) all the way down, since Maven properties are resolved per
+    module from its own ancestry, not shared globally across a reactor.
+    -->
+    <profile>
+      <id>container-image</id>
+      <properties>
+        <container-image.build>true</container-image.build>
+      </properties>
+    </profile>
+    <profile>
+      <id>push-container-image</id>
+      <activation>
+        <property><name>container-image.push</name><value>true</value></property>
+      </activation>
+      <properties>
+        <docker.skip.push>false</docker.skip.push>
+      </properties>
+    </profile>
     <profile>
       <id>coverage</id>
       <build>

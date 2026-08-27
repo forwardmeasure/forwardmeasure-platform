@@ -33,7 +33,18 @@ certificates:
     namespace: {{ .Values.namespaces.istio | quote }}
     rootHost: {{ .Values.gateway.rootHost | quote }}
     rootSecret: platform-root-tls
-    tenantHost: {{ .Values.gateway.tenantHost | quote }}
+    # Each tenant's own host plus a "*.<tenant-host>" SAN for any future
+    # per-tenant subdomains - deliberately not the "*.<domain>" wildcard
+    # gateway.tenantHost below still uses for the listener's own hostname
+    # *pattern* (SNI routing only, unrelated to what the cert itself is
+    # valid for). Onboarding a new tenant means adding its host here, which
+    # triggers a real ACME re-issuance - not yet automated as part of
+    # tenant provisioning itself.
+    tenantHosts:
+      {{- range .Values.tenants }}
+      - {{ .host | quote }}
+      - {{ printf "*.%s" .host | quote }}
+      {{- end }}
     tenantSecret: platform-tenant-tls
 gateway:
   enabled: true

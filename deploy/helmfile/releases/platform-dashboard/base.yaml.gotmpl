@@ -46,7 +46,15 @@ applications:
   - id: openworkflow-studio
     name: OpenWorkflow Studio
     description: Author, publish, run and inspect durable Open Workflow definitions.
-    href: /workflows/
+    # Same-origin absolute path, not a full URL - PlatformApplicationPath
+    # (operations-api-application) explicitly requires this shape (rejects
+    # anything with a scheme/authority) since the dashboard and Studio are
+    # both served under the same tenant host, just different path prefixes.
+    # Was "/workflows/", a path nothing has ever routed - confirmed live
+    # (404, no matching Gateway route anywhere). The real, working route is
+    # "/owf/studio/" (see deploy/helmfile/charts/openworkflow-gateway's own
+    # routes.studio.publicPathPrefix).
+    href: /owf/studio/
   - id: entity-intelligence
     name: Entity Intelligence
     description: Ingest populations and evidence, screen, resolve entities and manage investigations.
@@ -64,23 +72,41 @@ components:
     name: OpenWorkflow Definition API
     category: ORCHESTRATION
     probe: HTTP
-    healthUri: {{ printf "http://openworkflow-definition-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
-    # Was a bare relative path (/workflows/) - every other component here
-    # uses an absolute https:// URL, and the dashboard's own
-    # PlatformDashboardConfigurationValidator rejects anything else
-    # ("Platform console URI must be an HTTP(S) URI"), confirmed the hard
-    # way. OpenWorkflow Studio is this capability's actual console/UI.
-    consoleUri: {{ printf "https://%s/" .Values.gateway.studioHost | quote }}
+    # Was "openworkflow-definition-quarkus" - no such Service exists
+    # (confirmed live: kubectl get svc -n forwardmeasure-openworkflow lists
+    # "openworkflow-definition-management-quarkus"). A health probe against
+    # a hostname that doesn't resolve is exactly the kind of failure that
+    # was surfacing as the dashboard's whole component list failing to
+    # load, not just this one component showing unhealthy.
+    healthUri: {{ printf "http://openworkflow-definition-management-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
+    # gateway.studioHost (studio.kriyagentic.com) was never wired to an
+    # actual Gateway listener - confirmed live (TLS handshake fails outright,
+    # no certificate covers that name). Studio is really only reachable
+    # under the tenant host's own "/owf/studio" path (see
+    # openworkflow-gateway's routes.studio.publicPathPrefix), so this needs
+    # a real tenant's host, not the dead studioHost value. Single-tenant
+    # today, same reasoning as bootstrapIdentity/tenants[0] elsewhere in
+    # this environment's config - revisit once this needs to vary per
+    # tenant rather than describe one fixed capability landing page.
+    consoleUri: {{ printf "https://%s/owf/studio/" (index .Values.tenants 0).host | quote }}
   - id: openworkflow-kafka
     name: OpenWorkflow Kafka Engine
     category: ORCHESTRATION
     probe: HTTP
-    healthUri: {{ printf "http://openworkflow-kafka.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
+    # Was "openworkflow-kafka" - actual Service is
+    # "openworkflow-engine-kafka-streams-quarkus" (kubectl get svc,
+    # confirmed live), same class of stale-hostname bug as the definition
+    # component above.
+    healthUri: {{ printf "http://openworkflow-engine-kafka-streams-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
   - id: openworkflow-pekko
     name: OpenWorkflow Pekko Engine
     category: ORCHESTRATION
     probe: HTTP
-    healthUri: {{ printf "http://openworkflow-pekko-postgresql.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
+    # Was "openworkflow-pekko-postgresql" - actual Service is
+    # "openworkflow-engine-pekko-postgresql-quarkus" (kubectl get svc,
+    # confirmed live), same class of stale-hostname bug as the other two
+    # openworkflow components above.
+    healthUri: {{ printf "http://openworkflow-engine-pekko-postgresql-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
   - id: keycloak
     name: Identity And Access Management
     category: IDENTITY

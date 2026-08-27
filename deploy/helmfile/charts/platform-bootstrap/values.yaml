@@ -29,7 +29,27 @@ certificates:
     namespace: istio-system
     rootHost: platform.example.com
     rootSecret: platform-root-tls
-    tenantHost: "*.example.com"
+    # Per-tenant SANs for the tenant-https listener's certificate -
+    # deliberately NOT a "*.example.com" wildcard: a wildcard here would be
+    # cryptographically valid for every other single-label host under the
+    # same domain (auth, registry, search, analytics, the root platform
+    # host), each of which already has its own dedicated, non-wildcard
+    # certificate specifically so they're isolated from each other. A shared
+    # wildcard cert lets a browser silently reuse (HTTP/2 connection
+    # coalescing) an already-open tenant connection for a request to one of
+    # those other hosts, landing on the tenant listener's route table -
+    # which has no route for it - instead of opening a fresh, correctly
+    # SNI-routed connection. Confirmed the hard way via a HAR capture: a
+    # real browser's request to auth.<domain> came back a bare, routeless
+    # 404 (no upstream-service-time header at all) purely because it reused
+    # a connection still open from the tenant page, even though every
+    # hand-crafted request to the identical URL succeeded. The tenant-https
+    # *listener*'s own hostname match stays a wildcard pattern below
+    # (gateway.tenantHost) - that only controls which SNI values get routed
+    # to this listener at all, not what the certificate is valid for, so
+    # onboarding a new tenant still needs no listener change, only adding
+    # its host here.
+    tenantHosts: ["example.com"]
     tenantSecret: platform-tenant-tls
 
 kafkaTopics:

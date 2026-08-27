@@ -10,14 +10,17 @@ The Java parent and BOM adoption pattern is documented in
 
 ## Artifact compatibility
 
-The root Maven reactor builds the compatible Apache-licensed ForwardMeasure
-stack from sibling source repositories. The proprietary Entity Intelligence
-source is not included. ForwardMeasure Agents is not part of this compatibility
-train until it consumes the current OpenWorkflow APIs instead of retired OKS
-artifacts.
+`reactor.xml` builds the compatible Apache-licensed ForwardMeasure stack from
+sibling source repositories - a standalone aggregator, not this repo's own
+`pom.xml` and not a parent of anything, so that Quarkus's own bootstrap
+resolver (used by `quarkus:dev` and Quarkus's test-mode code generation) never
+discovers the sibling repos while building any individual component locally.
+The proprietary Entity Intelligence source is not included. ForwardMeasure
+Agents is not part of this compatibility train until it consumes the current
+OpenWorkflow APIs instead of retired OKS artifacts.
 
 ```bash
-mvn -B clean install
+mvn -f reactor.xml -B clean install
 ```
 
 Individual component repositories remain independently buildable against the
