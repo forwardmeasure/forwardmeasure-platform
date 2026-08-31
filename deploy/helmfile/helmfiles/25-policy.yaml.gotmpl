@@ -14,25 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-chartVersions:
-  istio: "1.30.2"
-  certManager: "v1.21.0"
-  externalSecrets: "2.0.1"
-  platformSecrets: "0.1.5"
-  platformRouting: "0.0.11"
-  keycloak: "0.0.25"
-  strimzi: "1.2.0"
-  kafka: "0.0.4"
-  apicurioOperator: "0.1.2"
-  apicurioDeployment: "0.1.2"
-  openSearch: "0.1.5"
-  kserve: "v0.20.0"
-  knativeOperator: "1.23.0"
-  knativeResources: "0.0.18"
-  modelCache: "0.1.8"
-  modelServing: "0.1.26"
-  docling: "0.0.8"
-  valkey: "0.11.0"
-  superset: "0.22.4"
-  opa: "0.1.1"
-  decisionEngine: "0.1.1"
+repositories:
+  - name: forwardmeasure
+    url: https://forwardmeasure.github.io/helm-charts
+
+releases:
+  # Standalone policy-decision server (plain REST API), not the Kubernetes
+  # admission-controller / Gatekeeper use case - no hard dependency on
+  # identity (20-identity), just grouped next to it since both are
+  # security-decision infrastructure. Currently the only caller is
+  # forwardmeasure-agent-os's own agent-os-policy-{quarkus,spring,micronaut}
+  # (see that repo's OpaPolicyEvaluator).
+  - name: opa
+    namespace: {{ .Values.namespaces.opa }}
+    chart: forwardmeasure/opa
+    version: {{ .Values.chartVersions.opa | quote }}
+    labels: {stage: policy, component: opa}
+    values:
+      - ../releases/opa/base.yaml.gotmpl

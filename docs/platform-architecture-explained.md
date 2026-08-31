@@ -7,6 +7,28 @@
 > concrete Entity Intelligence module and workflow details require revalidation
 > against the replacement implementation.
 
+> **Stale, 2026-08-30: this document describes a pre-unification, single-engine
+> architecture that no longer matches reality, not just an outdated repo name.**
+> The standalone `openworkflow-kafka-streams` (OKS) repo it treats as "the engine"
+> throughout has been retired — that capability, and the separate standalone
+> `openworkflow-actor-engine` repo, now both live inside one unified repo,
+> `forwardmeasure-openworkflow`, which offers **two pluggable execution engines**
+> (Kafka-Streams and Pekko/actor-based) behind one shared REST facade — a fact this
+> document doesn't mention anywhere, since it predates that design. Module names cited
+> below (`oks-controller-service`, `oks-catalogue-quarkus`, `oks-agent-a2a-service`, etc.)
+> are the old standalone repo's internal names and have not been re-verified against
+> `forwardmeasure-openworkflow`'s current module structure; treat every specific
+> class/module/topic name below as unverified until checked against the current repo.
+> The high-level product-boundary framing (platform repo = release train, not a
+> monorepo; Entity Intelligence = a customer workflow author, not a second execution
+> engine) is still directionally correct. For the current, accurate picture of the
+> engine itself, start from `forwardmeasure-openworkflow/docs/` (see especially
+> `docs/operations.md` for deployment profiles and `docs/engine-construct-gap-audit.md`
+> for what each of the two engines actually supports today) rather than this document
+> or anything inside the now-retired `openworkflow-kafka-streams` repo. This document
+> needs a real rewrite against the unified repo, not a patch — flagging rather than
+> guessing at that rewrite.
+
 *A gentle guide for someone who knows the code exists but not yet how it works.*
 
 *Written 2026-08-09. Grounded in the current source of `forwardmeasure-platform`, `openworkflow-kafka-streams`, `forwardmeasure-jpa`, and `entity-intelligence`. Where the codebase is honestly incomplete or has changed recently, this document says so rather than papering over it.*

@@ -50,6 +50,8 @@ there directly instead, and why that broke every Quarkus module's local build ec
     <module>../forwardmeasure-nlp</module>
     <module>../forwardmeasure-entity-matching</module>
     <module>../forwardmeasure-openworkflow</module>
+    <module>../forwardmeasure-decision-engine</module>
+    <module>../forwardmeasure-agent-os</module>
     <module>../forwardmeasure-platform-operations</module>
   </modules>
 </project>

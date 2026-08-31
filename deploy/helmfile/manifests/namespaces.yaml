@@ -85,3 +85,7 @@ metadata: {name: valkey}
 apiVersion: v1
 kind: Namespace
 metadata: {name: superset}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: opa}

@@ -333,17 +333,15 @@ yq eval-all '. as $item ireduce ({}; . * $item)' \
 Then edit `deploy/helmfile/environments/production.yaml` and replace the
 remaining tenant, email, client and container-image digest examples.
 
-Create and edit the corresponding environment files in the sibling projects:
+Create and edit the corresponding environment file in the sibling
+`forwardmeasure-entity-intelligence` project:
 
 ```bash
-cp ../../../../openworkflow-kafka-streams/deploy/helmfile/environments/gcp-greenfield.example.yaml \
-  ../../../../openworkflow-kafka-streams/deploy/helmfile/environments/production.yaml
-
 cp ../../../../forwardmeasure-entity-intelligence/deploy/helmfile/environments/gcp-greenfield.example.yaml \
   ../../../../forwardmeasure-entity-intelligence/deploy/helmfile/environments/production.yaml
 ```
 
-For both files, set the same tenant ID, code, hostname and DID. Also set:
+Set the same tenant ID, code, hostname and DID as above. Also set:
 
 - the Keycloak issuer and public client ID;
 - the Cloud SQL private IP and appropriate database name;
@@ -351,10 +349,23 @@ For both files, set the same tenant ID, code, hostname and DID. Also set:
 - the tenant-specific OKS adapter client-secret name; and
 - every deployed container-image digest.
 
-Finally, register `production` in each repository's
+Finally, register `production` in this repository's
 `deploy/helmfile/helmfile.yaml.gotmpl`, following the existing
 `gcp-greenfield-example` entry. This step is currently manual and is recorded
 as deployment tooling work in `k8s-infrastructure/TODO.md`.
+
+> **The standalone `openworkflow-kafka-streams` sibling repo referenced by earlier
+> revisions of this guide has been retired** — the engine capability it provided now
+> lives inside the unified `forwardmeasure-openworkflow` repo, alongside a second,
+> selectable Pekko-based engine. That repo does **not** use the copy-an-example-yaml
+> pattern above; production values are supplied through environment-backed secret and
+> endpoint inputs at Helmfile render time instead. See
+> `forwardmeasure-openworkflow/docs/operations.md` for its actual current deployment
+> profiles (`production-postgresql`, `production-cassandra`) and render/diff/sync
+> commands. **This section has not yet been reconciled with that repo's real secret
+> schema** — treat it as an open TODO, not a verified procedure, until someone walks
+> through a real `forwardmeasure-openworkflow` production render end-to-end and updates
+> this guide with the exact inputs it expects.
 
 ## Step 10: Validate and install the software
 

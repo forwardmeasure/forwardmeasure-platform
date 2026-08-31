@@ -73,6 +73,8 @@ helmfiles:
     values: {{ toYaml $values | nindent 6 }}
   - path: helmfiles/20-identity.yaml.gotmpl
     values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/25-policy.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
   - path: helmfiles/30-messaging.yaml.gotmpl
     values: {{ toYaml $values | nindent 6 }}
   - path: helmfiles/40-search.yaml.gotmpl
@@ -82,4 +84,6 @@ helmfiles:
   - path: helmfiles/60-analytics.yaml.gotmpl
     values: {{ toYaml $values | nindent 6 }}
   - path: helmfiles/70-platform-dashboard.yaml.gotmpl
+    values: {{ toYaml $values | nindent 6 }}
+  - path: helmfiles/80-decision-engine.yaml.gotmpl
     values: {{ toYaml $values | nindent 6 }}

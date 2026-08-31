@@ -45,6 +45,23 @@ namespaces:
   docling: docling-serve
   valkey: valkey
   superset: superset
+  opa: opa
+  decisionEngine: decision-engine
+
+decisionEngine:
+  # Disabled until platform infrastructure provisions its database, runtime
+  # credentials, and namespace-scoped Valkey credentials. The release wiring is
+  # ready; enabling it without those prerequisites would create a non-functional pod.
+  enabled: false
+  replicas: 1
+  database:
+    url: jdbc:postgresql://localhost:5432/decision_engine
+    credentialsSecret: decision-engine-database-credentials
+  factWindow:
+    valkey:
+      host: valkey.valkey.svc.cluster.local
+      port: 6379
+      credentialsSecret: decision-engine-valkey-auth
 
 gatewayApi:
   version: v1.5.1

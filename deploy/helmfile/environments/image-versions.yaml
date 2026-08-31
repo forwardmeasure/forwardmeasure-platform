@@ -15,6 +15,11 @@
 # limitations under the License.
 #
 imageVersions:
+  decisionEngine:
+    repository: docker.io/forwardmeasure/decision-engine-quarkus
+    tag: "0.1.0"
+    digest: ""
+    pullPolicy: IfNotPresent
   keycloak:
     repository: quay.io/keycloak/keycloak
     tag: "26.7.2"
@@ -47,7 +52,7 @@ imageVersions:
     # framework doesn't set.
     repository: docker.io/forwardmeasure/forwardmeasure-platform-operations-quarkus
     tag: "1.0.0"
-    digest: sha256:bc70955685e5f586c82e0861ee50dfff1089c3dc534db5448501b27eab92d44f
+    digest: sha256:7e492acb7ba572cd8e2065600e94d6fa49088d0d4592bc71c71aa8eeb988f56b
     pullPolicy: Always
   modelUtilities:
     repository: docker.io/forwardmeasure/ml-model-utilities
@@ -79,3 +84,11 @@ imageVersions:
   apicurioRegistryGitopsSync:
     repository: quay.io/apicurio/apicurio-registry-gitops-sync
     tag: "3.3.1"
+  # Upstream OPA project's own Docker Hub org, same as every other
+  # third-party image here - not rehosted. Digest confirmed via two
+  # independent `docker pull` + `docker inspect` runs (2026-08-28).
+  opa:
+    repository: docker.io/openpolicyagent/opa
+    tag: "1.20.1"
+    digest: "sha256:4ea5e3f5c5fa36f300448c701d48a5411ee3b7eafe399ec58cf5fb777853ad86"
+    pullPolicy: IfNotPresent
