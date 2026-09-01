@@ -16,8 +16,8 @@
   limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.forwardmeasure.platform</groupId>
@@ -43,7 +43,7 @@
     <url>https://github.com/forwardmeasure/forwardmeasure-platform</url>
     <tag>HEAD</tag>
   </scm>
-  
+
   <issueManagement>
     <system>GitHub</system>
     <url>https://github.com/forwardmeasure/forwardmeasure-platform/issues</url>
@@ -64,7 +64,7 @@
     <project.build.outputTimestamp>1980-01-01T00:00:02Z</project.build.outputTimestamp>
     <maven.compiler.release>25</maven.compiler.release>
 
-    <jackson.version>2.22.1</jackson.version>
+    <jackson.version>2.22.2</jackson.version>
     <slf4j.version>2.0.18</slf4j.version>
     <junit.version>6.1.2</junit.version>
     <testcontainers.version>2.0.5</testcontainers.version>
@@ -114,7 +114,7 @@
     <cron-utils.version>9.2.1</cron-utils.version>
     <hikaricp.version>7.1.0</hikaricp.version>
     <hdrhistogram.version>2.2.2</hdrhistogram.version>
-    <netty.version>4.2.16.Final</netty.version>
+    <netty.version>4.2.17.Final</netty.version>
     <reactive-streams.version>1.0.4</reactive-streams.version>
     <kafka.version>4.3.1</kafka.version>
     <jnr-ffi.version>2.2.17</jnr-ffi.version>
@@ -130,9 +130,32 @@
     <mapstruct.version>1.6.3</mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 
-    <quarkus.platform.version>3.38.1</quarkus.platform.version>
+    <quarkus.platform.version>3.39.1</quarkus.platform.version>
     <quarkus.bootstrap.workspace-discovery>false</quarkus.bootstrap.workspace-discovery>
-    <spring-boot.version>4.1.0</spring-boot.version>
+    <!--
+    quarkus.bootstrap.effective-model-builder=true was tried here to fix a real, documented Quarkus
+    bug (quarkusio/quarkus#7747): Quarkus's bootstrap resolver re-reads any Maven-reactor sibling's
+    raw pom.xml without property interpolation, so a sibling using CI-friendly ${revision}
+    versioning (forwardmeasure-jpa, built as a reactor.xml module alongside this repo) fails with
+    the literal string "${revision}" being resolved as a real Maven coordinate. Reverted: enabling
+    it trades that bug for a different, genuine Quarkus bug - confirmed via a full stack trace, not
+    guessed - io.quarkus.bootstrap.resolver.maven.workspace.WorkspaceLoader.findVersions calls
+    List.of(a, b) with a null element while importing a <dependencyManagement> BOM for another
+    reactor sibling's (forwardmeasure-entity-intelligence) effective model, and List.of() rejects
+    nulls outright. Net loss, not a fix, for this reactor's composition. Left disabled until either
+    Quarkus fixes that null-handling bug or a different workaround (e.g. building ${revision}-versioned
+    siblings outside this same reactor session) is chosen instead.
+    -->
+    <spring-boot.version>4.1.1</spring-boot.version>
+    <!--
+    Reverted from 5.1.3 to 5.1.0: io.micronaut.jaxrs:micronaut-jaxrs-server (a separate artifact
+    family from core Micronaut, doesn't publish in lockstep with micronaut.platform.version) has
+    not published a 5.1.3 release - confirmed directly against Maven Central's metadata, its latest
+    is still 5.1.0. Bumping the platform version alone broke dependency resolution for
+    agent-os-governance-micronaut. Mixing a newer core-Micronaut version against an older jaxrs
+    version was considered and rejected as riskier than staying on the version where everything is
+    confirmed in sync.
+    -->
     <micronaut.platform.version>5.1.0</micronaut.platform.version>
 
     <maven.clean.version>3.5.0</maven.clean.version>
@@ -177,15 +200,21 @@
     </container-image.base-jre>
   </properties>
 
+  <!--
   <repositories>
     <repository>
       <id>github</id>
       <name>ForwardMeasure GitHub Packages</name>
       <url>https://maven.pkg.github.com/forwardmeasure/*</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
+-->
 
   <!--
   Only this repo's own modules - no sibling repos (testcontainers, database-migrations, jpa,
@@ -217,452 +246,452 @@
   </modules>
 
   <dependencyManagement>
-      <dependencies>
-          <dependency>
-              <groupId>io.grpc</groupId>
-              <artifactId>grpc-bom</artifactId>
-              <version>${grpc.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.kafka</groupId>
-              <artifactId>kafka-streams</artifactId>
-              <version>${kafka.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.kafka</groupId>
-              <artifactId>kafka-clients</artifactId>
-              <version>${kafka.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.hdrhistogram</groupId>
-              <artifactId>HdrHistogram</artifactId>
-              <version>${hdrhistogram.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>at.yawk.lz4</groupId>
-              <artifactId>lz4-java</artifactId>
-              <version>${lz4.java.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.nats</groupId>
-              <artifactId>jnats</artifactId>
-              <version>${jnats.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.bouncycastle</groupId>
-              <artifactId>bcprov-jdk18on</artifactId>
-              <version>${bouncycastle.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.eclipse.paho</groupId>
-              <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
-              <version>${paho.mqtt.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.eclipse.paho</groupId>
-              <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-              <version>${paho.mqtt.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.rabbitmq</groupId>
-              <artifactId>amqp-client</artifactId>
-              <version>${rabbitmq.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.qpid</groupId>
-              <artifactId>qpid-jms-client</artifactId>
-              <version>${qpid.jms.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.lettuce</groupId>
-              <artifactId>lettuce-core</artifactId>
-              <version>${lettuce.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pulsar</groupId>
-              <artifactId>pulsar-client</artifactId>
-              <version>${pulsar.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>software.amazon.awssdk</groupId>
-              <artifactId>sns</artifactId>
-              <version>${aws.sdk.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>software.amazon.awssdk</groupId>
-              <artifactId>sqs</artifactId>
-              <version>${aws.sdk.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>software.amazon.awssdk</groupId>
-              <artifactId>secretsmanager</artifactId>
-              <version>${aws.sdk.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.google.cloud</groupId>
-              <artifactId>google-cloud-pubsub</artifactId>
-              <version>${google.pubsub.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.google.api.grpc</groupId>
-              <artifactId>proto-google-common-protos</artifactId>
-              <version>${google.common.protos.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.opentelemetry</groupId>
-              <artifactId>opentelemetry-api</artifactId>
-              <version>${opentelemetry.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.opentelemetry</groupId>
-              <artifactId>opentelemetry-common</artifactId>
-              <version>${opentelemetry.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.opentelemetry</groupId>
-              <artifactId>opentelemetry-context</artifactId>
-              <version>${opentelemetry.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm-commons</artifactId>
-              <version>${asm.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm</artifactId>
-              <version>${asm.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm-analysis</artifactId>
-              <version>${asm.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm-tree</artifactId>
-              <version>${asm.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.ow2.asm</groupId>
-              <artifactId>asm-util</artifactId>
-              <version>${asm.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.ibm.mq</groupId>
-              <artifactId>com.ibm.mq.allclient</artifactId>
-              <version>${ibm.mq.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.solacesystems</groupId>
-              <artifactId>sol-jms-jakarta</artifactId>
-              <version>${solace.jms.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.kafka</groupId>
-              <artifactId>kafka-streams-test-utils</artifactId>
-              <version>${kafka.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.netty</groupId>
-              <artifactId>netty-bom</artifactId>
-              <version>${netty.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-          <dependency>
-              <groupId>org.reactivestreams</groupId>
-              <artifactId>reactive-streams</artifactId>
-              <version>${reactive-streams.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.zaxxer</groupId>
-              <artifactId>HikariCP</artifactId>
-              <version>${hikaricp.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.cloudevents</groupId>
-              <artifactId>cloudevents-core</artifactId>
-              <version>${cloudevents.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.cronutils</groupId>
-              <artifactId>cron-utils</artifactId>
-              <version>${cron-utils.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-bom_${scala.binary.version}</artifactId>
-              <version>${pekko.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-projection-eventsourced_${scala.binary.version}</artifactId>
-              <version>${pekko.projection.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-projection-jdbc_${scala.binary.version}</artifactId>
-              <version>${pekko.projection.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-projection-cassandra_${scala.binary.version}</artifactId>
-              <version>${pekko.projection.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.grpc</groupId>
-              <artifactId>grpc-netty-shaded</artifactId>
-              <version>${grpc.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.grpc</groupId>
-              <artifactId>grpc-protobuf</artifactId>
-              <version>${grpc.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.grpc</groupId>
-              <artifactId>grpc-stub</artifactId>
-              <version>${grpc.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.grpc</groupId>
-              <artifactId>grpc-core</artifactId>
-              <version>${grpc.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.grpc</groupId>
-              <artifactId>grpc-util</artifactId>
-              <version>${grpc.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>io.grpc</groupId>
-              <artifactId>grpc-inprocess</artifactId>
-              <version>${grpc.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.google.protobuf</groupId>
-              <artifactId>protobuf-java</artifactId>
-              <version>${protobuf.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.google.protobuf</groupId>
-              <artifactId>protobuf-java-util</artifactId>
-              <version>${protobuf.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.github.os72</groupId>
-              <artifactId>protoc-jar</artifactId>
-              <version>${protoc.jar.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.google.guava</groupId>
-              <artifactId>guava</artifactId>
-              <version>${guava.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.google.code.gson</groupId>
-              <artifactId>gson</artifactId>
-              <version>${gson.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.google.errorprone</groupId>
-              <artifactId>error_prone_annotations</artifactId>
-              <version>${errorprone.annotations.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-management_${scala.binary.version}</artifactId>
-              <version>${pekko.management.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-management-cluster-bootstrap_${scala.binary.version}</artifactId>
-              <version>${pekko.management.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-persistence-jdbc_${scala.binary.version}</artifactId>
-              <version>${pekko.persistence.jdbc.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.pekko</groupId>
-              <artifactId>pekko-persistence-cassandra_${scala.binary.version}</artifactId>
-              <version>${pekko.persistence.cassandra.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.cassandra</groupId>
-              <artifactId>java-driver-core</artifactId>
-              <version>${cassandra.java.driver.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.checkerframework</groupId>
-              <artifactId>checker-qual</artifactId>
-              <version>${checkerframework.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>commons-io</groupId>
-              <artifactId>commons-io</artifactId>
-              <version>${commons.io.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.scala-lang</groupId>
-              <artifactId>scala-library</artifactId>
-              <version>${scala.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.typesafe</groupId>
-              <artifactId>config</artifactId>
-              <version>${typesafe.config.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.jboss.logging</groupId>
-              <artifactId>jboss-logging</artifactId>
-              <version>${jboss.logging.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.xml.bind</groupId>
-              <artifactId>jakarta.xml.bind-api</artifactId>
-              <version>${jakarta.xml.bind.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.el</groupId>
-              <artifactId>jakarta.el-api</artifactId>
-              <version>${jakarta.el.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.annotation</groupId>
-              <artifactId>jakarta.annotation-api</artifactId>
-              <version>${jakarta.annotation.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.ws.rs</groupId>
-              <artifactId>jakarta.ws.rs-api</artifactId>
-              <version>${jakarta.ws.rs.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.httpcomponents.client5</groupId>
-              <artifactId>httpclient5</artifactId>
-              <version>${httpclient5.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.glassfish.jersey.core</groupId>
-              <artifactId>jersey-common</artifactId>
-              <version>${jersey.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.fasterxml.jackson</groupId>
-              <artifactId>jackson-bom</artifactId>
-              <version>${jackson.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-          <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-bom</artifactId>
-              <version>${slf4j.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-          <dependency>
-              <groupId>org.junit</groupId>
-              <artifactId>junit-bom</artifactId>
-              <version>${junit.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-          <dependency>
-              <groupId>org.testcontainers</groupId>
-              <artifactId>testcontainers-bom</artifactId>
-              <version>${testcontainers.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.inject</groupId>
-              <artifactId>jakarta.inject-api</artifactId>
-              <version>${jakarta.inject.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.persistence</groupId>
-              <artifactId>jakarta.persistence-api</artifactId>
-              <version>${jakarta.persistence.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.enterprise</groupId>
-              <artifactId>jakarta.enterprise.cdi-api</artifactId>
-              <version>${jakarta.cdi.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.transaction</groupId>
-              <artifactId>jakarta.transaction-api</artifactId>
-              <version>${jakarta.transaction.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>jakarta.validation</groupId>
-              <artifactId>jakarta.validation-api</artifactId>
-              <version>${jakarta.validation.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.commons</groupId>
-              <artifactId>commons-lang3</artifactId>
-              <version>${commons-lang3.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.commons</groupId>
-              <artifactId>commons-text</artifactId>
-              <version>${commons-text.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.postgresql</groupId>
-              <artifactId>postgresql</artifactId>
-              <version>${postgresql.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.github.jnr</groupId>
-              <artifactId>jnr-ffi</artifactId>
-              <version>${jnr-ffi.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>com.github.jnr</groupId>
-              <artifactId>jnr-constants</artifactId>
-              <version>${jnr-constants.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.hibernate.orm</groupId>
-              <artifactId>hibernate-core</artifactId>
-              <version>${hibernate.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${lombok.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct</artifactId>
-              <version>${mapstruct.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${mapstruct.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok-mapstruct-binding</artifactId>
-              <version>${lombok-mapstruct-binding.version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.osgi</groupId>
-              <artifactId>org.osgi.annotation.bundle</artifactId>
-              <version>${osgi.annotation.bundle.version}</version>
-          </dependency>
-      </dependencies>
+    <dependencies>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-bom</artifactId>
+        <version>${grpc.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-streams</artifactId>
+        <version>${kafka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-clients</artifactId>
+        <version>${kafka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hdrhistogram</groupId>
+        <artifactId>HdrHistogram</artifactId>
+        <version>${hdrhistogram.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>at.yawk.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>${lz4.java.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.nats</groupId>
+        <artifactId>jnats</artifactId>
+        <version>${jnats.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.paho</groupId>
+        <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+        <version>${paho.mqtt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.paho</groupId>
+        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+        <version>${paho.mqtt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>${rabbitmq.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.qpid</groupId>
+        <artifactId>qpid-jms-client</artifactId>
+        <version>${qpid.jms.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.lettuce</groupId>
+        <artifactId>lettuce-core</artifactId>
+        <version>${lettuce.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pulsar</groupId>
+        <artifactId>pulsar-client</artifactId>
+        <version>${pulsar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>sns</artifactId>
+        <version>${aws.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>sqs</artifactId>
+        <version>${aws.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>secretsmanager</artifactId>
+        <version>${aws.sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-pubsub</artifactId>
+        <version>${google.pubsub.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.api.grpc</groupId>
+        <artifactId>proto-google-common-protos</artifactId>
+        <version>${google.common.protos.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-api</artifactId>
+        <version>${opentelemetry.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-common</artifactId>
+        <version>${opentelemetry.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-context</artifactId>
+        <version>${opentelemetry.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-commons</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-analysis</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-tree</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-util</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.ibm.mq</groupId>
+        <artifactId>com.ibm.mq.allclient</artifactId>
+        <version>${ibm.mq.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.solacesystems</groupId>
+        <artifactId>sol-jms-jakarta</artifactId>
+        <version>${solace.jms.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-streams-test-utils</artifactId>
+        <version>${kafka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-bom</artifactId>
+        <version>${netty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.reactivestreams</groupId>
+        <artifactId>reactive-streams</artifactId>
+        <version>${reactive-streams.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>${hikaricp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.cloudevents</groupId>
+        <artifactId>cloudevents-core</artifactId>
+        <version>${cloudevents.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.cronutils</groupId>
+        <artifactId>cron-utils</artifactId>
+        <version>${cron-utils.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-bom_${scala.binary.version}</artifactId>
+        <version>${pekko.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-projection-eventsourced_${scala.binary.version}</artifactId>
+        <version>${pekko.projection.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-projection-jdbc_${scala.binary.version}</artifactId>
+        <version>${pekko.projection.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-projection-cassandra_${scala.binary.version}</artifactId>
+        <version>${pekko.projection.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-netty-shaded</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-stub</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-core</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-util</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-inprocess</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java-util</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.os72</groupId>
+        <artifactId>protoc-jar</artifactId>
+        <version>${protoc.jar.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${gson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>${errorprone.annotations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-management_${scala.binary.version}</artifactId>
+        <version>${pekko.management.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-management-cluster-bootstrap_${scala.binary.version}</artifactId>
+        <version>${pekko.management.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-persistence-jdbc_${scala.binary.version}</artifactId>
+        <version>${pekko.persistence.jdbc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-persistence-cassandra_${scala.binary.version}</artifactId>
+        <version>${pekko.persistence.cassandra.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cassandra</groupId>
+        <artifactId>java-driver-core</artifactId>
+        <version>${cassandra.java.driver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.checkerframework</groupId>
+        <artifactId>checker-qual</artifactId>
+        <version>${checkerframework.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons.io.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe</groupId>
+        <artifactId>config</artifactId>
+        <version>${typesafe.config.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging</artifactId>
+        <version>${jboss.logging.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>${jakarta.xml.bind.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.el</groupId>
+        <artifactId>jakarta.el-api</artifactId>
+        <version>${jakarta.el.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>${jakarta.annotation.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.ws.rs</groupId>
+        <artifactId>jakarta.ws.rs-api</artifactId>
+        <version>${jakarta.ws.rs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents.client5</groupId>
+        <artifactId>httpclient5</artifactId>
+        <version>${httpclient5.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.core</groupId>
+        <artifactId>jersey-common</artifactId>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-bom</artifactId>
+        <version>${slf4j.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.inject</groupId>
+        <artifactId>jakarta.inject-api</artifactId>
+        <version>${jakarta.inject.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.persistence</groupId>
+        <artifactId>jakarta.persistence-api</artifactId>
+        <version>${jakarta.persistence.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.enterprise</groupId>
+        <artifactId>jakarta.enterprise.cdi-api</artifactId>
+        <version>${jakarta.cdi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.transaction</groupId>
+        <artifactId>jakarta.transaction-api</artifactId>
+        <version>${jakarta.transaction.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>${jakarta.validation.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-text</artifactId>
+        <version>${commons-text.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.jnr</groupId>
+        <artifactId>jnr-ffi</artifactId>
+        <version>${jnr-ffi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.jnr</groupId>
+        <artifactId>jnr-constants</artifactId>
+        <version>${jnr-constants.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>${hibernate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct-processor</artifactId>
+        <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok-mapstruct-binding</artifactId>
+        <version>${lombok-mapstruct-binding.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.annotation.bundle</artifactId>
+        <version>${osgi.annotation.bundle.version}</version>
+      </dependency>
+    </dependencies>
   </dependencyManagement>
 
   <build>
@@ -764,7 +793,9 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven.javadoc.version}</version>
-          <configuration><doclint>all,-missing</doclint></configuration>
+          <configuration>
+            <doclint>all,-missing</doclint>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -883,7 +914,8 @@
                 </requireMavenVersion>
                 <banDuplicatePomDependencyVersions />
                 <requirePluginVersions>
-                  <unCheckedPluginList>com.forwardmeasure.platform:forwardmeasure-platform-policy-maven-plugin</unCheckedPluginList>
+                  <unCheckedPluginList>
+                    com.forwardmeasure.platform:forwardmeasure-platform-policy-maven-plugin</unCheckedPluginList>
                 </requirePluginVersions>
               </rules>
             </configuration>
@@ -913,7 +945,9 @@
           <execution>
             <id>check-java-format</id>
             <phase>verify</phase>
-            <goals><goal>check</goal></goals>
+            <goals>
+              <goal>check</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
@@ -947,7 +981,9 @@
         <executions>
           <execution>
             <id>make-index</id>
-            <goals><goal>jandex</goal></goals>
+            <goals>
+              <goal>jandex</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
@@ -1010,7 +1046,10 @@
     <profile>
       <id>push-container-image</id>
       <activation>
-        <property><name>container-image.push</name><value>true</value></property>
+        <property>
+          <name>container-image.push</name>
+          <value>true</value>
+        </property>
       </activation>
       <properties>
         <docker.skip.push>false</docker.skip.push>
@@ -1026,12 +1065,16 @@
             <executions>
               <execution>
                 <id>prepare-agent</id>
-                <goals><goal>prepare-agent</goal></goals>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
               </execution>
               <execution>
                 <id>report</id>
                 <phase>verify</phase>
-                <goals><goal>report</goal></goals>
+                <goals>
+                  <goal>report</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
@@ -1049,7 +1092,9 @@
               <execution>
                 <id>make-aggregate-sbom</id>
                 <phase>verify</phase>
-                <goals><goal>makeAggregateBom</goal></goals>
+                <goals>
+                  <goal>makeAggregateBom</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
