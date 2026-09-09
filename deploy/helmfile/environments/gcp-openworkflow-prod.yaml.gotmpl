@@ -72,6 +72,10 @@ identity:
       name: OpenWorkflow Service Client
       secretKey: OPENWORKFLOW_CLIENT_SECRET
       secretRemoteKey: platform-openworkflow-client-secret
+      # tenant-provisioning's TenantOrganizationReconciler/HttpKeycloakOrganizationAdmin owns
+      # this client's own authz resources/scopes/policies/permissions (the capability-pack
+      # reconciliation) - without this, /authz/resource-server/* 404s for the client.
+      authorizationServicesEnabled: true
       realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
       audiences: [openworkflow-api]
       claims:
