@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.forwardmeasure.platform</groupId>
     <artifactId>forwardmeasure-platform</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
   </parent>
 
   <artifactId>forwardmeasure-platform-bom</artifactId>
@@ -60,7 +60,7 @@
       <dependency>
         <groupId>com.forwardmeasure.objectstorage</groupId>
         <artifactId>forwardmeasure-object-storage-bom</artifactId>
-        <version>${forwardmeasure.object-storage.version}</version>
+        <version>${forwardmeasure.objectstorage.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

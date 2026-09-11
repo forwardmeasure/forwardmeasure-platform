@@ -100,6 +100,18 @@ secrets:
       # role provisioning" section.
       - {secretKey: OPENWORKFLOW_RUNTIME_DATABASE_KEYCLOAK_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakDatabasePassword | quote }} }
       - {secretKey: OPENWORKFLOW_RUNTIME_DATABASE_SUPERSET_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.supersetDatabasePassword | quote }} }
+      # fei's own runtime role (entityintelligence) - fei and fowf share this tenant database, and
+      # this workload identity is the same one already authorized to provision every declared
+      # runtime database's role (see the comment above), so this is the natural place for it too.
+      # entity-intelligence-migrations' own release (deploy/helmfile/releases/entity-intelligence-migrations)
+      # reads this same openworkflow-identity-credentials Secret via its own credentialsSecretName
+      # override. No base default for the remote key, matching
+      # openworkflowRuntimeDatabasePassword's own precedent immediately above - its real Secret
+      # Manager name is environment/Terraform-specific and not provisioned yet; add
+      # secretStore.remoteKeys.entityIntelligenceRuntimeDatabasePassword to the relevant
+      # environment file (e.g. gcp-openworkflow-prod.yaml.gotmpl) once a real Terraform entry
+      # exists for it.
+      - {secretKey: ENTITYINTELLIGENCE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.entityIntelligenceRuntimeDatabasePassword | quote }} }
   - name: huggingface-token
     enabled: true
     namespaces: [{{ .Values.namespaces.modelServing }}, {{ .Values.namespaces.docling }}]
