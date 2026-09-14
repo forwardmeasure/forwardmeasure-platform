@@ -86,6 +86,10 @@
     <pekko.management.version>1.2.1</pekko.management.version>
     <pekko.persistence.jdbc.version>1.3.0</pekko.persistence.jdbc.version>
     <pekko.persistence.cassandra.version>1.1.0</pekko.persistence.cassandra.version>
+    <camel.version>4.10.2</camel.version>
+    <!-- Must track data-fabric/pom.xml's org.apache.spark.version exactly - that's the real,
+         currently-deployed Spark this org runs (entity-intelligence-ingestion's Helm release). -->
+    <spark.version>4.2.0</spark.version>
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
     <checkerframework.version>3.55.1</checkerframework.version>
     <commons.io.version>2.22.0</commons.io.version>
@@ -104,7 +108,18 @@
     <lettuce.version>7.6.0.RELEASE</lettuce.version>
     <pulsar.version>4.2.2</pulsar.version>
     <aws.sdk.version>2.49.4</aws.sdk.version>
-    <google.pubsub.version>1.152.0</google.pubsub.version>
+    <!-- google.pubsub.version (a standalone pin) removed 2026-09-14: this and
+         forwardmeasure-object-storage-gcs's own separately-imported com.google.cloud:libraries-bom
+         (26.79.0) pinned google-cloud-pubsub and google-cloud-storage independently, which never
+         actually converged until a module (openworkflow-operation-adapter-quarkus) first depended on
+         both - the same bug shape as the animal-sniffer-annotations fix below, recurring. Fixed at
+         the root instead of with another one-off pin: import libraries-bom here too, the same
+         version object-storage already uses, so both families resolve from one consistent source
+         platform-wide. Verified against the actual cached BOM chain (libraries-bom 26.79.0 ->
+         google-cloud-bom 0.260.0 -> google-cloud-pubsub-bom 1.150.0 / google-cloud-storage-bom
+         2.64.1) before applying - pubsub moves from 1.152.0 to 1.150.0, a two-patch-version
+         difference, not a real compatibility risk. -->
+    <google.cloud.libraries.version>26.79.0</google.cloud.libraries.version>
     <google.common.protos.version>2.73.0</google.common.protos.version>
     <opentelemetry.version>1.62.0</opentelemetry.version>
     <asm.version>9.9.1</asm.version>
@@ -265,6 +280,28 @@
         <version>${kafka.version}</version>
       </dependency>
       <dependency>
+        <!-- Spark publishes no proper BOM - individual artifacts are managed directly here,
+             matching data-fabric's own real pin (org.apache.spark.version) exactly. Add further
+             spark-* artifacts here as real consumers need them, rather than pre-declaring every
+             one data-fabric happens to use. -->
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-core_${scala.binary.version}</artifactId>
+        <version>${spark.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-sql_${scala.binary.version}</artifactId>
+        <version>${spark.version}</version>
+      </dependency>
+      <dependency>
+        <!-- Spark's own native kafka DataFrame format (forwardmeasure-data-streaming-executor-spark's
+             SourceSpec/SinkSpec connector generalization, 2026-09-13) - a real consumer, not a
+             pre-declared guess, per this block's own comment above. -->
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-sql-kafka-0-10_${scala.binary.version}</artifactId>
+        <version>${spark.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.hdrhistogram</groupId>
         <artifactId>HdrHistogram</artifactId>
         <version>${hdrhistogram.version}</version>
@@ -329,10 +366,18 @@
         <artifactId>secretsmanager</artifactId>
         <version>${aws.sdk.version}</version>
       </dependency>
+      <!-- Manages google-cloud-pubsub's version (and everything it shares transitively with
+           forwardmeasure-object-storage-gcs's own google-cloud-storage - proto-google-iam-v1,
+           gax-httpjson, api-common, google-auth-library-credentials) from one consistent chain
+           instead of two independently-pinned families - see the property comment above for the
+           real convergence failure this fixes and how it was verified. Same version
+           forwardmeasure-object-storage already imports. -->
       <dependency>
         <groupId>com.google.cloud</groupId>
-        <artifactId>google-cloud-pubsub</artifactId>
-        <version>${google.pubsub.version}</version>
+        <artifactId>libraries-bom</artifactId>
+        <version>${google.cloud.libraries.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.google.api.grpc</groupId>
@@ -425,6 +470,13 @@
         <groupId>org.apache.pekko</groupId>
         <artifactId>pekko-bom_${scala.binary.version}</artifactId>
         <version>${pekko.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-bom</artifactId>
+        <version>${camel.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
