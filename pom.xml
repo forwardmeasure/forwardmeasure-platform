@@ -163,15 +163,32 @@
     -->
     <spring-boot.version>4.1.1</spring-boot.version>
     <!--
-    Reverted from 5.1.3 to 5.1.0: io.micronaut.jaxrs:micronaut-jaxrs-server (a separate artifact
-    family from core Micronaut, doesn't publish in lockstep with micronaut.platform.version) has
-    not published a 5.1.3 release - confirmed directly against Maven Central's metadata, its latest
-    is still 5.1.0. Bumping the platform version alone broke dependency resolution for
-    agent-os-governance-micronaut. Mixing a newer core-Micronaut version against an older jaxrs
-    version was considered and rejected as riskier than staying on the version where everything is
-    confirmed in sync.
+    2026-09-16: bumped to 5.1.5 (latest, confirmed via Maven Central metadata) - retrying the
+    5.1.0->5.1.3 revert documented below, this time managing io.micronaut.jaxrs:* as its own
+    explicit, separately-versioned BOM (see forwardmeasure-platform-micronaut-bom's own pom -
+    micronaut-jaxrs-bom is now imported there explicitly, ahead of micronaut-platform, so its pins
+    win for the jaxrs artifact family regardless of what micronaut-platform's own internal
+    dependencyManagement says) instead of relying on whatever micronaut-platform implicitly pulls in
+    for that family. Confirmed via Maven Central metadata that io.micronaut.jaxrs:micronaut-jaxrs-bom
+    still has no release past 5.1.0 - kept pinned there via the new micronaut.jaxrs.version property
+    below, independent of this property from now on.
+
+    Original 5.1.3 revert note, kept for history: io.micronaut.jaxrs:micronaut-jaxrs-server (a
+    separate artifact family from core Micronaut, doesn't publish in lockstep with
+    micronaut.platform.version) had not published a 5.1.3 release at the time. Bumping the platform
+    version alone broke dependency resolution for agent-os-governance-micronaut - re-verify that
+    project specifically against this new 5.1.5 + explicit-jaxrs-BOM combination before considering
+    this closed.
     -->
-    <micronaut.platform.version>5.1.0</micronaut.platform.version>
+    <micronaut.platform.version>5.1.5</micronaut.platform.version>
+    <!--
+    io.micronaut.jaxrs:* (micronaut-jaxrs-bom/-server/-server-security/-processor/-common/-client)
+    managed as its own explicit, separately-versioned property - confirmed via Maven Central
+    metadata (2026-09-16) that this family's latest published release is still 5.1.0, independent of
+    micronaut.platform.version above. Bump only when a newer io.micronaut.jaxrs:micronaut-jaxrs-bom
+    is actually confirmed published - do not assume it tracks micronaut.platform.version.
+    -->
+    <micronaut.jaxrs.version>5.1.0</micronaut.jaxrs.version>
 
     <maven.clean.version>3.5.0</maven.clean.version>
     <maven.compiler.version>3.15.0</maven.compiler.version>

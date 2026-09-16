@@ -37,6 +37,24 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!--
+                Imported explicitly and BEFORE micronaut-platform below, on purpose: io.micronaut.jaxrs:*
+                (micronaut-jaxrs-server/-server-security/-processor/-common/-client) is a separate
+                artifact family that does not publish in lockstep with micronaut.platform.version - see
+                the parent pom's own micronaut.jaxrs.version property comment for the full rationale and
+                history (a 2026-09 revert this explicit-import approach is meant to avoid repeating). For
+                Maven's own <dependencyManagement> import-precedence rule, the FIRST import of a given
+                artifact coordinate wins over later ones - so this must stay listed before the
+                micronaut-platform import, which also carries its own (today identical, but not
+                guaranteed to stay identical) internal management for the same jaxrs artifacts.
+            -->
+            <dependency>
+                <groupId>io.micronaut.jaxrs</groupId>
+                <artifactId>micronaut-jaxrs-bom</artifactId>
+                <version>${micronaut.jaxrs.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.micronaut.platform</groupId>
                 <artifactId>micronaut-platform</artifactId>
