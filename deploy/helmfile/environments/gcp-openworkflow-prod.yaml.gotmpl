@@ -25,6 +25,14 @@
 # {{- $tenantCode := "lux" }}
 # {{- $tenantHost := printf "%s.%s" $tenantCode $domain }}
 # {{- $tenantDid := printf "did:web:%s" $tenantHost }}
+# The tenant's real UUID (TenantId.value() - see forwardmeasure-openworkflow's engine-api.TenantId)
+# - must match forwardmeasure-openworkflow/deploy/helmfile/environments/gcp-openworkflow-prod
+# .yaml.gotmpl's own tenants[].id for this same tenant exactly. Verified 2026-09-16 by cross-
+# checking against OpenWorkflowTenantMigrator's real t_<uuid> Postgres schema provisioning (the one
+# other place in this platform that's already proven this exact UUID is the tenant's real runtime
+# identity, not a guess) - do not derive this from $tenantDid; TenantId's DID-fallback path
+# (UUID.nameUUIDFromBytes) produces a different UUID than this one.
+# {{- $tenantId := "c0d34a2f-387e-4c89-9b84-75c5bbff9a61" }}
 platform:
   domain: {{ $domain | quote }}
   environment: production
@@ -101,7 +109,8 @@ bootstrapIdentity:
   actorType: HUMAN
 
 tenants:
-  - host: {{ $tenantHost | quote }}
+  - id: {{ $tenantId | quote }}
+    host: {{ $tenantHost | quote }}
     did: {{ $tenantDid | quote }}
     code: {{ $tenantCode | quote }}
     name: {{ $tenantCode | title | quote }}

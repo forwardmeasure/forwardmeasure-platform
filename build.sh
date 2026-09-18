@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd /home/pn/Documents/code/forwardmeasure/forwardmeasure-platform
-mvn -f reactor.xml spotless:apply
+#mvn -f reactor.xml spotless:apply
 
 set -eou pipefail
 

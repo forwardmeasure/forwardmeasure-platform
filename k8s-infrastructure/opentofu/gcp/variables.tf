@@ -195,7 +195,12 @@ variable "cloudsql" {
 variable "cloudsql_databases" {
   description = "Databases created on the platform Cloud SQL instance."
   type        = set(string)
-  default     = ["entity_intelligence", "keycloak", "openworkflow", "superset"]
+  # "platform" is the new small, non-tenant control-plane database (tenant_registry and any other
+  # cross-product platform-owned tables) introduced by the database-per-tenant, schema-per-product
+  # redesign - Terraform still owns this one alongside the other foundational databases; it does
+  # NOT grow a per-tenant loop here (per-tenant databases are created by each product's own
+  # migrator Job at deploy time, not by Terraform).
+  default = ["entity_intelligence", "keycloak", "openworkflow", "platform", "superset"]
 }
 
 variable "cloudsql_users" {

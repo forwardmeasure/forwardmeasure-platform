@@ -12,6 +12,14 @@ gcp:
   externalSecretsServiceAccountEmail: external-secrets@forwardmeasure-production.iam.gserviceaccount.com
   modelServiceAccountEmail: model-serving@forwardmeasure-production.iam.gserviceaccount.com
   modelCacheBucket: forwardmeasure-production-model-cache
+  # Required by releases/keycloak/gcp/base.yaml.gotmpl and releases/superset/gcp/base.yaml.gotmpl -
+  # both dot-access these unconditionally (no safe default), so a real cluster bootstrapped from
+  # this template must replace them before those two releases will render, same as every other
+  # placeholder in this file. Confirmed missing here (2026-09-16) via a real `helmfile template`
+  # render - this file previously had no way to reach either release without erroring.
+  keycloakServiceAccountEmail: keycloak@forwardmeasure-production.iam.gserviceaccount.com
+  keycloakCloudSqlInstance: replace-with-keycloak-cloud-sql-instance
+  supersetServiceAccountEmail: superset@forwardmeasure-production.iam.gserviceaccount.com
 
 gateway:
   loadBalancerIp: 203.0.113.10
@@ -26,6 +34,19 @@ gateway:
   # otherwise render with base's own placeholder domain, not this cluster's.
   studioHost: studio.new-platform.example
   acmeEmail: platform-owner@new-platform.example
+
+# openworkflowRuntimeDatabasePassword/openworkflowAdministratorDatabasePassword are deliberately
+# NOT declared in base.yaml.gotmpl - their real Secret Manager names are keyed on
+# openworkflow-k8s-setup's Terraform `var.name` (per-cluster, not a fixed platform-wide
+# convention), so every real cluster environment must declare its own pair here, matching
+# gcp-openworkflow-prod.yaml.gotmpl's identical block. Missing this causes platform-secrets'
+# openworkflow-identity-credentials ExternalSecret to fail to render outright (confirmed the hard
+# way: this file had no secretStore block at all before, so its very first real use would have
+# failed at the platform-secrets release step, not just deployed with wrong values).
+secretStore:
+  remoteKeys:
+    openworkflowRuntimeDatabasePassword: platform-openworkflow-database-password
+    openworkflowAdministratorDatabasePassword: platform-openworkflow-database-administrator-password
 
 bootstrapIdentity:
   tenantHost: example-bank.new-platform.example

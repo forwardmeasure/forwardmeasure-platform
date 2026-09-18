@@ -17,7 +17,7 @@
 imageVersions:
   decisionEngine:
     repository: docker.io/forwardmeasure/decision-engine-quarkus
-    tag: "0.1.0"
+    tag: "1.1.0"
     digest: ""
     pullPolicy: IfNotPresent
   keycloak:

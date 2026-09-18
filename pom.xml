@@ -87,8 +87,6 @@
     <pekko.persistence.jdbc.version>1.3.0</pekko.persistence.jdbc.version>
     <pekko.persistence.cassandra.version>1.1.0</pekko.persistence.cassandra.version>
     <camel.version>4.10.2</camel.version>
-    <!-- Must track data-fabric/pom.xml's org.apache.spark.version exactly - that's the real,
-         currently-deployed Spark this org runs (entity-intelligence-ingestion's Helm release). -->
     <spark.version>4.2.0</spark.version>
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
     <checkerframework.version>3.55.1</checkerframework.version>
@@ -136,6 +134,7 @@
     <jnr-constants.version>0.10.4</jnr-constants.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-text.version>1.15.0</commons-text.version>
+    <jayway-json-path.version>3.0.0</jayway-json-path.version>
     <httpclient5.version>5.6.3</httpclient5.version>
     <jersey.version>4.0.2</jersey.version>
     <jboss.logging.version>3.6.3.Final</jboss.logging.version>
@@ -144,7 +143,7 @@
     <lombok.version>1.18.46</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-
+    <commons.codec.version>1.22.1</commons.codec.version>
     <quarkus.platform.version>3.39.1</quarkus.platform.version>
     <quarkus.bootstrap.workspace-discovery>false</quarkus.bootstrap.workspace-discovery>
     <!--
@@ -311,7 +310,8 @@
         <version>${spark.version}</version>
       </dependency>
       <dependency>
-        <!-- Spark's own native kafka DataFrame format (forwardmeasure-data-streaming-executor-spark's
+        <!-- Spark's own native kafka DataFrame format
+        (forwardmeasure-data-streaming-executor-spark's
              SourceSpec/SinkSpec connector generalization, 2026-09-13) - a real consumer, not a
              pre-declared guess, per this block's own comment above. -->
         <groupId>org.apache.spark</groupId>
@@ -716,6 +716,16 @@
         <version>${commons-text.version}</version>
       </dependency>
       <dependency>
+        <!-- JSONPath evaluation for application-layer, externally-authored transform specs (e.g.
+             fei's transformPopulationScreeningRun) - unrelated to CNCF Serverless Workflow's own
+             jq expression language, which fowf's engine evaluates for workflow-YAML-internal data
+             flow; this is a different tool for a different layer (interpreting a user-supplied
+             transform-spec document at the application layer, no workflow engine involved). -->
+        <groupId>com.jayway.jsonpath</groupId>
+        <artifactId>json-path</artifactId>
+        <version>${jayway-json-path.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>${postgresql.version}</version>
@@ -754,6 +764,11 @@
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-mapstruct-binding</artifactId>
         <version>${lombok-mapstruct-binding.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons.codec.version}</version>
       </dependency>
       <dependency>
         <groupId>org.osgi</groupId>

@@ -110,8 +110,16 @@ secrets:
       # Manager name is environment/Terraform-specific and not provisioned yet; add
       # secretStore.remoteKeys.entityIntelligenceRuntimeDatabasePassword to the relevant
       # environment file (e.g. gcp-openworkflow-prod.yaml.gotmpl) once a real Terraform entry
-      # exists for it.
-      - {secretKey: ENTITYINTELLIGENCE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.entityIntelligenceRuntimeDatabasePassword | quote }} }
+      # exists for it. Genuinely optional until then - a bare `.Values...` dot-access here (as
+      # this line originally had) errors the ENTIRE platform-secrets release for every GCP
+      # environment the moment the key is unset anywhere, not just fei's own remoteRef entry
+      # (confirmed 2026-09-16: broke gcp, gcp-openworkflow-prod, and gcp-greenfield-example alike,
+      # since none had provisioned it yet) - same missing-key-strictness class of bug as
+      # .Values.tenants elsewhere in this repo pair. `dig` with a default makes the omission
+      # actually optional, matching what the comment already promised.
+      {{- if (dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values) }}
+      - {secretKey: ENTITYINTELLIGENCE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values | quote }} }
+      {{- end }}
   - name: huggingface-token
     enabled: true
     namespaces: [{{ .Values.namespaces.modelServing }}, {{ .Values.namespaces.docling }}]
@@ -138,3 +146,27 @@ secrets:
     namespaces: [{{ .Values.namespaces.valkey }}]
     remoteRefs:
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.valkeyPassword | quote }}}
+  # Per-tenant workflow-call secrets (call:http/call:openapi/call:grpc/call:asyncapi/etc.
+  # `authentication:` blocks) - consumed by forwardmeasure-openworkflow's DirectorySecretProvider via
+  # a per-tenant Secret volume mount (see openworkflow-service's extraVolumes/extraVolumeMounts,
+  # wired per-tenant in operation-adapters.yaml.gotmpl). Deliberately empty/absent per tenant until a
+  # real workflow-call secret is actually needed - same "no plausible default" precedent as
+  # entityIntelligenceRuntimeDatabasePassword above: this only ever emits an ExternalSecret for a
+  # tenant that has a non-empty .workflowSecrets list declared against it in the environment file's
+  # own tenants: block (e.g. add `workflowSecrets: [{secretKey: MY_KEY, remoteKey: <secret-manager-key>}]`
+  # to that tenant's entry in gcp-openworkflow-prod.yaml.gotmpl once a real integration needs one).
+  # Until then this range produces nothing, matching today's reality: no tenant has any workflow-call
+  # secret provisioned yet, and this platform's secretStore is itself still the fake-secret-store
+  # default (see this file's own header comment) - flipping that on is a separate, later step.
+  {{- range $.Values.tenants }}
+  {{- $workflowSecrets := index . "workflowSecrets" }}
+  {{- if $workflowSecrets }}
+  - name: {{ printf "openworkflow-tenant-%s-workflow-secrets" .id | quote }}
+    enabled: true
+    namespaces: [{{ $.Values.namespaces.openworkflow }}]
+    remoteRefs:
+      {{- range $workflowSecrets }}
+      - {secretKey: {{ .secretKey | quote }}, remoteKey: {{ .remoteKey | quote }}}
+      {{- end }}
+  {{- end }}
+  {{- end }}

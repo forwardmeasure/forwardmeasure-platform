@@ -89,7 +89,9 @@ cloudsql = {
   deletion_protection = true
 }
 
-cloudsql_databases = ["entity_intelligence", "keycloak", "openworkflow", "superset"]
+# "platform" is the new control-plane database (tenant_registry) for the database-per-tenant,
+# schema-per-product redesign - see variables.tf's own comment on cloudsql_databases.
+cloudsql_databases = ["entity_intelligence", "keycloak", "openworkflow", "platform", "superset"]
 
 cloudsql_users = {
   entity_intelligence = {
