@@ -26,13 +26,12 @@ imageVersions:
   # usable by any built-in Authorization Services policy type, confirmed live. Built via that
   # chart's own build-and-push-image.sh, which derives the Keycloak version from the chart's own
   # values.yaml `keycloakVersion` (currently 26.7.4) - keep this tag in sync with that value.
-  # digest deliberately blank: NOT YET PUSHED to a real registry (only exists locally on the
-  # machine that built it as of 2026-09-20) - fill in the real digest here once it's pushed, don't
-  # guess one.
+  # Pushed 2026-09-20; digest confirmed live via `docker buildx imagetools inspect` against the
+  # real registry, not copied from a local build.
   keycloak:
     repository: docker.io/forwardmeasure/keycloak
     tag: "26.7.4-authz"
-    digest: ""
+    digest: "sha256:5e08b337d22a8d6ceed485b7fa527b200fe389d4aae9eac4ca6dfb94b5a59cc1"
     pullPolicy: IfNotPresent
   # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
   # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own
