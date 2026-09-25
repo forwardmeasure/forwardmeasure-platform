@@ -50,9 +50,20 @@ there directly instead, and why that broke every Quarkus module's local build ec
     <module>../forwardmeasure-nlp</module>
     <module>../forwardmeasure-entity-matching</module>
     <module>../forwardmeasure-data-streaming</module>
+    <module>../forwardmeasure-authzen</module>
     <module>../forwardmeasure-openworkflow</module>
     <module>../forwardmeasure-decision-engine</module>
     <module>../forwardmeasure-agent-os</module>
     <module>../forwardmeasure-entity-intelligence</module>
   </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>3.9.0</version>
+      </plugin>
+    </plugins>
+  </build>
 </project>

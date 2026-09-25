@@ -76,7 +76,7 @@
     <jakarta.transaction.version>2.0.1</jakarta.transaction.version>
     <jakarta.validation.version>3.1.1</jakarta.validation.version>
     <postgresql.version>42.7.13</postgresql.version>
-    <keycloak.version>26.7.3</keycloak.version>
+    <keycloak.version>26.7.4</keycloak.version>
     <hibernate.version>7.4.5.Final</hibernate.version>
     <scala.binary.version>2.13</scala.binary.version>
     <scala.version>2.13.18</scala.version>
@@ -127,7 +127,20 @@
     <cron-utils.version>9.2.1</cron-utils.version>
     <hikaricp.version>7.1.0</hikaricp.version>
     <hdrhistogram.version>2.2.2</hdrhistogram.version>
-    <netty.version>4.2.17.Final</netty.version>
+    <!--
+    Real, confirmed live 2026-09-24: netty.version is the shared default every framework in every
+    consuming repo inherits via this pom's own netty-bom import below - set to the latest 4.2.x
+    line (matching what micronaut-platform:5.1.5 and spark-parent_2.13:4.2.0 both already need),
+    since Quarkus 4.x (expected within the next month or so) converges onto this same line too -
+    Quarkus 3.x is the one, temporary exception until then. quarkus.netty.version names and pins
+    that exception explicitly, for any Quarkus module in any consuming repo that needs to
+    override the shared default back down - see forwardmeasure-openworkflow's own
+    openworkflow-engine-pekko-quarkus pom for a real example of applying it. Remove
+    quarkus.netty.version (and every consuming override of it) once every Quarkus module in every
+    repo has moved to Quarkus 4.x and no longer needs it.
+    -->
+    <netty.version>4.2.18.Final</netty.version>
+    <quarkus.netty.version>4.1.138.Final</quarkus.netty.version>
     <reactive-streams.version>1.0.4</reactive-streams.version>
     <kafka.version>4.3.1</kafka.version>
     <jnr-ffi.version>2.2.17</jnr-ffi.version>
@@ -140,11 +153,11 @@
     <jboss.logging.version>3.6.3.Final</jboss.logging.version>
     <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
     <jakarta.el.version>6.0.1</jakarta.el.version>
-    <lombok.version>1.18.46</lombok.version>
+    <lombok.version>1.18.48</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     <commons.codec.version>1.22.1</commons.codec.version>
-    <quarkus.platform.version>3.39.1</quarkus.platform.version>
+    <quarkus.platform.version>3.39.4</quarkus.platform.version>
     <quarkus.bootstrap.workspace-discovery>false</quarkus.bootstrap.workspace-discovery>
     <!--
     quarkus.bootstrap.effective-model-builder=true was tried here to fix a real, documented Quarkus
@@ -207,13 +220,13 @@
     <spotless.version>3.9.0</spotless.version>
     <google-java-format.version>1.29.0</google-java-format.version>
     <cyclonedx.version>2.9.2</cyclonedx.version>
-    <jib.version>3.4.6</jib.version>
+    <jib.version>3.5.2</jib.version>
     <jandex.version>3.6.0</jandex.version>
     <maven.shade.version>3.6.1</maven.shade.version>
     <maven-plugin-api.version>3.9.16</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
     <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
-    <openapi-generator.version>7.24.0</openapi-generator.version>
+    <openapi-generator.version>7.25.0</openapi-generator.version>
     <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
     <fabric8.docker.version>0.46.0</fabric8.docker.version>
     <apache.rat.version>0.18</apache.rat.version>
