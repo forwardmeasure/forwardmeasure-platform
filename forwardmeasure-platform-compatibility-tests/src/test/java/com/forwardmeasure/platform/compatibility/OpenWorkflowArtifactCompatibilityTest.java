@@ -15,16 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.forwardmeasure.openworkflow.authorization.AuthorizationAction;
 import com.forwardmeasure.openworkflow.definition.management.api.model.CreateWorkflowDefinitionRequest;
-import com.forwardmeasure.openworkflow.engine.api.ExecutionStatus;
-import com.forwardmeasure.openworkflow.execution.api.model.ExecutionStart;
+import com.forwardmeasure.openworkflow.engine.api.WorkflowExecutionStatus;
+import com.forwardmeasure.openworkflow.execution.api.model.WorkflowExecutionStart;
 import org.junit.jupiter.api.Test;
 
 class OpenWorkflowArtifactCompatibilityTest {
   @Test
   void consumesTheUnifiedPublishedOpenWorkflowContracts() {
-    assertEquals("COMPLETED", ExecutionStatus.COMPLETED.name());
+    assertEquals("COMPLETED", WorkflowExecutionStatus.COMPLETED.name());
     assertNotNull(AuthorizationAction.values());
     assertNotNull(new CreateWorkflowDefinitionRequest());
-    assertNotNull(new ExecutionStart());
+    assertNotNull(new WorkflowExecutionStart());
   }
 }

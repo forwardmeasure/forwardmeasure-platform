@@ -147,6 +147,8 @@
     <jnr-constants.version>0.10.4</jnr-constants.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-text.version>1.15.0</commons-text.version>
+    <icu4j.version>78.3</icu4j.version>
+    <forwardmeasure-entity-matching-core.version>1.1.0</forwardmeasure-entity-matching-core.version>
     <jayway-json-path.version>3.0.0</jayway-json-path.version>
     <httpclient5.version>5.6.3</httpclient5.version>
     <jersey.version>4.0.2</jersey.version>
@@ -727,6 +729,19 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-text</artifactId>
         <version>${commons-text.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.ibm.icu</groupId>
+        <artifactId>icu4j</artifactId>
+        <version>${icu4j.version}</version>
+      </dependency>
+      <dependency>
+        <!-- entity-intelligence-resolution's real recall/matching scorer, reused directly by
+             forwardmeasure-data-streaming's own screen_against_worldcheck_reference transform - one
+             production-validated matcher, not two independent implementations. -->
+        <groupId>com.forwardmeasure.entitymatching</groupId>
+        <artifactId>forwardmeasure-entity-matching-core</artifactId>
+        <version>${forwardmeasure-entity-matching-core.version}</version>
       </dependency>
       <dependency>
         <!-- JSONPath evaluation for application-layer, externally-authored transform specs (e.g.
