@@ -21,6 +21,9 @@ Options:
                            module first, then pass it here.
   --full                  Build every module (default).
   --skip-push             Build only; don't docker push the images.
+  --run-tests             Run tests (skipped by default).
+  --coverage              Collect Jacoco code coverage via the "coverage"
+                           profile (disabled by default).
   -h, --help              Show this help and exit.
 
 <target> accepts either a path relative to reactor.xml, or Maven's
@@ -37,12 +40,17 @@ Examples:
   ./build.sh --resume-from :decision-engine-api-language-bindings-python-grpc
       A full build failed at that module. After fixing it, continue the
       full reactor build from there rather than starting over.
+
+  ./build.sh --run-tests --coverage
+      Full build with tests actually run and Jacoco coverage collected.
 EOF
 }
 
 mode=full
 target=
 push=true
+skip_tests=true
+coverage=false
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -66,6 +74,14 @@ while [ $# -gt 0 ]; do
 			push=false
 			shift
 			;;
+		--run-tests)
+			skip_tests=false
+			shift
+			;;
+		--coverage)
+			coverage=true
+			shift
+			;;
 		-h|--help)
 			usage
 			exit 0
@@ -78,18 +94,23 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
+profiles=container-image
+if [ "$coverage" = true ]; then
+	profiles="$profiles,coverage"
+fi
+
 case "$mode" in
 	module)
 		mvn -f reactor.xml -pl "$target" -am spotless:apply
-		mvn -T1C -f reactor.xml -pl "$target" -am -Pcontainer-image -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests clean install
+		mvn -T1C -f reactor.xml -pl "$target" -am -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests="$skip_tests" clean install
 		;;
 	resume)
 		mvn -f reactor.xml -rf "$target" spotless:apply
-		mvn -T1C -f reactor.xml -rf "$target" -Pcontainer-image -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests clean install
+		mvn -T1C -f reactor.xml -rf "$target" -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests="$skip_tests" clean install
 		;;
 	full)
 		mvn -f reactor.xml spotless:apply
-		mvn -T1C -f reactor.xml -Pcontainer-image -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests clean install
+		mvn -T1C -f reactor.xml -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests="$skip_tests" clean install
 		;;
 esac
 
