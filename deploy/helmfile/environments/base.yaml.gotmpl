@@ -14,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# {{- $domain := "example.com" }}
+# Cross-repository values (domain, gateway IP/hostnames, shared namespaces, identity realm/client,
+# Kafka endpoint, Gateway API version, platform-delivered Secret names, cloud facts) are NOT set in
+# this repository's environment files - they come from ../shared/ via shared-aliases.yaml.gotmpl,
+# loaded after every file here. See ../shared/common.yaml.gotmpl.
 # No cloud selected at this tier - see environments/gcp.yaml for the
 # cloud-wide layer and environments/gcp-openworkflow-prod.yaml.gotmpl (or
 # gcp-greenfield-example.yaml) for a real cluster's values. cloudProvider
@@ -22,70 +25,28 @@
 # $cloud derivation) - "" means none of them do.
 cloudProvider: ""
 
-platform:
-  domain: {{ $domain | quote }}
-  environment: production
-
+# Namespaces used only by this repository. Shared ones (openworkflow, istio, keycloak, kafka,
+# openSearch, valkey, dataStreaming, entityIntelligence, decisionEngine) come from the shared layer.
 namespaces:
   platform: forwardmeasure-platform
-  openworkflow: forwardmeasure-openworkflow
-  istio: istio-system
   certManager: cert-manager
   externalSecrets: external-secrets
-  keycloak: keycloak
   strimzi: strimzi-operator
-  kafka: kafka
   registry: apicurio-registry
-  openSearch: opensearch-cluster
   kserve: kserve
   knativeOperator: knative-operator
   knativeServing: knative-serving
   knativeEventing: knative-eventing
   modelServing: kserve-serving
   docling: docling-serve
-  valkey: valkey
   superset: superset
   opa: opa
-  decisionEngine: decision-engine
-
-decisionEngine:
-  # Disabled until platform infrastructure provisions its database, runtime
-  # credentials, and namespace-scoped Valkey credentials. The release wiring is
-  # ready; enabling it without those prerequisites would create a non-functional pod.
-  enabled: false
-  replicas: 1
-  database:
-    url: jdbc:postgresql://localhost:5432/decision_engine
-    credentialsSecret: decision-engine-database-credentials
-  factWindow:
-    valkey:
-      host: valkey.valkey.svc.cluster.local
-      port: 6379
-      credentialsSecret: decision-engine-valkey-auth
-
-gatewayApi:
-  version: v1.5.1
 
 gateway:
   name: platform-gateway
   className: istio
   replicaCount: 2
-  loadBalancerIp: 192.0.2.10
-  # Every host below is derived from platform.domain rather than repeated as
-  # an independent literal - the previous form (five separate hardcoded
-  # hostnames) is exactly what let gateway.authHost drift out of sync with
-  # the real domain elsewhere in a sibling repo's environment file. One
-  # source of truth here instead.
-  rootHost: {{ printf "platform.%s" $domain | quote }}
-  tenantHost: {{ printf "*.%s" $domain | quote }}
-  authHost: {{ printf "auth.%s" $domain | quote }}
-  registryHost: {{ printf "registry.%s" $domain | quote }}
-  searchHost: {{ printf "search.%s" $domain | quote }}
-  analyticsHost: {{ printf "analytics.%s" $domain | quote }}
-  # Matches forwardmeasure-openworkflow's own platformTld-derived
-  # keycloakDnsName/Studio hostname exactly (both repos set $domain to the
-  # same literal per real cluster - confirmed for gcp-openworkflow-prod).
-  studioHost: {{ printf "studio.%s" $domain | quote }}
+  # loadBalancerIp and every *Host come from the shared layer (clusters/<env>.yaml.gotmpl).
   acmeEmail: platform-owner@example.com
   # clusterIssuer deliberately not set here - it's a cloud-specific ACME
   # DNS-01 solver name (letsencrypt-gcp-dns for GCP's Cloud DNS solver, a
@@ -140,8 +101,9 @@ secretStore:
     # NOT_FOUND) - real names belong in each real cluster's own environment
     # file. See environments/gcp-openworkflow-prod.yaml.gotmpl.
 
+# realm, publicClientId, openworkflowCredentialsSecret, dataStreamingCredentialsSecret and
+# entityIntelligenceCredentialsSecret come from the shared layer (see shared-aliases.yaml.gotmpl).
 identity:
-  realm: forwardmeasure
   displayName: ForwardMeasure
   # keycloak.v2 is Keycloak's own built-in theme - matches
   # imageVersions.keycloak now pointing at the stock quay.io/keycloak/keycloak
@@ -150,13 +112,11 @@ identity:
   # (forwardmeasure-platform-operations/operations-keycloak-theme) - dropped,
   # not something in actual use.
   loginTheme: keycloak.v2
-  publicClientId: forwardmeasure-public
   confidentialClientId: superset
   databaseSecret: keycloak-db-credentials
   adminSecret: keycloak-admin-credentials
   bootstrapSecret: keycloak-bootstrap-admin-user-credentials
   clientSecret: keycloak-realm-client-secrets
-  openworkflowCredentialsSecret: openworkflow-identity-credentials
   # Matches openworkflow-k8s-setup/terraform/gcp's
   # var.database_administrator_username default - a fixed convention, not a
   # secret. Used only by forwardmeasure-openworkflow's migrations Job to
@@ -213,14 +173,13 @@ tenants:
     code: tenant
     name: Example Tenant
 
+# clusterName/bootstrapServers come from the shared layer.
 kafka:
-  clusterName: kafka-cluster
   # Was 4.0.0 - not a version the deployed Strimzi operator (1.2.0) supports
   # at all (confirmed via the Kafka CR's own status condition:
   # UnsupportedKafkaVersionException, "Supported versions are: [4.2.0,
   # 4.2.1, 4.3.0, 4.3.1]" - no broker pods were ever created for it).
   version: "4.3.1"
-  bootstrapServers: kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
   controllers: 3
   brokers: 3
   controllerStorage: 20Gi
@@ -236,6 +195,7 @@ openSearch:
   storage: 100Gi
   javaOpts: -Xms4g -Xmx4g
   credentialsSecret: opensearch-admin-credentials
+  # entityIntelligenceCredentialsSecret comes from the shared layer.
 
 models:
   cacheSize: 512Gi

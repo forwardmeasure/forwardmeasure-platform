@@ -1,0 +1,32 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Image pins used by more than one repository - see common.yaml.gotmpl's header. A non-empty digest
+# opts the entry into scripts/sync-image-digests.sh, which re-resolves it on every
+# install-platform.sh run. repository always includes the registry.
+imageVersions:
+  # Cloud SQL Auth Proxy sidecar - Keycloak/Superset (this repository), every openworkflow-service
+  # and migrations release (forwardmeasure-openworkflow), and decision-engine.
+  cloudSqlProxy:
+    repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
+    tag: "2.25.3"
+    digest: sha256:821e5050a77697269399cadcaf5fa55322411dd1922020ea9729fd4ad174810a
+  # forwardmeasure-data-streaming's kafka-streams executor - launched by data-streaming's own
+  # launcher and by entity-intelligence's ingestion service.
+  dataStreamingExecutorKafkaStreams:
+    repository: docker.io/forwardmeasure/data-streaming-executor-kafka-streams
+    tag: "1.1.0"
+    digest: "sha256:8d60d48814d13200fe75af38eb00d9034d15468d83f0a4a5c53a111439a3df8e"

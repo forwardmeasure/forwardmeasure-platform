@@ -21,7 +21,11 @@
 # bucket in terraform.tfvars. secretStore is deliberately left at base's
 # fake-secret-store default rather than overridden here - see
 # platform-secrets.yaml.gotmpl and its openworkflow-prod credentials layer.
-# {{- $domain := "kriyagentic.com" }}
+# Domain, gateway IP/hostnames, gcp.projectId/region/clusterName and the Cloud SQL instance come
+# from ../shared/clusters/gcp-openworkflow-prod.yaml.gotmpl (via shared-aliases.yaml.gotmpl) - the
+# same file every product repository reads. $domain is read from it too, for the tenant identity
+# below.
+# {{- $domain := (tpl (readFile "../shared/clusters/gcp-openworkflow-prod.yaml.gotmpl") (dict) | fromYaml).platform.domain }}
 # {{- $tenantCode := "lux" }}
 # {{- $tenantHost := printf "%s.%s" $tenantCode $domain }}
 # {{- $tenantDid := printf "did:web:%s" $tenantHost }}
@@ -33,36 +37,15 @@
 # identity, not a guess) - do not derive this from $tenantDid; TenantId's DID-fallback path
 # (UUID.nameUUIDFromBytes) produces a different UUID than this one.
 # {{- $tenantId := "c0d34a2f-387e-4c89-9b84-75c5bbff9a61" }}
-platform:
-  domain: {{ $domain | quote }}
-  environment: production
-
 gcp:
-  projectId: genai-llm-393115
-  region: us-central1
-  clusterName: openworkflow-prod
   dnsServiceAccountEmail: openworkflow-prod-dns@genai-llm-393115.iam.gserviceaccount.com
   externalSecretsServiceAccountEmail: openworkflow-prod-eso@genai-llm-393115.iam.gserviceaccount.com
   modelServiceAccountEmail: openworkflow-prod-model-svc@genai-llm-393115.iam.gserviceaccount.com
   modelCacheBucket: genai-llm-393115-openworkflow-prod-model-cache
   keycloakServiceAccountEmail: openworkflow-prod-keycloak@genai-llm-393115.iam.gserviceaccount.com
-  keycloakCloudSqlInstance: openworkflow-prod-postgres
   supersetServiceAccountEmail: openworkflow-prod-superset@genai-llm-393115.iam.gserviceaccount.com
 
 gateway:
-  loadBalancerIp: 34.71.159.15
-  rootHost: {{ printf "platform.%s" $domain | quote }}
-  tenantHost: {{ printf "*.%s" $domain | quote }}
-  authHost: {{ printf "auth.%s" $domain | quote }}
-  registryHost: {{ printf "registry.%s" $domain | quote }}
-  searchHost: {{ printf "search.%s" $domain | quote }}
-  analyticsHost: {{ printf "analytics.%s" $domain | quote }}
-  # Must be redeclared here, not left to base.yaml.gotmpl's own studioHost -
-  # each environment .gotmpl file has its own scoped $domain (a helmfile
-  # limitation confirmed earlier this session), so base's studioHost would
-  # otherwise render with base's own placeholder domain instead of this
-  # cluster's real one, even though gateway.* deep-merges correctly.
-  studioHost: {{ printf "studio.%s" $domain | quote }}
   acmeEmail: pn@forwardmeasure.com
 
 # Overrides (replaces, not merges - helmfile deep-merges maps but replaces

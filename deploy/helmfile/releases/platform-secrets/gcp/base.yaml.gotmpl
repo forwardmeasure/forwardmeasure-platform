@@ -38,9 +38,31 @@ secrets:
       - {{ .Values.namespaces.modelServing }}
       - {{ .Values.namespaces.docling }}
       - {{ .Values.namespaces.superset }}
+      # forwardmeasure-data-streaming's own launcher (2026-09-26) - pulls its 3 private
+      # docker.io/forwardmeasure/data-streaming-* executor images, same registry/credential as
+      # every other consumer of this secret.
+      - {{ .Values.namespaces.dataStreaming }}
     remoteRefs:
       - secretKey: .dockerconfigjson
         remoteKey: {{ .Values.secretStore.remoteKeys.dockerConfig | quote }}
+  # forwardmeasure-data-streaming's own launcher (2026-09-26) - mirrors entityIntelligence's own
+  # "genuinely optional until a real Terraform/Secret-Manager entry exists" precedent immediately
+  # below (dig with an empty default plus an if-guard, not a bare .Values dot-access) - the real
+  # remote keys don't exist yet; this is additive/inert until they do, and does not error this
+  # release for any environment that never sets them.
+  - name: data-streaming-launcher-credentials
+    enabled: true
+    namespaces: [{{ .Values.namespaces.dataStreaming }}]
+    remoteRefs:
+      {{- if (dig "secretStore" "remoteKeys" "dataStreamingAuthorizationClientSecret" "" .Values) }}
+      - {secretKey: authorization-client-secret, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingAuthorizationClientSecret" "" .Values | quote }} }
+      {{- end }}
+      {{- if (dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientId" "" .Values) }}
+      - {secretKey: fowf-keycloak-client-id, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientId" "" .Values | quote }} }
+      {{- end }}
+      {{- if (dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientSecret" "" .Values) }}
+      - {secretKey: fowf-keycloak-client-secret, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientSecret" "" .Values | quote }} }
+      {{- end }}
   - name: {{ .Values.identity.databaseSecret }}
     enabled: true
     namespaces: [{{ .Values.namespaces.keycloak }}]
@@ -68,6 +90,39 @@ secrets:
       - secretKey: {{ required (printf "identity.serviceClients[%d].secretKey is required" $index) $client.secretKey | quote }}
         remoteKey: {{ required (printf "identity.serviceClients[%d].secretRemoteKey is required" $index) $client.secretRemoteKey | quote }}
       {{- end }}
+  # Narrow companion below (identity.dataStreamingCredentialsSecret), carrying only the Keycloak
+  # admin credential - forwardmeasure-data-streaming's own launcher-credentials bootstrap Job
+  # (deploy/helmfile/helmfiles/credentials.yaml.gotmpl in that repo) needs it to create/grant its
+  # own "datastreaming" Keycloak client, exactly as openworkflow-platform-clients already does for
+  # openworkflow-entity-intelligence-workflow-{author,publisher}. It deliberately does NOT get the
+  # rest of this Secret's own bundle (OPENWORKFLOW_CLIENT_SECRET/database passwords below), which
+  # belongs to fowf alone - see that entry's own comment.
+  - name: {{ .Values.identity.dataStreamingCredentialsSecret }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.dataStreaming }}]
+    remoteRefs:
+      - {secretKey: KC_BOOTSTRAP_ADMIN_USERNAME, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminUsername | quote }} }
+      - {secretKey: KC_BOOTSTRAP_ADMIN_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminPassword | quote }} }
+  # Mirrors identity.dataStreamingCredentialsSecret immediately above exactly, same reasoning, for
+  # forwardmeasure-entity-intelligence's own bootstrap Job (2026-09-29) - see identity.
+  # entityIntelligenceCredentialsSecret's own comment in environments/base.yaml.gotmpl.
+  - name: {{ .Values.identity.entityIntelligenceCredentialsSecret }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
+    remoteRefs:
+      - {secretKey: KC_BOOTSTRAP_ADMIN_USERNAME, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminUsername | quote }} }
+      - {secretKey: KC_BOOTSTRAP_ADMIN_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminPassword | quote }} }
+  # OpenSearch credentials for forwardmeasure-entity-intelligence (2026-09-29) - the same remote keys
+  # the opensearch-cluster release's own admin Secret uses, delivered into fei's namespace so its REST
+  # services and dispatched worker Jobs can authenticate to the platform's secured OpenSearch. Its own
+  # Secret, not a key in fei's entity-intelligence-credentials: that one is owned and patched by fei's
+  # own bootstrap Job, and an ExternalSecret targeting it would fight that Job over the same object.
+  - name: {{ .Values.openSearch.entityIntelligenceCredentialsSecret }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
+    remoteRefs:
+      - {secretKey: username, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchUsername | quote }} }
+      - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchPassword | quote }} }
   - name: {{ .Values.identity.openworkflowCredentialsSecret }}
     enabled: true
     namespaces: [{{ .Values.namespaces.openworkflow }}]

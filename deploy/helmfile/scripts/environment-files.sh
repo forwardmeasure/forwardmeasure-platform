@@ -47,6 +47,17 @@ case "${ENVIRONMENT}" in
     ;;
 esac
 
+# Shared layer, loaded last - see shared/common.yaml.gotmpl.
+CLUSTER="${ENVIRONMENT}"
+[[ -f "${HELMFILE_DIR}/shared/clusters/${CLUSTER}.yaml.gotmpl" ]] || CLUSTER=base
+FILES+=(
+  environments/shared-aliases.yaml.gotmpl
+  shared/common.yaml.gotmpl
+  shared/chart-versions.yaml
+  shared/image-versions.yaml
+  "shared/clusters/${CLUSTER}.yaml.gotmpl"
+)
+
 for relative_path in "${FILES[@]}"; do
   absolute_path="${HELMFILE_DIR}/${relative_path}"
   [[ -f "${absolute_path}" ]] || {

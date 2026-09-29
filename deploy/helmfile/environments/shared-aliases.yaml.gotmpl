@@ -1,0 +1,75 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Maps the shared layer (../shared/, the single source of truth for cross-repository values) onto
+# the keys this repository's own releases already read (namespaces.*, gateway.*Host, gcp.*,
+# identity.*, kafka.*), so no release template needs to change. Never set these keys anywhere else
+# in this repository - change the shared file instead.
+#
+# Read with readFile+tpl because helmfile renders every environment values file in isolation. The
+# cluster file is chosen by environment name; an environment without its own cluster file (the
+# abstract `gcp` layer) falls back to the placeholder clusters/base.yaml.gotmpl, and its cloud keys
+# (cloudProvider, gcp.*) then stay whatever environments/gcp.yaml sets.
+{{- $common := (tpl (readFile "../shared/common.yaml.gotmpl") (dict) | fromYaml).platform }}
+{{- $clusterFile := printf "../shared/clusters/%s.yaml.gotmpl" .Environment.Name }}
+{{- if not (isFile $clusterFile) }}{{ $clusterFile = "../shared/clusters/base.yaml.gotmpl" }}{{ end }}
+{{- $cluster := (tpl (readFile $clusterFile) (dict) | fromYaml).platform }}
+namespaces:
+  openworkflow: {{ $common.namespaces.openworkflow }}
+  istio: {{ $common.namespaces.istio }}
+  keycloak: {{ $common.namespaces.keycloak }}
+  kafka: {{ $common.namespaces.kafka }}
+  openSearch: {{ $common.namespaces.openSearch }}
+  valkey: {{ $common.namespaces.valkey }}
+  dataStreaming: {{ $common.namespaces.dataStreaming }}
+  entityIntelligence: {{ $common.namespaces.entityIntelligence }}
+  decisionEngine: {{ $common.namespaces.decisionEngine }}
+
+gatewayApi:
+  version: {{ $common.gatewayApi.version }}
+
+gateway:
+  loadBalancerIp: {{ $cluster.gateway.loadBalancerIp | quote }}
+  rootHost: {{ $cluster.gateway.hosts.root | quote }}
+  tenantHost: {{ $cluster.gateway.hosts.tenant | quote }}
+  authHost: {{ $cluster.gateway.hosts.auth | quote }}
+  registryHost: {{ $cluster.gateway.hosts.registry | quote }}
+  searchHost: {{ $cluster.gateway.hosts.search | quote }}
+  analyticsHost: {{ $cluster.gateway.hosts.analytics | quote }}
+  studioHost: {{ $cluster.gateway.hosts.studio | quote }}
+
+identity:
+  realm: {{ $common.identity.realm }}
+  publicClientId: {{ $common.identity.organizationClientId }}
+  openworkflowCredentialsSecret: {{ $common.secrets.openworkflowIdentity }}
+  dataStreamingCredentialsSecret: {{ $common.secrets.dataStreamingKeycloakAdmin }}
+  entityIntelligenceCredentialsSecret: {{ $common.secrets.entityIntelligenceKeycloakAdmin }}
+
+openSearch:
+  entityIntelligenceCredentialsSecret: {{ $common.secrets.entityIntelligenceOpenSearch }}
+
+kafka:
+  clusterName: {{ $common.endpoints.kafka.clusterName }}
+  bootstrapServers: {{ $common.endpoints.kafka.bootstrapServers }}
+{{- if eq $cluster.cloud.provider "gcp" }}
+
+cloudProvider: gcp
+gcp:
+  projectId: {{ $cluster.cloud.gcp.projectId }}
+  region: {{ $cluster.cloud.gcp.region }}
+  clusterName: {{ $cluster.cloud.gcp.clusterName }}
+  keycloakCloudSqlInstance: {{ $cluster.cloud.gcp.cloudSql.instanceName }}
+{{- end }}

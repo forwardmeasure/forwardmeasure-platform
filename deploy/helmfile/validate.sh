@@ -36,16 +36,18 @@ yq -e '.chartVersions | type == "!!map" and length > 0' \
 yq -e 'has("versions") | not' "${SCRIPT_DIR}/environments/base.yaml.gotmpl" >/dev/null
 yq -e 'has("chartVersions") | not' "${SCRIPT_DIR}/environments/base.yaml.gotmpl" >/dev/null
 yq -e 'has("imageVersions") | not' "${SCRIPT_DIR}/environments/base.yaml.gotmpl" >/dev/null
-yq -o=json '.imageVersions' "${SCRIPT_DIR}/environments/image-versions.yaml" \
-  | jq -e '
-      [.. | objects | select(has("repository"))]
-      | length > 0
-        and all(
-          (.repository | type == "string" and length > 0)
-          and (((.tag // "") | length > 0) or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
-          and (((.digest // "") == "") or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
-          and (((.tag // "") != "latest") or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
-        )' >/dev/null
+for image_versions_file in "${SCRIPT_DIR}/environments/image-versions.yaml" "${SCRIPT_DIR}/shared/image-versions.yaml"; do
+  yq -o=json '.imageVersions' "${image_versions_file}" \
+    | jq -e '
+        [.. | objects | select(has("repository"))]
+        | length > 0
+          and all(
+            (.repository | type == "string" and length > 0)
+            and (((.tag // "") | length > 0) or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
+            and (((.digest // "") == "") or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
+            and (((.tag // "") != "latest") or ((.digest // "") | test("^sha256:[0-9a-f]{64}$")))
+          )' >/dev/null
+done
 yq -o=json '.chartSources' "${SCRIPT_DIR}/environments/base.yaml.gotmpl" \
   | jq -e 'all(.[]; (.mode == "local" or .mode == "repository") and (.chart | length > 0))' >/dev/null
 
@@ -100,12 +102,10 @@ if [[ "${ENVIRONMENT}" != "base" ]]; then
   grep -q 'name: platform-registry-app-service' "${OUTPUT}"
   grep -q 'name: forwardmeasure-platform-dashboard' "${OUTPUT}"
   grep -q 'value: /platform' "${OUTPUT}"
-  # Stock quay.io/keycloak/keycloak image with the built-in keycloak.v2
-  # theme, not a custom-themed forwardmeasure/forwardmeasure-keycloak image
-  # - that image was never built (forwardmeasure-platform-operations has
-  # zero commits, ever, on any branch - confirmed directly, not something
-  # in real use), and its login theme along with it.
-  grep -q 'quay.io/keycloak/keycloak' "${OUTPUT}"
+  # forwardmeasure/keycloak: stock quay.io/keycloak/keycloak plus the organization-role policy
+  # provider (see environments/image-versions.yaml), with the built-in keycloak.v2 theme - not the
+  # never-built custom-themed forwardmeasure/forwardmeasure-keycloak image.
+  grep -q 'docker.io/forwardmeasure/keycloak' "${OUTPUT}"
   grep -q 'name: REALM_LOGIN_THEME' "${OUTPUT}"
   grep -q 'value: "keycloak.v2"' "${OUTPUT}"
   grep -Eq 'value: ["]?/apis/registry["]?' "${OUTPUT}"

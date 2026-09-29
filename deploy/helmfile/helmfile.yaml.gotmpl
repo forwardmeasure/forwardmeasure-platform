@@ -21,12 +21,21 @@ helmDefaults:
   atomic: true
   createNamespace: false
 
+# Every environment ends with the shared layer (shared/, the single source of truth for values more
+# than one repository deploys with - see shared/common.yaml.gotmpl) and the alias file mapping it
+# onto this repository's own keys. The same shared files are loaded by every product repository's
+# own helmfile, by relative path from the sibling checkout.
 environments:
   base:
     values:
       - environments/chart-versions.yaml
       - environments/image-versions.yaml
       - environments/base.yaml.gotmpl
+      - environments/shared-aliases.yaml.gotmpl
+      - shared/common.yaml.gotmpl
+      - shared/chart-versions.yaml
+      - shared/image-versions.yaml
+      - shared/clusters/base.yaml.gotmpl
   # Cloud-wide GCP layer, no cluster tier - useful for confirming the gcp.yaml
   # layer alone renders correctly. Not used for a real install.
   gcp:
@@ -35,6 +44,11 @@ environments:
       - environments/image-versions.yaml
       - environments/base.yaml.gotmpl
       - environments/gcp.yaml
+      - environments/shared-aliases.yaml.gotmpl
+      - shared/common.yaml.gotmpl
+      - shared/chart-versions.yaml
+      - shared/image-versions.yaml
+      - shared/clusters/base.yaml.gotmpl
   # Named gcp-openworkflow-prod (cloud-cluster), not just production, so
   # this matches exactly what forwardmeasure-openworkflow's own helmfile
   # registers - install-platform.sh passes one environment name to both
@@ -48,6 +62,11 @@ environments:
       - environments/base.yaml.gotmpl
       - environments/gcp.yaml
       - environments/gcp-openworkflow-prod.yaml.gotmpl
+      - environments/shared-aliases.yaml.gotmpl
+      - shared/common.yaml.gotmpl
+      - shared/chart-versions.yaml
+      - shared/image-versions.yaml
+      - shared/clusters/gcp-openworkflow-prod.yaml.gotmpl
   gcp-greenfield-example:
     values:
       - environments/chart-versions.yaml
@@ -55,14 +74,19 @@ environments:
       - environments/base.yaml.gotmpl
       - environments/gcp.yaml
       - environments/gcp-greenfield-example.yaml
+      - environments/shared-aliases.yaml.gotmpl
+      - shared/common.yaml.gotmpl
+      - shared/chart-versions.yaml
+      - shared/image-versions.yaml
+      - shared/clusters/gcp-greenfield-example.yaml.gotmpl
 
 ---
 
 {{- $layers := dict
-  "base" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl")
-  "gcp" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml")
-  "gcp-openworkflow-prod" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml" "environments/gcp-openworkflow-prod.yaml.gotmpl")
-  "gcp-greenfield-example" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml" "environments/gcp-greenfield-example.yaml")
+  "base" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/shared-aliases.yaml.gotmpl" "shared/common.yaml.gotmpl" "shared/chart-versions.yaml" "shared/image-versions.yaml" "shared/clusters/base.yaml.gotmpl")
+  "gcp" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml" "environments/shared-aliases.yaml.gotmpl" "shared/common.yaml.gotmpl" "shared/chart-versions.yaml" "shared/image-versions.yaml" "shared/clusters/base.yaml.gotmpl")
+  "gcp-openworkflow-prod" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml" "environments/gcp-openworkflow-prod.yaml.gotmpl" "environments/shared-aliases.yaml.gotmpl" "shared/common.yaml.gotmpl" "shared/chart-versions.yaml" "shared/image-versions.yaml" "shared/clusters/gcp-openworkflow-prod.yaml.gotmpl")
+  "gcp-greenfield-example" (list "environments/chart-versions.yaml" "environments/image-versions.yaml" "environments/base.yaml.gotmpl" "environments/gcp.yaml" "environments/gcp-greenfield-example.yaml" "environments/shared-aliases.yaml.gotmpl" "shared/common.yaml.gotmpl" "shared/chart-versions.yaml" "shared/image-versions.yaml" "shared/clusters/gcp-greenfield-example.yaml.gotmpl")
 }}
 {{- $values := index $layers .Environment.Name | default (list) }}
 
@@ -84,6 +108,4 @@ helmfiles:
   - path: helmfiles/60-analytics.yaml.gotmpl
     values: {{ toYaml $values | nindent 6 }}
   - path: helmfiles/70-platform-dashboard.yaml.gotmpl
-    values: {{ toYaml $values | nindent 6 }}
-  - path: helmfiles/80-decision-engine.yaml.gotmpl
     values: {{ toYaml $values | nindent 6 }}

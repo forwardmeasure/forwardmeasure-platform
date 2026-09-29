@@ -1,13 +1,9 @@
 # Copy to a private environment file and replace every placeholder. This file
 # intentionally contains no credentials; all secret values reside in Google
 # Secret Manager and are referenced by name from environments/base.yaml.gotmpl.
-platform:
-  domain: new-platform.example
-
+# Domain, gateway IP/hostnames, gcp.projectId/region/clusterName and the Cloud SQL instance come
+# from ../shared/clusters/gcp-greenfield-example.yaml.gotmpl (via shared-aliases.yaml.gotmpl).
 gcp:
-  projectId: forwardmeasure-production
-  region: us-central1
-  clusterName: forwardmeasure-production
   dnsServiceAccountEmail: cert-manager@forwardmeasure-production.iam.gserviceaccount.com
   externalSecretsServiceAccountEmail: external-secrets@forwardmeasure-production.iam.gserviceaccount.com
   modelServiceAccountEmail: model-serving@forwardmeasure-production.iam.gserviceaccount.com
@@ -18,21 +14,9 @@ gcp:
   # placeholder in this file. Confirmed missing here (2026-09-16) via a real `helmfile template`
   # render - this file previously had no way to reach either release without erroring.
   keycloakServiceAccountEmail: keycloak@forwardmeasure-production.iam.gserviceaccount.com
-  keycloakCloudSqlInstance: replace-with-keycloak-cloud-sql-instance
   supersetServiceAccountEmail: superset@forwardmeasure-production.iam.gserviceaccount.com
 
 gateway:
-  loadBalancerIp: 203.0.113.10
-  rootHost: platform.new-platform.example
-  tenantHost: "*.new-platform.example"
-  authHost: auth.new-platform.example
-  registryHost: registry.new-platform.example
-  searchHost: search.new-platform.example
-  analyticsHost: analytics.new-platform.example
-  # Must be set here, not left to base.yaml.gotmpl's own studioHost - each
-  # environment file has its own scoped $domain, so base's studioHost would
-  # otherwise render with base's own placeholder domain, not this cluster's.
-  studioHost: studio.new-platform.example
   acmeEmail: platform-owner@new-platform.example
 
 # openworkflowRuntimeDatabasePassword/openworkflowAdministratorDatabasePassword are deliberately

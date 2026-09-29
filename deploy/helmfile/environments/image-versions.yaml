@@ -15,11 +15,6 @@
 # limitations under the License.
 #
 imageVersions:
-  decisionEngine:
-    repository: docker.io/forwardmeasure/decision-engine-quarkus
-    tag: "1.1.0"
-    digest: ""
-    pullPolicy: IfNotPresent
   # Custom image (official quay.io/keycloak/keycloak:26.7.4 + the real "organization-role" Policy
   # Provider baked in - helm-charts/charts/keycloak-helm-chart/policy-provider) replacing the bare
   # official image - without it, no role granted via Keycloak Organizations-group membership is
@@ -67,13 +62,8 @@ imageVersions:
     tag: latest
     digest: sha256:eb705101bf88908ead1ed129580406b72570fbd76fadbbcf38912714b35034de
     pullPolicy: IfNotPresent
-  # Cloud SQL Auth Proxy sidecar - used by keycloak (via keycloak-helm-chart's
-  # own cloudSqlProxy.image, overridden below) and superset (see
-  # releases/superset/gcp/base.yaml.gotmpl). One version here instead of a
-  # separate pin per consumer.
-  cloudSqlProxy:
-    repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
-    tag: "2.21.1"
+  # cloudSqlProxy (keycloak, superset) is pinned in ../shared/image-versions.yaml - shared with
+  # forwardmeasure-openworkflow and forwardmeasure-decision-engine.
   # apicurio-registry-operator-helm-chart bakes these into its own
   # values.yaml with no consumer override wired up before now - upgrading
   # meant editing helm-charts, bumping its chart version, and publishing,
