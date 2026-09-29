@@ -21,9 +21,15 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ENVIRONMENT="${1:?Usage: $0 <configured-environment> [--full]}"
 FULL="${2:-}"
 
+# --deleteWait: helm uninstall --wait blocks until every resource of a release is really gone,
+# finalizers included, before helmfile moves on to the release it `needs`. Without it, an operator
+# (knative-operator, strimzi, kserve) is uninstalled while its own custom resources are still
+# terminating, their finalizers never run, and the workloads the operator created are orphaned.
+DESTROY_FLAGS=(--deleteWait --deleteTimeout 600)
+
 for stage in dashboard analytics ml-serving search messaging identity configuration; do
   helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \
-    --environment "${ENVIRONMENT}" --selector "stage=${stage}" destroy
+    --environment "${ENVIRONMENT}" --selector "stage=${stage}" destroy "${DESTROY_FLAGS[@]}"
 done
 
 if [[ "${FULL}" == "--full" ]]; then
@@ -34,7 +40,7 @@ if [[ "${FULL}" == "--full" ]]; then
   # needs this too, but most callers re-running uninstall/install in a
   # loop don't want to re-pull/reinstall CRDs every time.
   helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \
-    --environment "${ENVIRONMENT}" --selector "stage=foundation" destroy
+    --environment "${ENVIRONMENT}" --selector "stage=foundation" destroy "${DESTROY_FLAGS[@]}"
   echo "Foundation releases destroyed for ${ENVIRONMENT}. Namespaces were retained."
 else
   echo "Foundation releases and namespaces were retained intentionally. Pass --full to also tear down istio/cert-manager/external-secrets."

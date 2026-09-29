@@ -195,12 +195,12 @@ variable "cloudsql" {
 variable "cloudsql_databases" {
   description = "Databases created on the platform Cloud SQL instance."
   type        = set(string)
-  # "platform" is the new small, non-tenant control-plane database (tenant_registry and any other
-  # cross-product platform-owned tables) introduced by the database-per-tenant, schema-per-product
-  # redesign - Terraform still owns this one alongside the other foundational databases; it does
-  # NOT grow a per-tenant loop here (per-tenant databases are created by each product's own
-  # migrator Job at deploy time, not by Terraform).
-  default = ["entity_intelligence", "keycloak", "openworkflow", "platform", "superset"]
+  # forwardmeasure_control_plane is the small, non-tenant control-plane database (tenant_registry,
+  # Pekko's cluster-wide coordinator store) - deploy/helmfile/shared's platform.databases.controlPlane.
+  # openworkflow/entity-intelligence/decision-engine keep their data in each tenant's own database
+  # (forwardmeasure_<alias>), created by their migration Jobs at deploy time - never here, and none of
+  # them has a database of its own.
+  default = ["forwardmeasure_control_plane", "keycloak", "superset"]
 }
 
 variable "cloudsql_users" {
@@ -209,11 +209,17 @@ variable "cloudsql_users" {
     password_version = optional(number, 1)
     deletion_policy  = optional(string, "ABANDON")
   }))
+  # Same rule as openworkflow-k8s-setup/terraform/gcp's cloudsql_users: Terraform creates the login
+  # role of every platform component that owns its own database (keycloak, superset, later e.g.
+  # Pinot), because those install before any migration Job runs, plus forwardmeasure_admin - the
+  # admin every product's migration Job connects as (a Job cannot create the role it logs in with).
+  # Product runtime roles (openworkflow, entityintelligence, decision_engine) are deliberately NOT
+  # here: their migration Jobs create and re-password them. API-created users are cloudsqlsuperuser
+  # members (CREATEROLE/CREATEDB) - accepted 2026-09-29, see that repo's docs/operations.md.
   default = {
-    entity_intelligence = {}
-    keycloak            = {}
-    openworkflow        = {}
-    superset            = {}
+    keycloak             = {}
+    forwardmeasure_admin = {}
+    superset             = {}
   }
 }
 
@@ -316,9 +322,20 @@ variable "workload_service_accounts" {
         model-cache = ["roles/storage.objectViewer"]
       }
     }
+    decision-engine = {
+      account_id    = "decision-engine"
+      display_name  = "Decision Engine server"
+      project_roles = ["roles/cloudsql.client"]
+      # The decision-engine chart's ServiceAccount (fullname of the decision-engine release), used
+      # by its Cloud SQL Auth Proxy sidecar.
+      workload_identity_members = ["decision-engine/decision-engine"]
+    }
     entity-intelligence = {
-      account_id                = "entity-intelligence"
-      display_name              = "Entity Intelligence workloads"
+      account_id   = "entity-intelligence"
+      display_name = "Entity Intelligence workloads"
+      # cloudsql.client: the services' Cloud SQL Auth Proxy sidecars (control-plane and tenant
+      # databases, as the entityintelligence role).
+      project_roles             = ["roles/cloudsql.client"]
       workload_identity_members = ["entity-intelligence/entity-intelligence"]
       bucket_roles = {
         entity-intelligence = ["roles/storage.objectAdmin"]

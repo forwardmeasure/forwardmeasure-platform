@@ -58,6 +58,23 @@ platform:
     {{- toYaml $namespaces | nindent 4 }}
   gatewayApi:
     version: v1.5.1
+  databases:
+    # The platform control-plane database on the shared Postgres (Cloud SQL) instance: holds
+    # tenant_registry (tenant -> tenant-database mapping) and Pekko's cluster-wide coordinator store.
+    # Created by Terraform (openworkflow-k8s-setup on gcp-openworkflow-prod, k8s-infrastructure/
+    # opentofu/gcp on a new cluster) or by the in-cluster Postgres locally; migrated by
+    # forwardmeasure-openworkflow's migrations Jobs. Every product runtime reads tenant_registry from
+    # it to route each request to that tenant's own database (forwardmeasure_<alias>, one schema per
+    # product). Products never have a database of their own. The name shares the tenant databases'
+    # forwardmeasure_ prefix, so forwardmeasure-jpa's TenantDatabase reserves the alias
+    # "control_plane" - no tenant can ever be given this database.
+    controlPlane: forwardmeasure_control_plane
+    # Runtime roles created/rotated by forwardmeasure-openworkflow's migrations stage and used by
+    # each product's servers - the name is a contract between that Job and the Secrets
+    # platform-secrets delivers.
+    runtimeRoles:
+      decisionEngine: decision_engine
+      entityIntelligence: entityintelligence
   identity:
     realm: {{ $keycloakRealm }}
     # The org-wide public client every product's organization/tenant-claim verification points at.
@@ -66,7 +83,7 @@ platform:
   # the name is the contract between this repository (producer) and the product (consumer).
   secrets:
     imagePull: docker-io-credentials
-    # fowf's own bundle: OPENWORKFLOW_CLIENT_SECRET/OPENWORKFLOW_DATABASE_PASSWORD/
+    # fowf's own bundle: OPENWORKFLOW_CLIENT_SECRET/OPENWORKFLOW_RUNTIME_DATABASE_PASSWORD/
     # OPENWORKFLOW_ADMIN_DATABASE_PASSWORD, synced into forwardmeasure-openworkflow's namespace.
     openworkflowIdentity: openworkflow-identity-credentials
     # Narrow, dedicated secrets carrying ONLY the Keycloak admin credential (KC_BOOTSTRAP_ADMIN_*),
@@ -78,6 +95,15 @@ platform:
     # Same OpenSearch username/password as the platform's own admin credential, delivered into
     # forwardmeasure-entity-intelligence's namespace (a secretKeyRef can't cross namespaces).
     entityIntelligenceOpenSearch: entity-intelligence-opensearch-credentials
+    # entity-intelligence's server credentials: username/password of its runtime role plus
+    # db-cloud-sql-instance for its services' Cloud SQL Auth Proxy sidecars. Deliberately separate
+    # from entity-intelligence-credentials, which its own Keycloak bootstrap Job writes.
+    entityIntelligenceDatabase: entity-intelligence-database-credentials
+    # decision-engine's server credentials: username/password of its runtime role plus
+    # db-cloud-sql-instance for its Cloud SQL Auth Proxy sidecar (one Secret, both consumers).
+    decisionEngineDatabase: decision-engine-database-credentials
+    # The shared Valkey's password (its single default ACL user), for decision-engine's fact window.
+    decisionEngineValkey: decision-engine-valkey-auth
   endpoints:
     keycloak:
       url: {{ $keycloakUrl }}

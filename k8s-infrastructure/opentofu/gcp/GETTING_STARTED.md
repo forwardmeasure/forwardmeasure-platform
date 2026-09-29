@@ -178,33 +178,45 @@ minimum, review:
 - GCS buckets; and
 - the tenant-specific OKS client-secret name in `additional_secret_ids`.
 
-The example creates four databases and users:
+The example creates three databases and three users:
 
-| Database | User | Consumer |
-|---|---|---|
-| `keycloak` | `keycloak` | Keycloak |
-| `superset` | `superset` | Superset |
-| `openworkflow` | `openworkflow` | OKS |
-| `entity_intelligence` | `entity_intelligence` | Entity Intelligence |
+| Database | Consumer |
+|---|---|
+| `forwardmeasure_control_plane` | tenant registry and Pekko's cluster-wide coordinator store |
+| `keycloak` | Keycloak |
+| `superset` | Superset |
+
+| User | Used by |
+|---|---|
+| `keycloak` | Keycloak |
+| `superset` | Superset |
+| `forwardmeasure_admin` | every product's migration Job (admin role) |
+
+No product has a database of its own. Tenant data lives in one database per tenant,
+`forwardmeasure_<alias>`, with one schema per product; the migration Jobs create those
+databases and each product's runtime role (`openworkflow`, `entityintelligence`,
+`decision_engine`) at deploy time, connecting as `forwardmeasure_admin`.
 
 ## Step 4: Supply the database passwords
 
 The database passwords are deliberately not placed in the environment file.
-Create or retrieve four passwords, then export them for this terminal session:
+Create or retrieve three passwords, then export them for this terminal session:
 
 ```bash
 read -rsp 'Keycloak database password: ' KEYCLOAK_DB_PASSWORD; echo
 read -rsp 'Superset database password: ' SUPERSET_DB_PASSWORD; echo
-read -rsp 'OKS database password: ' OKS_DB_PASSWORD; echo
-read -rsp 'Entity Intelligence database password: ' EI_DB_PASSWORD; echo
+read -rsp 'Migration admin database password: ' ADMIN_DB_PASSWORD; echo
 
 export TF_VAR_cloudsql_user_passwords="$(jq -nc \
   --arg keycloak "$KEYCLOAK_DB_PASSWORD" \
   --arg superset "$SUPERSET_DB_PASSWORD" \
-  --arg openworkflow "$OKS_DB_PASSWORD" \
-  --arg entity_intelligence "$EI_DB_PASSWORD" \
-  '{keycloak:$keycloak,superset:$superset,openworkflow:$openworkflow,entity_intelligence:$entity_intelligence}')"
+  --arg forwardmeasure_admin "$ADMIN_DB_PASSWORD" \
+  '{keycloak:$keycloak,superset:$superset,forwardmeasure_admin:$forwardmeasure_admin}')"
 ```
+
+The Keycloak and Superset passwords must match the values their own charts read
+(`platform-keycloak-database-password` / `platform-superset-database-password`, delivered by
+platform-secrets). Terraform is the only thing that sets these two roles' passwords.
 
 Why: OpenTofu passes this map to Cloud SQL through a write-only provider field.
 It is available during the command but is not saved in the plan or state.

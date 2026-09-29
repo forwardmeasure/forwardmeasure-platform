@@ -31,6 +31,12 @@
 {{- $openworkflowRuntimeServiceAccount := "openworkflow-prod-runtime@genai-llm-393115.iam.gserviceaccount.com" }}
 {{- $openworkflowMigrationsServiceAccount := "openworkflow-prod-migrations@genai-llm-393115.iam.gserviceaccount.com" }}
 {{- $openworkflowOverflowBucket := "genai-llm-393115-openworkflow-prod-workflow-execution-overflow" }}
+# decision-engine's workload identity - openworkflow-k8s-setup/terraform/gcp workload_identities
+# "decision_engine" (account id truncated to 30 characters by that module).
+# entity-intelligence's workload identity - openworkflow-k8s-setup/terraform/gcp workload_identities
+# "entity_intelligence" (account id truncated to 30 characters by that module).
+{{- $entityIntelligenceServiceAccount := "openworkflow-prod-entity-intel@genai-llm-393115.iam.gserviceaccount.com" }}
+{{- $decisionEngineServiceAccount := "openworkflow-prod-decision-eng@genai-llm-393115.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "lux" "displayName" "Lux Tenant") }}
 platform:
   domain: {{ $domain | quote }}
@@ -67,6 +73,10 @@ platform:
       cloudSql:
         instanceName: {{ $cloudSqlInstance | quote }}
         instanceConnectionName: {{ printf "%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
+      decisionEngine:
+        serviceAccount: {{ $decisionEngineServiceAccount | quote }}
+      entityIntelligence:
+        serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

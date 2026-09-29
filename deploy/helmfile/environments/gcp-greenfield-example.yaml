@@ -31,6 +31,10 @@ secretStore:
   remoteKeys:
     openworkflowRuntimeDatabasePassword: platform-openworkflow-database-password
     openworkflowAdministratorDatabasePassword: platform-openworkflow-database-administrator-password
+    # Runtime roles provisioned by forwardmeasure-openworkflow's entity-intelligence-migrations /
+    # decision-engine-migrations Jobs (delivered into openworkflowCredentialsSecret).
+    entityIntelligenceRuntimeDatabasePassword: platform-entity-intelligence-runtime-database-password
+    decisionEngineRuntimeDatabasePassword: platform-decision-engine-runtime-database-password
 
 # bootstrapIdentity and tenants[] (example-bank) come from the shared layer's cluster file. The
 # service client's tenant_did below must match that tenant's DID - preflight.sh checks it.

@@ -42,6 +42,10 @@ secrets:
       # docker.io/forwardmeasure/data-streaming-* executor images, same registry/credential as
       # every other consumer of this secret.
       - {{ .Values.namespaces.dataStreaming }}
+      # forwardmeasure-entity-intelligence's and forwardmeasure-decision-engine's private
+      # docker.io/forwardmeasure/* images.
+      - {{ .Values.namespaces.entityIntelligence }}
+      - {{ .Values.namespaces.decisionEngine }}
     remoteRefs:
       - secretKey: .dockerconfigjson
         remoteKey: {{ .Values.secretStore.remoteKeys.dockerConfig | quote }}
@@ -137,27 +141,18 @@ secrets:
       # Runtime credential (role: openworkflow) - used by application
       # services and by the migrations Job to create runtime-scoped tenant
       # schema objects. Never used to connect as admin.
-      - {secretKey: OPENWORKFLOW_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowRuntimeDatabasePassword | quote }} }
-      # Administrator credential (role: openworkflow_migration) - used only
+      - {secretKey: OPENWORKFLOW_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowRuntimeDatabasePassword | quote }} }
+      # Administrator credential (role: forwardmeasure_admin) - used only
       # by the migrations Job to create/rotate the runtime role, run schema
       # DDL, and grant runtime privileges. See
       # openworkflow-k8s-setup/docs/operations.md's "Database role
       # provisioning" section. Never granted to a runtime workload.
       - {secretKey: OPENWORKFLOW_ADMIN_DATABASE_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowAdministratorDatabasePassword | quote }} }
-      # Keycloak's and Superset's own runtime-role passwords - not
-      # openworkflow's concern normally, but the migrations Job's admin
-      # workload identity is the only one in this cluster authorized
-      # (administrator_database_keys in Terraform) to provision every
-      # declared runtime database's role, and that identity is namespace-
-      # locked to openworkflow (Kubernetes ServiceAccounts can't cross
-      # namespaces), so this is the only place that can actually reach
-      # them. See openworkflow-k8s-setup/docs/operations.md's "Database
-      # role provisioning" section.
-      - {secretKey: OPENWORKFLOW_RUNTIME_DATABASE_KEYCLOAK_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakDatabasePassword | quote }} }
-      - {secretKey: OPENWORKFLOW_RUNTIME_DATABASE_SUPERSET_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.supersetDatabasePassword | quote }} }
-      # fei's own runtime role (entityintelligence) - fei and fowf share this tenant database, and
-      # this workload identity is the same one already authorized to provision every declared
-      # runtime database's role (see the comment above), so this is the natural place for it too.
+      # Keycloak's and Superset's database roles are created by Terraform (cloudsql_users), not
+      # by the migrations Job, so their passwords are not delivered here.
+      # fei's own runtime role (entityintelligence) - fei and fowf share each tenant database, and
+      # entity-intelligence-migrations runs as the same migrations workload identity, so its
+      # runtime password is delivered here too.
       # entity-intelligence-migrations' own release (deploy/helmfile/releases/entity-intelligence-migrations)
       # reads this same openworkflow-identity-credentials Secret via its own credentialsSecretName
       # override. No base default for the remote key, matching
@@ -173,7 +168,15 @@ secrets:
       # .Values.tenants elsewhere in this repo pair. `dig` with a default makes the omission
       # actually optional, matching what the comment already promised.
       {{- if (dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values) }}
-      - {secretKey: ENTITYINTELLIGENCE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values | quote }} }
+      - {secretKey: ENTITY_INTELLIGENCE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values | quote }} }
+      {{- end }}
+      # decision-engine's own runtime role (decision_engine) - same reasoning as fei's immediately
+      # above: forwardmeasure-openworkflow's decision-engine-migrations release (same shared tenant
+      # databases, same admin workload identity) reads DECISION_ENGINE_RUNTIME_DATABASE_PASSWORD from
+      # this Secret, creates/rotates the role with it, and grants it tenant_registry read. Without this
+      # key that Job's pod cannot start (non-optional secretKeyRef).
+      {{- if (dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values) }}
+      - {secretKey: DECISION_ENGINE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values | quote }} }
       {{- end }}
   - name: huggingface-token
     enabled: true
@@ -201,6 +204,50 @@ secrets:
     namespaces: [{{ .Values.namespaces.valkey }}]
     remoteRefs:
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.valkeyPassword | quote }}}
+  # decision-engine's fact window uses the shared Valkey as its default ACL user - same password
+  # superset's REDIS_PASSWORD carries, delivered into decision-engine's own namespace.
+  - name: {{ .Values.platform.secrets.decisionEngineValkey }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.decisionEngine }}]
+    remoteRefs:
+      - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.valkeyPassword | quote }}}
+  # entity-intelligence's server credentials, in its own namespace - same shape as decision-engine's
+  # below: the entityintelligence runtime role (created by forwardmeasure-openworkflow's
+  # entity-intelligence-migrations Job from the same remote key delivered into
+  # openworkflowCredentialsSecret above) plus db-cloud-sql-instance for every service's Cloud SQL
+  # Auth Proxy sidecar (java-microservice-helm-chart cloudSqlProxy.existingSecretName).
+  {{- if (dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values) }}
+  - name: {{ .Values.platform.secrets.entityIntelligenceDatabase }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
+    templateData:
+      username: {{ .Values.platform.databases.runtimeRoles.entityIntelligence | quote }}
+      password: '{{ "{{ .password }}" }}'
+      {{- with (dig "platform" "cloud" "gcp" "cloudSql" "instanceConnectionName" "" .Values) }}
+      db-cloud-sql-instance: {{ . | quote }}
+      {{- end }}
+    remoteRefs:
+      - {secretKey: password, remoteKey: {{ dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values | quote }} }
+  {{- end }}
+  # decision-engine's server credentials, in its own namespace: the decision_engine runtime role
+  # (created by forwardmeasure-openworkflow's decision-engine-migrations Job from the same remote
+  # key delivered into openworkflowCredentialsSecret above) plus db-cloud-sql-instance for the
+  # chart's Cloud SQL Auth Proxy sidecar (cloudSqlProxy.existingSecretName). The username and the
+  # instance connection name are not secret - they come from the shared layer, composed in by
+  # External Secrets' template ({{ "{{ .password }}" }} is evaluated by the operator, not Helm).
+  {{- if (dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values) }}
+  - name: {{ .Values.platform.secrets.decisionEngineDatabase }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.decisionEngine }}]
+    templateData:
+      username: {{ .Values.platform.databases.runtimeRoles.decisionEngine | quote }}
+      password: '{{ "{{ .password }}" }}'
+      {{- with (dig "platform" "cloud" "gcp" "cloudSql" "instanceConnectionName" "" .Values) }}
+      db-cloud-sql-instance: {{ . | quote }}
+      {{- end }}
+    remoteRefs:
+      - {secretKey: password, remoteKey: {{ dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values | quote }} }
+  {{- end }}
   # Per-tenant workflow-call secrets (call:http/call:openapi/call:grpc/call:asyncapi/etc.
   # `authentication:` blocks) - consumed by forwardmeasure-openworkflow's DirectorySecretProvider via
   # a per-tenant Secret volume mount (see openworkflow-service's extraVolumes/extraVolumeMounts,

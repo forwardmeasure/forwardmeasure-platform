@@ -89,3 +89,19 @@ metadata: {name: superset}
 apiVersion: v1
 kind: Namespace
 metadata: {name: opa}
+---
+# Product namespaces (forwardmeasure-data-streaming, -entity-intelligence, -decision-engine). Created
+# here, not by the products, because platform-secrets (applied by this repository before any
+# product installs) delivers Secrets into them - an ExternalSecret cannot target a namespace that
+# does not exist yet. Names match shared/common.yaml.gotmpl's platform.namespaces.
+apiVersion: v1
+kind: Namespace
+metadata: {name: data-streaming}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: entity-intelligence}
+---
+apiVersion: v1
+kind: Namespace
+metadata: {name: decision-engine}

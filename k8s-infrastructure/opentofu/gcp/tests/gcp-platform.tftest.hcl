@@ -51,10 +51,9 @@ run "complete_greenfield_contract" {
     }
 
     cloudsql_user_passwords = {
-      entity_intelligence = "test-only-entity-intelligence-password"
-      keycloak            = "test-only-keycloak-password"
-      openworkflow        = "test-only-openworkflow-password"
-      superset            = "test-only-superset-password"
+      keycloak             = "test-only-keycloak-password"
+      forwardmeasure_admin = "test-only-forwardmeasure-admin-password"
+      superset             = "test-only-superset-password"
     }
 
     cloudsql_extensions = {

@@ -125,7 +125,7 @@ identity:
   # create/rotate the runtime role and apply schema migrations; never granted
   # to a runtime workload (see openworkflow-k8s-setup/docs/operations.md's
   # "Database role provisioning" section).
-  openworkflowAdministratorUsername: openworkflow_migration
+  databaseAdministratorUsername: forwardmeasure_admin
   # Exactly one tenant-bound SERVICE client per tenant - scripts/preflight.sh enforces it. This used
   # to also declare an example OKS operation-adapter client for the same placeholder tenant, which
   # made preflight fail for this environment.

@@ -89,18 +89,17 @@ cloudsql = {
   deletion_protection = true
 }
 
-# "platform" is the new control-plane database (tenant_registry) for the database-per-tenant,
-# schema-per-product redesign - see variables.tf's own comment on cloudsql_databases.
-cloudsql_databases = ["entity_intelligence", "keycloak", "openworkflow", "platform", "superset"]
+# forwardmeasure_control_plane is the control-plane database (tenant_registry, Pekko's cluster-wide
+# coordinator store) - see variables.tf's own comment on cloudsql_databases.
+cloudsql_databases = ["forwardmeasure_control_plane", "keycloak", "superset"]
 
+# Product runtime roles (openworkflow, entityintelligence, decision_engine) are created by the
+# migration Jobs, which connect as forwardmeasure_admin - see variables.tf's cloudsql_users.
 cloudsql_users = {
-  entity_intelligence = {
-    password_version = 1
-  }
   keycloak = {
     password_version = 1
   }
-  openworkflow = {
+  forwardmeasure_admin = {
     password_version = 1
   }
   superset = {
@@ -109,7 +108,7 @@ cloudsql_users = {
 }
 
 # Passwords are deliberately absent. Supply an ephemeral JSON map to plan/apply:
-# export TF_VAR_cloudsql_user_passwords='{"entity_intelligence":"...","keycloak":"...","openworkflow":"...","superset":"..."}'
+# export TF_VAR_cloudsql_user_passwords='{"keycloak":"...","forwardmeasure_admin":"...","superset":"..."}'
 
 cloudsql_extensions = {
   keycloak = {

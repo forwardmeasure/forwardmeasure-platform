@@ -28,6 +28,12 @@
 {{- $openworkflowRuntimeServiceAccount := "openworkflow-runtime@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $openworkflowMigrationsServiceAccount := "openworkflow-migrations@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $openworkflowOverflowBucket := "forwardmeasure-production-workflow-execution-overflow" }}
+# decision-engine's workload identity - k8s-infrastructure/opentofu/gcp workload_service_accounts
+# "decision-engine".
+# entity-intelligence's workload identity - k8s-infrastructure/opentofu/gcp workload_service_accounts
+# "entity-intelligence".
+{{- $entityIntelligenceServiceAccount := "entity-intelligence@forwardmeasure-production.iam.gserviceaccount.com" }}
+{{- $decisionEngineServiceAccount := "decision-engine@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "example-bank" "displayName" "Example Bank") }}
 platform:
   domain: {{ $domain | quote }}
@@ -64,6 +70,10 @@ platform:
       cloudSql:
         instanceName: {{ $cloudSqlInstance | quote }}
         instanceConnectionName: {{ printf "%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
+      decisionEngine:
+        serviceAccount: {{ $decisionEngineServiceAccount | quote }}
+      entityIntelligence:
+        serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

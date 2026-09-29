@@ -45,8 +45,12 @@ in its plan or state. PostgreSQL bootstrap Secrets use Kubernetes
 Export the values immediately before planning and applying:
 
 ```bash
-export TF_VAR_cloudsql_user_passwords='{"keycloak":"...","superset":"..."}'
+export TF_VAR_cloudsql_user_passwords='{"keycloak":"...","superset":"...","forwardmeasure_admin":"..."}'
 ```
+
+Product runtime roles (`openworkflow`, `entityintelligence`, `decision_engine`) are not
+managed here: each product's migration Job creates and re-passwords its own, connecting as
+`forwardmeasure_admin`.
 
 The corresponding application values must also be placed into the Secret
 Manager containers created by this stack. Secret values are deliberately not
