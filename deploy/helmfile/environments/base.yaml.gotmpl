@@ -126,17 +126,10 @@ identity:
   # to a runtime workload (see openworkflow-k8s-setup/docs/operations.md's
   # "Database role provisioning" section).
   openworkflowAdministratorUsername: openworkflow_migration
+  # Exactly one tenant-bound SERVICE client per tenant - scripts/preflight.sh enforces it. This used
+  # to also declare an example OKS operation-adapter client for the same placeholder tenant, which
+  # made preflight fail for this environment.
   serviceClients:
-    - clientId: oks-operation-adapter-example
-      name: Example Tenant OKS Operation Adapter
-      secretKey: OKS_OPERATION_ADAPTER_EXAMPLE_CLIENT_SECRET
-      secretRemoteKey: platform-oks-operation-adapter-example-client-secret
-      realmRoles: [workflow-internal]
-      audiences: [entity-intelligence-internal]
-      claims:
-        tenant_did: {{ $tenantDid | quote }}
-        actor_did: {{ printf "%s:actors:oks-operation-adapter" $tenantDid | quote }}
-        actor_type: SERVICE
     # forwardmeasure-openworkflow's own confidential client - used by
     # openworkflow-operation-adapter-* for authorization decisions
     # (OPENWORKFLOW_AUTHORIZATION_CLIENT_ID defaults to "openworkflow", see

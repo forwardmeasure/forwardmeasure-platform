@@ -42,14 +42,20 @@ secretStore:
 # be silently dropped for this cluster (confirmed the hard way against the
 # real gcp-openworkflow-prod cluster - same fix applied there).
 identity:
+  # Replaces base's list wholesale, so it must carry forwardmeasure-openworkflow's own "openworkflow"
+  # client (same definition as base.yaml.gotmpl/gcp-openworkflow-prod) scoped to this environment's
+  # tenant. It used to declare only an example operation-adapter client, so Keycloak would never
+  # have created the client OPENWORKFLOW_CLIENT_SECRET belongs to. One client per tenant -
+  # scripts/preflight.sh enforces it.
   serviceClients:
-    - clientId: example-bank-operation-adapter
-      name: Example Bank Operation Adapter
-      secretKey: EXAMPLE_BANK_OPERATION_ADAPTER_CLIENT_SECRET
-      secretRemoteKey: platform-example-bank-operation-adapter-client-secret
-      realmRoles: [workflow-internal]
-      audiences: [entity-intelligence-internal]
+    - clientId: openworkflow
+      name: OpenWorkflow Service Client
+      secretKey: OPENWORKFLOW_CLIENT_SECRET
+      secretRemoteKey: platform-openworkflow-client-secret
+      authorizationServicesEnabled: true
+      realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
+      audiences: [openworkflow-api]
       claims:
         tenant_did: did:web:example-bank.new-platform.example
-        actor_did: did:web:example-bank.new-platform.example:actors:operation-adapter
+        actor_did: did:web:example-bank.new-platform.example:actors:openworkflow
         actor_type: SERVICE
