@@ -25,6 +25,12 @@
 {{- $gcpClusterName := "openworkflow-prod" }}
 # Shared Cloud SQL instance (keycloak/openworkflow/entity_intelligence/superset/platform databases).
 {{- $cloudSqlInstance := "openworkflow-prod-postgres" }}
+# forwardmeasure-openworkflow's workload identities and overflow bucket - created by
+# openworkflow-k8s-setup/terraform/gcp (workload_identities "runtime"/"migrations",
+# buckets.workflow_execution_overflow) for this cluster.
+{{- $openworkflowRuntimeServiceAccount := "openworkflow-prod-runtime@genai-llm-393115.iam.gserviceaccount.com" }}
+{{- $openworkflowMigrationsServiceAccount := "openworkflow-prod-migrations@genai-llm-393115.iam.gserviceaccount.com" }}
+{{- $openworkflowOverflowBucket := "genai-llm-393115-openworkflow-prod-workflow-execution-overflow" }}
 {{- $tenants := list (dict "alias" "lux" "displayName" "Lux Tenant") }}
 platform:
   domain: {{ $domain | quote }}
@@ -61,4 +67,8 @@ platform:
       cloudSql:
         instanceName: {{ $cloudSqlInstance | quote }}
         instanceConnectionName: {{ printf "%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
+      openworkflow:
+        runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
+        migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}
+        workflowExecutionOverflowBucket: {{ $openworkflowOverflowBucket | quote }}
     {{- end }}

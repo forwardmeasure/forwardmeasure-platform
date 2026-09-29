@@ -311,68 +311,87 @@ URI, OKS JDBC URL and Entity Intelligence JDBC URL.
 
 ## Step 9: Create the Kubernetes deployment environment files
 
-Render the values discovered from GCP:
+Every repository's Helmfile (this one, `forwardmeasure-openworkflow`,
+`forwardmeasure-data-streaming`, `forwardmeasure-entity-intelligence` and
+`forwardmeasure-decision-engine`) reads the facts about a cluster from one
+shared file in this repository: `deploy/helmfile/shared/clusters/<env>.yaml.gotmpl`.
+Values shared across clusters live next to it in `deploy/helmfile/shared/`
+(see `common.yaml.gotmpl`'s header). The products' own settings for "a GCP
+cluster running this platform" are already written, in each product's
+`deploy/helmfile/environments/gcp-platform-cluster.yaml.gotmpl`; a new cluster
+does not need new product files.
 
-```bash
-./scripts/render-helmfile-environment.sh \
-  ../../../deploy/helmfile/environments/production.infrastructure.yaml
-```
+The worked example to copy is `gcp-greenfield-example`. In the commands below,
+`<env>` is your new environment's name (for example `gcp-acme-prod`), used the
+same way in all five repositories.
 
-This file contains the project, region, cluster, Gateway IP, domain, bucket and
-service-account values. It does not contain passwords.
+1. Render the values discovered from GCP:
 
-Create the shared-platform environment:
+   ```bash
+   ./scripts/render-helmfile-environment.sh generated/terraform-values.yaml
+   ```
 
-```bash
-yq eval-all '. as $item ireduce ({}; . * $item)' \
-  ../../../deploy/helmfile/environments/gcp-greenfield.example.yaml \
-  ../../../deploy/helmfile/environments/production.infrastructure.yaml \
-  > ../../../deploy/helmfile/environments/production.yaml
-```
+   This file contains the project, region, cluster, Gateway IP, domain, bucket
+   and service-account values. It does not contain passwords.
 
-Then edit `deploy/helmfile/environments/production.yaml` and replace the
-remaining tenant, email, client and container-image digest examples.
+2. Create the shared cluster file:
 
-Create and edit the corresponding environment file in the sibling
-`forwardmeasure-entity-intelligence` project:
+   ```bash
+   cp ../../../deploy/helmfile/shared/clusters/gcp-greenfield-example.yaml.gotmpl \
+     ../../../deploy/helmfile/shared/clusters/<env>.yaml.gotmpl
+   ```
 
-```bash
-cp ../../../../forwardmeasure-entity-intelligence/deploy/helmfile/environments/gcp-greenfield.example.yaml \
-  ../../../../forwardmeasure-entity-intelligence/deploy/helmfile/environments/production.yaml
-```
+   Set its variables from `generated/terraform-values.yaml`:
+   `$domain` (`platform.domain`), `$loadBalancerIp` (`gateway.loadBalancerIp`),
+   `$gcpProjectId`, `$gcpRegion` and `$gcpClusterName` (`gcp.projectId`,
+   `gcp.region`, `gcp.clusterName`), and `$cloudSqlInstance` (the Cloud SQL
+   instance name). Set `$tenants` to your tenants' aliases and display names;
+   each tenant's host and DID are derived from its alias and the domain, and
+   its UUID is never written down. Gateway hostnames are derived from the
+   domain too.
 
-Set the same tenant ID, code, hostname and DID as above. Also set:
+   Also set forwardmeasure-openworkflow's service accounts and overflow bucket
+   (`$openworkflowRuntimeServiceAccount`, `$openworkflowMigrationsServiceAccount`,
+   `$openworkflowOverflowBucket`). **This OpenTofu configuration does not create
+   them yet**: they must exist, with Workload Identity bindings for the
+   `openworkflow-runtime` and `openworkflow-database-migration` Kubernetes
+   service accounts, before OpenWorkflow can start.
 
-- the Keycloak issuer and public client ID;
-- the Cloud SQL private IP and appropriate database name;
-- the GCP project, Entity Intelligence service-account email and object bucket;
-- the tenant-specific OKS adapter client-secret name; and
-- every deployed container-image digest.
+3. Create this repository's own environment file:
 
-Finally, register `production` in this repository's
-`deploy/helmfile/helmfile.yaml.gotmpl`, following the existing
-`gcp-greenfield-example` entry. This step is currently manual and is recorded
-as deployment tooling work in `k8s-infrastructure/TODO.md`.
+   ```bash
+   cp ../../../deploy/helmfile/environments/gcp-greenfield-example.yaml \
+     ../../../deploy/helmfile/environments/<env>.yaml
+   ```
 
-> **The standalone `openworkflow-kafka-streams` sibling repo referenced by earlier
-> revisions of this guide has been retired** — the engine capability it provided now
-> lives inside the unified `forwardmeasure-openworkflow` repo, alongside a second,
-> selectable Pekko-based engine. That repo does **not** use the copy-an-example-yaml
-> pattern above; production values are supplied through environment-backed secret and
-> endpoint inputs at Helmfile render time instead. See
-> `forwardmeasure-openworkflow/docs/operations.md` for its actual current deployment
-> profiles (`production-postgresql`, `production-cassandra`) and render/diff/sync
-> commands. **This section has not yet been reconciled with that repo's real secret
-> schema** — treat it as an open TODO, not a verified procedure, until someone walks
-> through a real `forwardmeasure-openworkflow` production render end-to-end and updates
-> this guide with the exact inputs it expects.
+   Set the platform-only values from `generated/terraform-values.yaml`
+   (`gcp.dnsServiceAccountEmail`, `gcp.externalSecretsServiceAccountEmail`,
+   `gcp.modelServiceAccountEmail`, `gcp.modelCacheBucket`) plus the Keycloak and
+   Superset service accounts, the ACME email, and the `openworkflow` service
+   client's `tenant_did` (it must equal your tenant's DID; `scripts/preflight.sh`
+   checks this). Do not copy the domain, Gateway IP, hostnames, project, region,
+   cluster or Cloud SQL instance here - they come from the shared cluster file,
+   and anything set here would be overridden.
+
+4. Register `<env>` in every repository's `deploy/helmfile/helmfile.yaml.gotmpl`,
+   copying its `gcp-greenfield-example` entry and changing the cluster-file path
+   (`shared/clusters/<env>.yaml.gotmpl`). In this repository and
+   `forwardmeasure-data-streaming` / `forwardmeasure-openworkflow`, also add the
+   matching line to the per-environment file list below the `environments:` block,
+   and add `<env>` to this repository's `scripts/environment-files.sh`,
+   `forwardmeasure-openworkflow`'s `scripts/environment-files.sh` and the
+   `production_environments` list in its `validate.sh`.
+
+Registering the environment in five places by hand is recorded as deployment
+tooling work in `k8s-infrastructure/TODO.md`, as is making this configuration's
+output match the shared cluster file directly.
 
 ## Step 10: Validate and install the software
 
 From the `forwardmeasure-platform` repository root, run:
 
 ```bash
-./deploy/validate-platform.sh production
+OPENWORKFLOW_VERSION=<release> ./deploy/validate-platform.sh <env>
 ```
 
 This renders and validates the ForwardMeasure platform - shared services plus
@@ -381,15 +400,18 @@ every product built on them - without installing anything.
 When validation passes, install (or update) it:
 
 ```bash
-./deploy/install-platform.sh production
+OPENWORKFLOW_VERSION=<release> ./deploy/install-platform.sh <env>
 ```
 
 The installer deploys, in order:
 
-1. the shared platform services; and
-2. OpenWorkflow.
-
-Entity Intelligence is a planned addition to this list, not installed yet.
+1. the shared platform services;
+2. OpenWorkflow (including the entity-intelligence and decision-engine database
+   migrations, which share its tenant databases);
+3. the data-streaming launcher;
+4. the Entity Intelligence services; and
+5. decision-engine (installed only once its database and credentials exist - see
+   `forwardmeasure-decision-engine/docs/handover-2026-09-29-deployment-readiness.md`).
 
 It then waits for the configured readiness checks. A successful command means
 the Kubernetes releases are installed; browser and API acceptance testing is

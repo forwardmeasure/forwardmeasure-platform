@@ -27,4 +27,12 @@ ENVIRONMENT="${1:-gcp-greenfield-example}"
 "${SCRIPT_DIR}/helmfile/validate.sh" "${ENVIRONMENT}"
 "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/validate.sh" "${ENVIRONMENT}"
 
-echo "ForwardMeasure platform (shared services + OpenWorkflow) validated for ${ENVIRONMENT}."
+# The remaining products install-platform.sh deploys have no validate.sh of their own - rendering
+# their helmfile for this environment is the check (it fails on an undeclared environment or a
+# missing shared value).
+for product in forwardmeasure-data-streaming forwardmeasure-entity-intelligence forwardmeasure-decision-engine; do
+  helmfile --file "${WORKSPACE_DIR}/${product}/deploy/helmfile/helmfile.yaml.gotmpl" \
+    --environment "${ENVIRONMENT}" template >/dev/null
+done
+
+echo "ForwardMeasure platform (shared services + OpenWorkflow + data-streaming + entity-intelligence + decision-engine) validated for ${ENVIRONMENT}."

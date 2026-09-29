@@ -124,3 +124,102 @@ jobs:
         working-directory: forwardmeasure-platform
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Renders every repository's Helmfile for the real cluster (gcp-openworkflow-prod) and for the
+  # worked second-cluster example (gcp-greenfield-example), both driven by the shared values layer
+  # in deploy/helmfile/shared/. greenfield is what catches values accidentally hardcoded to the one
+  # real cluster; base is the local placeholder environment. Render-only: no cluster access.
+  helmfile-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      HELMFILE_VERSION: 1.3.2
+      # Only needs to be a well-formed tag: forwardmeasure-openworkflow's platform-cluster profile
+      # requires it for its image tags; nothing is pulled.
+      OPENWORKFLOW_VERSION: ci-render
+    steps:
+      - name: Check Out Platform
+        uses: actions/checkout@v4
+        with:
+          path: forwardmeasure-platform
+
+      # Product helmfiles load ../../../forwardmeasure-platform/deploy/helmfile/shared/ and
+      # decision-engine renders the chart from ../../../helm-charts - same sibling layout as a
+      # developer workspace. See the verify job above for why PLATFORM_CHECKOUT_TOKEN is needed.
+      - name: Check Out OpenWorkflow
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-openworkflow
+          ref: develop
+          path: forwardmeasure-openworkflow
+          token: ${{ secrets.PLATFORM_CHECKOUT_TOKEN }}
+
+      - name: Check Out Data Streaming
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-data-streaming
+          ref: develop
+          path: forwardmeasure-data-streaming
+          token: ${{ secrets.PLATFORM_CHECKOUT_TOKEN }}
+
+      - name: Check Out Entity Intelligence
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-entity-intelligence
+          ref: develop
+          path: forwardmeasure-entity-intelligence
+          token: ${{ secrets.PLATFORM_CHECKOUT_TOKEN }}
+
+      - name: Check Out Decision Engine
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/forwardmeasure-decision-engine
+          ref: develop
+          path: forwardmeasure-decision-engine
+          token: ${{ secrets.PLATFORM_CHECKOUT_TOKEN }}
+
+      - name: Check Out Helm Charts
+        uses: actions/checkout@v4
+        with:
+          repository: forwardmeasure/helm-charts
+          ref: develop
+          path: helm-charts
+          token: ${{ secrets.PLATFORM_CHECKOUT_TOKEN }}
+
+      - name: Set Up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v4.2.2
+
+      - name: Install Helmfile, ripgrep
+        run: |
+          curl -fsSL "https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin helmfile
+          sudo apt-get update -qq && sudo apt-get install -y -qq ripgrep
+          helmfile --version
+
+      - name: Validate Platform
+        run: |
+          for environment in base gcp-openworkflow-prod gcp-greenfield-example; do
+            forwardmeasure-platform/deploy/helmfile/validate.sh "${environment}"
+          done
+
+      - name: Validate OpenWorkflow
+        run: |
+          for environment in gcp-openworkflow-prod gcp-greenfield-example; do
+            forwardmeasure-openworkflow/deploy/helmfile/validate.sh "${environment}"
+          done
+
+      # These repositories have no validate.sh of their own - a full `helmfile template` is the
+      # check. decision-engine's release is gated off on real clusters until its prerequisites
+      # exist, so it is forced on here to render it anyway.
+      - name: Render Data Streaming, Entity Intelligence, Decision Engine
+        run: |
+          for environment in gcp-openworkflow-prod gcp-greenfield-example; do
+            helmfile --file forwardmeasure-data-streaming/deploy/helmfile/helmfile.yaml.gotmpl --environment "${environment}" template >/dev/null
+            helmfile --file forwardmeasure-entity-intelligence/deploy/helmfile/helmfile.yaml.gotmpl --environment "${environment}" template >/dev/null
+            helmfile --file forwardmeasure-decision-engine/deploy/helmfile/helmfile.yaml.gotmpl --environment "${environment}" \
+              --state-values-set decisionEngine.enabled=true template >/dev/null
+          done

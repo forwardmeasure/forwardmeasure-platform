@@ -22,6 +22,12 @@
 {{- $gcpRegion := "us-central1" }}
 {{- $gcpClusterName := "forwardmeasure-production" }}
 {{- $cloudSqlInstance := "replace-with-keycloak-cloud-sql-instance" }}
+# forwardmeasure-openworkflow's workload identities and overflow bucket - illustrative names:
+# k8s-infrastructure/opentofu/gcp does NOT create these yet (it has no openworkflow service
+# accounts or overflow bucket), so a real greenfield cluster must provision them first.
+{{- $openworkflowRuntimeServiceAccount := "openworkflow-runtime@forwardmeasure-production.iam.gserviceaccount.com" }}
+{{- $openworkflowMigrationsServiceAccount := "openworkflow-migrations@forwardmeasure-production.iam.gserviceaccount.com" }}
+{{- $openworkflowOverflowBucket := "forwardmeasure-production-workflow-execution-overflow" }}
 {{- $tenants := list (dict "alias" "example-bank" "displayName" "Example Bank") }}
 platform:
   domain: {{ $domain | quote }}
@@ -58,4 +64,8 @@ platform:
       cloudSql:
         instanceName: {{ $cloudSqlInstance | quote }}
         instanceConnectionName: {{ printf "%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
+      openworkflow:
+        runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
+        migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}
+        workflowExecutionOverflowBucket: {{ $openworkflowOverflowBucket | quote }}
     {{- end }}

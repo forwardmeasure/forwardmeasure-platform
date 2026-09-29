@@ -16,7 +16,9 @@
 - [x] Generate the non-secret GCP-to-Helmfile environment contract.
 - [x] Add provider validation and a mocked complete-stack plan test.
 - [x] Provide a start-to-finish GCP operator guide with commands, explanations and expected results.
-- [ ] Remove the manual Helmfile environment-registration step across the platform, OKS and Entity Intelligence repositories.
+- [ ] Remove the manual Helmfile environment-registration step across the platform, OpenWorkflow, data-streaming, Entity Intelligence and decision-engine repositories (each needs a `<env>` entry pointing at `deploy/helmfile/shared/clusters/<env>.yaml.gotmpl`).
+- [ ] Make `helmfile_environment` emit the shared cluster file's inputs (domain, Gateway IP, project/region/cluster, Cloud SQL instance) separately from platform-only values; today it still uses the pre-shared-layer key layout (see GETTING_STARTED.md Step 9).
+- [ ] Create forwardmeasure-openworkflow's runtime and migrations service accounts (Workload Identity for `openworkflow-runtime` / `openworkflow-database-migration`) and its workflow-execution-overflow bucket; only openworkflow-k8s-setup's Terraform creates them today.
 - [ ] Apply in a new GCP project and record the real infrastructure acceptance result.
 - [ ] Run `deploy/validate-platform.sh` against the generated GCP environment.
 - [ ] Install the platform, OKS and Entity Intelligence into that cluster and record browser/API acceptance.
