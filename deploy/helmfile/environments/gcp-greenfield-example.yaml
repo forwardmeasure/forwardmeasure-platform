@@ -32,17 +32,9 @@ secretStore:
     openworkflowRuntimeDatabasePassword: platform-openworkflow-database-password
     openworkflowAdministratorDatabasePassword: platform-openworkflow-database-administrator-password
 
-bootstrapIdentity:
-  tenantHost: example-bank.new-platform.example
-  tenantDid: did:web:example-bank.new-platform.example
-  actorDid: did:web:example-bank.new-platform.example:actors:platform-admin
-  actorType: HUMAN
+# bootstrapIdentity and tenants[] (example-bank) come from the shared layer's cluster file. The
+# service client's tenant_did below must match that tenant's DID - preflight.sh checks it.
 
-tenants:
-  - host: example-bank.new-platform.example
-    did: did:web:example-bank.new-platform.example
-    code: example-bank
-    name: Example Bank
 
 # helmfile values merging replaces lists wholesale, not per-element - if this
 # cluster also deploys forwardmeasure-openworkflow, copy base.yaml.gotmpl's

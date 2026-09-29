@@ -25,6 +25,8 @@
 # $cloud derivation) - "" means none of them do.
 cloudProvider: ""
 
+# Placeholder tenant DID for the service clients below, from the shared layer's placeholder cluster.
+# {{- $tenantDid := (index (tpl (readFile "../shared/clusters/base.yaml.gotmpl") (dict) | fromYaml).platform.tenants 0).did }}
 # Namespaces used only by this repository. Shared ones (openworkflow, istio, keycloak, kafka,
 # openSearch, valkey, dataStreaming, entityIntelligence, decisionEngine) come from the shared layer.
 namespaces:
@@ -132,8 +134,8 @@ identity:
       realmRoles: [workflow-internal]
       audiences: [entity-intelligence-internal]
       claims:
-        tenant_did: did:web:tenant.example.com
-        actor_did: did:web:tenant.example.com:actors:oks-operation-adapter
+        tenant_did: {{ $tenantDid | quote }}
+        actor_did: {{ printf "%s:actors:oks-operation-adapter" $tenantDid | quote }}
         actor_type: SERVICE
     # forwardmeasure-openworkflow's own confidential client - used by
     # openworkflow-operation-adapter-* for authorization decisions
@@ -155,23 +157,17 @@ identity:
       realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
       audiences: [openworkflow-api]
       claims:
-        tenant_did: did:web:tenant.example.com
-        actor_did: did:web:tenant.example.com:actors:openworkflow
+        tenant_did: {{ $tenantDid | quote }}
+        actor_did: {{ printf "%s:actors:openworkflow" $tenantDid | quote }}
         actor_type: SERVICE
   tlsSecret: keycloak-server-tls
   replicas: 2
 
+# tenantHost/tenantDid/actorDid and tenants[] come from the shared layer's cluster file (see
+# shared-aliases.yaml.gotmpl), derived from each tenant's alias and the environment's domain.
 bootstrapIdentity:
-  tenantHost: tenant.example.com
-  tenantDid: did:web:tenant.example.com
-  actorDid: did:web:tenant.example.com:actors:platform-admin
   actorType: HUMAN
 
-tenants:
-  - host: tenant.example.com
-    did: did:web:tenant.example.com
-    code: tenant
-    name: Example Tenant
 
 # clusterName/bootstrapServers come from the shared layer.
 kafka:

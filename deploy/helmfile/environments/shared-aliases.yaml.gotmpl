@@ -61,6 +61,21 @@ identity:
 openSearch:
   entityIntelligenceCredentialsSecret: {{ $common.secrets.entityIntelligenceOpenSearch }}
 
+# Tenants: code is this repository's name for the shared alias (forwardmeasure-openworkflow's
+# .alias) - it keys the per-tenant workflow-secrets Secret both repositories agree on.
+tenants:
+  {{- range $cluster.tenants }}
+  - host: {{ .host | quote }}
+    did: {{ .did | quote }}
+    code: {{ .alias | quote }}
+    name: {{ .displayName | quote }}
+  {{- end }}
+{{- $bootstrapTenant := index $cluster.tenants 0 }}
+bootstrapIdentity:
+  tenantHost: {{ $bootstrapTenant.host | quote }}
+  tenantDid: {{ $bootstrapTenant.did | quote }}
+  actorDid: {{ printf "%s:actors:platform-admin" $bootstrapTenant.did | quote }}
+
 kafka:
   clusterName: {{ $common.endpoints.kafka.clusterName }}
   bootstrapServers: {{ $common.endpoints.kafka.bootstrapServers }}

@@ -25,6 +25,7 @@
 {{- $gcpClusterName := "openworkflow-prod" }}
 # Shared Cloud SQL instance (keycloak/openworkflow/entity_intelligence/superset/platform databases).
 {{- $cloudSqlInstance := "openworkflow-prod-postgres" }}
+{{- $tenants := list (dict "alias" "lux" "displayName" "Lux Tenant") }}
 platform:
   domain: {{ $domain | quote }}
   environment: production
@@ -38,6 +39,18 @@ platform:
       search: {{ printf "search.%s" $domain | quote }}
       analytics: {{ printf "analytics.%s" $domain | quote }}
       studio: {{ printf "studio.%s" $domain | quote }}
+  # Tenants of this environment: alias and display name are the only inputs. host and did derive
+  # from the alias and this environment's domain; the tenant's UUID is never stored anywhere - it is
+  # always TenantId.forDid(did) (see forwardmeasure-openworkflow/docs/
+  # tenant-provisioning-did-first-fix-2026-09-18.md).
+  tenants:
+    {{- range $tenants }}
+    {{- $host := printf "%s.%s" .alias $domain }}
+    - alias: {{ .alias | quote }}
+      displayName: {{ .displayName | quote }}
+      host: {{ $host | quote }}
+      did: {{ printf "did:web:%s" $host | quote }}
+    {{- end }}
   cloud:
     provider: {{ $cloudProvider | quote }}
     {{- if eq $cloudProvider "gcp" }}

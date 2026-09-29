@@ -23,20 +23,20 @@
 # platform-secrets.yaml.gotmpl and its openworkflow-prod credentials layer.
 # Domain, gateway IP/hostnames, gcp.projectId/region/clusterName and the Cloud SQL instance come
 # from ../shared/clusters/gcp-openworkflow-prod.yaml.gotmpl (via shared-aliases.yaml.gotmpl) - the
-# same file every product repository reads. $domain is read from it too, for the tenant identity
-# below.
-# {{- $domain := (tpl (readFile "../shared/clusters/gcp-openworkflow-prod.yaml.gotmpl") (dict) | fromYaml).platform.domain }}
-# {{- $tenantCode := "lux" }}
-# {{- $tenantHost := printf "%s.%s" $tenantCode $domain }}
-# {{- $tenantDid := printf "did:web:%s" $tenantHost }}
-# The tenant's real UUID (TenantId.value() - see forwardmeasure-openworkflow's engine-api.TenantId)
-# - must match forwardmeasure-openworkflow/deploy/helmfile/environments/gcp-openworkflow-prod
-# .yaml.gotmpl's own tenants[].id for this same tenant exactly. Verified 2026-09-16 by cross-
-# checking against OpenWorkflowTenantMigrator's real t_<uuid> Postgres schema provisioning (the one
-# other place in this platform that's already proven this exact UUID is the tenant's real runtime
-# identity, not a guess) - do not derive this from $tenantDid; TenantId's DID-fallback path
-# (UUID.nameUUIDFromBytes) produces a different UUID than this one.
-# {{- $tenantId := "c0d34a2f-387e-4c89-9b84-75c5bbff9a61" }}
+# same file every product repository reads. So do tenants[] and bootstrapIdentity (the lux tenant's
+# alias, display name, host and DID); $tenantDid is read from it for the service client below.
+# {{- $tenantDid := (index (tpl (readFile "../shared/clusters/gcp-openworkflow-prod.yaml.gotmpl") (dict) | fromYaml).platform.tenants 0).did }}
+# Corrected 2026-09-29 (see forwardmeasure-openworkflow/docs/tenant-identity-platform-vs-fowf-
+# handover-2026-09-29.md for the full investigation): this used to also hardcode a literal
+# $tenantId ("c0d34a2f-387e-4c89-9b84-75c5bbff9a61"), justified as "verified 2026-09-16... do not
+# derive this from $tenantDid" - that verification predated forwardmeasure-openworkflow's own
+# 2026-09-18 DID-first correction and the later database-per-tenant redesign, and was never
+# revisited after either landed. TenantId is always TenantId.forDid($tenantDid)
+# (UUID.nameUUIDFromBytes over the DID's UTF-8 bytes) - confirmed independently, and confirmed to
+# NOT equal the old literal (which is a random type-4 UUID, never the output of forDid for any
+# input). No tenants[].id field exists anymore; nothing in this platform needs the literal UUID at
+# Helm-render time - see forwardmeasure-openworkflow's own docs/tenant-provisioning-did-first-fix-
+# 2026-09-18.md for the derivation this repo's own tenants[] block must never duplicate again.
 gcp:
   dnsServiceAccountEmail: openworkflow-prod-dns@genai-llm-393115.iam.gserviceaccount.com
   externalSecretsServiceAccountEmail: openworkflow-prod-eso@genai-llm-393115.iam.gserviceaccount.com
@@ -84,16 +84,3 @@ secretStore:
   remoteKeys:
     openworkflowRuntimeDatabasePassword: platform-openworkflow-database-password
     openworkflowAdministratorDatabasePassword: platform-openworkflow-database-administrator-password
-
-bootstrapIdentity:
-  tenantHost: {{ $tenantHost | quote }}
-  tenantDid: {{ $tenantDid | quote }}
-  actorDid: {{ printf "%s:actors:platform-admin" $tenantDid | quote }}
-  actorType: HUMAN
-
-tenants:
-  - id: {{ $tenantId | quote }}
-    host: {{ $tenantHost | quote }}
-    did: {{ $tenantDid | quote }}
-    code: {{ $tenantCode | quote }}
-    name: {{ $tenantCode | title | quote }}

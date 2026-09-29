@@ -216,7 +216,13 @@ secrets:
   {{- range $.Values.tenants }}
   {{- $workflowSecrets := index . "workflowSecrets" }}
   {{- if $workflowSecrets }}
-  - name: {{ printf "openworkflow-tenant-%s-workflow-secrets" .id | quote }}
+  # Keyed on .code (this repo's own name for the alias concept forwardmeasure-openworkflow calls
+  # .alias), not a UUID - fixed 2026-09-29, see forwardmeasure-openworkflow/docs/tenant-identity-
+  # platform-vs-fowf-handover-2026-09-29.md. This used to key on .id (a literal, hand-picked UUID
+  # that never existed on the fowf side), which fowf's own operation-adapters.yaml.gotmpl could
+  # never actually mount (it derives the same Secret name from .alias) - a real, confirmed, latent
+  # cross-repo naming mismatch, dormant only because no tenant has declared workflowSecrets yet.
+  - name: {{ printf "openworkflow-tenant-%s-workflow-secrets" .code | quote }}
     enabled: true
     namespaces: [{{ $.Values.namespaces.openworkflow }}]
     remoteRefs:
