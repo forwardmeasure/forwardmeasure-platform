@@ -78,20 +78,19 @@ wait_for "$DB_HOST" "$DB_PORT" postgres
   "command" (list "/bin/bash" "-c" $waitForPostgres)
 }}
 
-# REDIS_HOST/REDIS_PORT set explicitly, not just envFrom: superset-env -
-# they come from this chart's extraEnv (releases/superset/base.yaml.gotmpl),
-# a sibling release-overlay file whose values aren't visible here (same
-# "release overlay files can't see each other's values" limitation as
-# elsewhere in this repo). Without this, wait-for-postgres-redis silently
-# waited on an empty host:port forever - confirmed the hard way ("waiting
-# for redis at : (elapsed ...)").
+# REDIS_HOST/REDIS_PORT set explicitly, not just envFrom: superset-env - that
+# Secret is populated from this chart's own extraEnv (releases/superset/
+# base.yaml.gotmpl), a sibling release-overlay file whose rendered Secret
+# isn't available yet to this initContainer at render time. Without this,
+# wait-for-postgres-redis silently waited on an empty host:port forever -
+# confirmed the hard way ("waiting for redis at : (elapsed ...)").
 {{- $waitPostgresRedisContainer := dict
   "name" "wait-for-postgres-redis"
   "image" $supersetImage
   "imagePullPolicy" "IfNotPresent"
   "envFrom" (list (dict "secretRef" (dict "name" "superset-env")))
   "env" (list
-    (dict "name" "REDIS_HOST" "value" (printf "valkey.%s.svc.cluster.local" .Values.namespaces.valkey))
+    (dict "name" "REDIS_HOST" "value" .Values.platform.endpoints.valkey.host)
     (dict "name" "REDIS_PORT" "value" "6379")
   )
   "command" (list "/bin/bash" "-c" (print $waitForPostgres "wait_for \"$REDIS_HOST\" \"$REDIS_PORT\" redis\n"))
