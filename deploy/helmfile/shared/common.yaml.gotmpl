@@ -44,6 +44,16 @@
       "dataStreaming" "data-streaming"
       "entityIntelligence" "entity-intelligence"
       "decisionEngine" "decision-engine" }}
+{{- /* The one framework every product's services are deployed in - see platform.framework below. */}}
+{{- $framework := "quarkus" }}
+{{- if not (has $framework (list "quarkus" "spring" "micronaut")) }}
+{{-   fail (printf "platform framework must be quarkus, spring or micronaut, not %q" $framework) }}
+{{- end }}
+{{- /* The one workflow engine forwardmeasure-openworkflow runs - see platform.engine below. */}}
+{{- $engine := "kafka-streams" }}
+{{- if not (has $engine (list "kafka-streams" "pekko-postgresql" "pekko-cassandra")) }}
+{{-   fail (printf "platform engine must be kafka-streams, pekko-postgresql or pekko-cassandra, not %q" $engine) }}
+{{- end }}
 {{- $keycloakService := "keycloak-internal" }}
 {{- $keycloakPort := 8080 }}
 {{- $keycloakRealm := "forwardmeasure" }}
@@ -53,7 +63,38 @@
 {{- $openSearchPort := 9200 }}
 {{- $keycloakUrl := printf "http://%s.%s.svc.cluster.local:%d" $keycloakService $namespaces.keycloak $keycloakPort }}
 {{- $issuer := printf "%s/realms/%s" $keycloakUrl $keycloakRealm }}
+{{- /* fei's logical API address - its OpenAPI document's servers: URL (entity-intelligence-api.yaml). */}}
+{{- $entityIntelligenceApiUrl := "https://api.entity-intelligence.forwardmeasure.internal" }}
+{{- $entityIntelligenceBaseUrls := dict
+      "ingestion" (printf "http://entity-intelligence-ingestion-service.%s.svc.cluster.local" $namespaces.entityIntelligence)
+      "resolution" (printf "http://entity-intelligence-resolution-service.%s.svc.cluster.local" $namespaces.entityIntelligence)
+      "screening" (printf "http://entity-intelligence-screening-service.%s.svc.cluster.local" $namespaces.entityIntelligence) }}
+{{- /* fei's top-level API paths -> the service implementing them (its *-service-jaxrs modules). */}}
+{{- $entityIntelligencePathOwners := dict
+      "/source-feed-profiles" "ingestion"
+      "/reference-populations" "ingestion"
+      "/ingestion-pipelines" "ingestion"
+      "/ingestion" "ingestion"
+      "/entities" "resolution"
+      "/assertions" "resolution"
+      "/llm-prompts" "resolution"
+      "/dossiers" "resolution"
+      "/investigations" "resolution"
+      "/screening" "screening" }}
+{{- $httpEndpointRoutes := list }}
+{{- range $path, $owner := $entityIntelligencePathOwners }}
+{{-   $httpEndpointRoutes = append $httpEndpointRoutes (printf "%s%s=%s%s" $entityIntelligenceApiUrl $path (index $entityIntelligenceBaseUrls $owner) $path) }}
+{{- end }}
 platform:
+  # quarkus | spring | micronaut. Every product (forwardmeasure-openworkflow, -entity-intelligence,
+  # -data-streaming, -decision-engine) deploys each of its services in this framework: it picks the
+  # image flavor, and the java-microservice chart derives probe paths and datasource env from it.
+  # Service names never carry the framework, so no address anywhere changes when it does.
+  framework: {{ $framework }}
+  # kafka-streams | pekko-postgresql | pekko-cassandra. The one workflow engine
+  # forwardmeasure-openworkflow deploys; execution-management admits every execution to it. Chosen
+  # here at platform deploy time, like framework - a different engine is a different deployment.
+  engine: {{ $engine }}
   namespaces:
     {{- toYaml $namespaces | nindent 4 }}
   gatewayApi:
@@ -79,6 +120,9 @@ platform:
     realm: {{ $keycloakRealm }}
     # The org-wide public client every product's organization/tenant-claim verification points at.
     organizationClientId: forwardmeasure-public
+    # The platform's bootstrap administrator (the keycloak release creates it) - products grant it
+    # their tenant roles.
+    platformAdminUsername: platform-admin
   # Secrets forwardmeasure-platform's platform-secrets release delivers into product namespaces -
   # the name is the contract between this repository (producer) and the product (consumer).
   secrets:
@@ -120,5 +164,18 @@ platform:
       host: {{ printf "valkey.%s.svc.cluster.local" $namespaces.valkey }}
     # fowf's own REST services - deployed by forwardmeasure-openworkflow, but every product calls them.
     openworkflow:
-      executionBaseUrl: {{ printf "http://openworkflow-execution-management-quarkus.%s.svc.cluster.local:8080" $namespaces.openworkflow }}
-      definitionBaseUrl: {{ printf "http://openworkflow-definition-management-quarkus.%s.svc.cluster.local:8080" $namespaces.openworkflow }}
+      # java-microservice Services listen on port 80 (targetPort 8080), hence no port.
+      executionBaseUrl: {{ printf "http://openworkflow-execution-management.%s.svc.cluster.local" $namespaces.openworkflow }}
+      definitionBaseUrl: {{ printf "http://openworkflow-definition-management.%s.svc.cluster.local" $namespaces.openworkflow }}
+    # fei's REST services - deployed by forwardmeasure-entity-intelligence; apiUrl is the logical
+    # address its OpenAPI document names, routed to these by httpEndpointRoutes below.
+    entityIntelligence:
+      apiUrl: {{ $entityIntelligenceApiUrl }}
+      ingestionBaseUrl: {{ $entityIntelligenceBaseUrls.ingestion }}
+      resolutionBaseUrl: {{ $entityIntelligenceBaseUrls.resolution }}
+      screeningBaseUrl: {{ $entityIntelligenceBaseUrls.screening }}
+  # logical=physical;... - where each product's logical API address (an OpenAPI document's
+  # servers: URL) is served in-cluster, for fowf's operation adapter
+  # (OPENWORKFLOW_ADAPTER_HTTP_ENDPOINT_ROUTES, HttpEndpointRoutes: longest prefix at a path
+  # boundary wins). fei is routed per top-level path, to the service that implements it.
+  httpEndpointRoutes: {{ join ";" $httpEndpointRoutes | quote }}

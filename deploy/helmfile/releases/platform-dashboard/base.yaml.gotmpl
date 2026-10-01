@@ -67,18 +67,15 @@ route:
   gatewayNamespace: {{ .Values.namespaces.istio | quote }}
   listenerName: tenant-https
   hostname: {{ .Values.gateway.tenantHost | quote }}
+{{- /* Readiness path of the java-microservice chart's default probes for platform.framework. */}}
+{{- $readinessPath := index (dict "quarkus" "/q/health/ready" "spring" "/actuator/health/readiness" "micronaut" "/health/readiness") .Values.platform.framework }}
 components:
   - id: openworkflow-definition
     name: OpenWorkflow Definition API
     category: ORCHESTRATION
     probe: HTTP
-    # Was "openworkflow-definition-quarkus" - no such Service exists
-    # (confirmed live: kubectl get svc -n forwardmeasure-openworkflow lists
-    # "openworkflow-definition-management-quarkus"). A health probe against
-    # a hostname that doesn't resolve is exactly the kind of failure that
-    # was surfacing as the dashboard's whole component list failing to
-    # load, not just this one component showing unhealthy.
-    healthUri: {{ printf "http://openworkflow-definition-management-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
+    # fowf's Service names carry no framework; a ClusterIP Service listens on port 80.
+    healthUri: {{ printf "http://openworkflow-definition-management.%s.svc.cluster.local%s" .Values.namespaces.openworkflow $readinessPath | quote }}
     # gateway.studioHost (studio.kriyagentic.com) was never wired to an
     # actual Gateway listener - confirmed live (TLS handshake fails outright,
     # no certificate covers that name). Studio is really only reachable
@@ -89,29 +86,22 @@ components:
     # this environment's config - revisit once this needs to vary per
     # tenant rather than describe one fixed capability landing page.
     consoleUri: {{ printf "https://%s/owf/studio/" (index .Values.tenants 0).host | quote }}
-  - id: openworkflow-kafka
-    name: OpenWorkflow Kafka Engine
+  # The platform's one workflow engine (platform.engine). A Pekko engine's Service is headless
+  # (cluster discovery) - its name resolves to pod IPs, so the container port.
+  - id: openworkflow-engine
+    name: {{ printf "OpenWorkflow Engine (%s)" .Values.platform.engine | quote }}
     category: ORCHESTRATION
     probe: HTTP
-    # Was "openworkflow-kafka" - actual Service is
-    # "openworkflow-engine-kafka-streams-quarkus" (kubectl get svc,
-    # confirmed live), same class of stale-hostname bug as the definition
-    # component above.
-    healthUri: {{ printf "http://openworkflow-engine-kafka-streams-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
-  - id: openworkflow-pekko
-    name: OpenWorkflow Pekko Engine
-    category: ORCHESTRATION
-    probe: HTTP
-    # Was "openworkflow-pekko-postgresql" - actual Service is
-    # "openworkflow-engine-pekko-postgresql-quarkus" (kubectl get svc,
-    # confirmed live), same class of stale-hostname bug as the other two
-    # openworkflow components above.
-    healthUri: {{ printf "http://openworkflow-engine-pekko-postgresql-quarkus.%s.svc.cluster.local:8080/q/health/ready" .Values.namespaces.openworkflow | quote }}
+    healthUri: {{ printf "http://openworkflow-engine-%s.%s.svc.cluster.local%s%s" .Values.platform.engine .Values.namespaces.openworkflow (ternary "" ":8080" (eq .Values.platform.engine "kafka-streams")) $readinessPath | quote }}
   - id: keycloak
     name: Identity And Access Management
     category: IDENTITY
     probe: HTTP
-    healthUri: {{ printf "http://keycloak.%s.svc.cluster.local:8080/realms/%s" .Values.namespaces.keycloak .Values.identity.realm | quote }}
+    # Was "keycloak" - the actual Service the keycloak chart creates is "keycloak-internal"
+    # (confirmed live: kubectl get svc -n keycloak); "keycloak" alone has no healthy endpoints.
+    # platform.endpoints.keycloak.issuer already carries the correct hostname - consume it
+    # directly instead of reconstructing the same URL by hand.
+    healthUri: {{ .Values.platform.endpoints.keycloak.issuer | quote }}
     consoleUri: {{ printf "https://%s/admin/%s/console/" .Values.gateway.authHost .Values.identity.realm | quote }}
   - id: kafka
     name: Apache Kafka

@@ -120,7 +120,7 @@ bootstrapAdminUser:
     digest: {{ .Values.imageVersions.modelUtilities.digest | quote }}
     pullPolicy: IfNotPresent
   passwordSecret: {{ .Values.identity.bootstrapSecret | quote }}
-  username: platform-admin
+  username: {{ .Values.platform.identity.platformAdminUsername | quote }}
   email: {{ .Values.gateway.acmeEmail | quote }}
   firstName: Platform
   lastName: Administrator
