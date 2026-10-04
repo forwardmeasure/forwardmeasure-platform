@@ -46,6 +46,10 @@ ENVIRONMENT="${1:?Usage: $0 <configured-environment>}"
   "${WORKSPACE_DIR}/forwardmeasure-entity-intelligence/deploy/helmfile/environments/base.yaml" \
   "${WORKSPACE_DIR}/forwardmeasure-decision-engine/deploy/helmfile/environments/base.yaml.gotmpl"
 
+# Before touching the cluster: everything renders, and every product references our images by
+# digest (a template that drops a digest fails here, not on a stale pull).
+"${SCRIPT_DIR}/validate-platform.sh" "${ENVIRONMENT}"
+
 # Cross-repository values (domain, gateway, endpoints, shared namespaces, shared chart/image pins)
 # are not copied into the product repositories: every helmfile loads helmfile/shared/ directly from
 # this sibling checkout (see helmfile/shared/common.yaml.gotmpl).

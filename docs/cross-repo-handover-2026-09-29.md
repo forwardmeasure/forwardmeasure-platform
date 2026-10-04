@@ -76,6 +76,90 @@ Migration Jobs never touch component users' passwords or permissions (§4 item 2
   terminating, so their finalizers never ran and the workloads the operator created were orphaned
   (it happened to Knative Serving/Eventing on this teardown).
 
+### 0.4a Our images are deployed by digest only (user decision, 2026-10-01)
+- Every image of ours (`[docker.io/]forwardmeasure/...`) is pinned by digest on cloud installs;
+  third-party images may be pinned or float by tag. kind/local are exempt (they load local images
+  by tag).
+- `forwardmeasure-platform/deploy/scripts/sync-image-digests.sh` (run by `install-platform.sh`)
+  now resolves **every** entry of ours, including empty `digest: ""`, and fails the install,
+  listing all of them, if any can't be resolved (not pushed). `--check` reports without writing.
+  fowf's `resolve-image-digests.sh` follows the same rule.
+- `check-image-digests.sh` checks every product's **render**; `validate-platform.sh` runs it and
+  `install-platform.sh` now validates before installing. It catches a template that drops a digest.
+- **For your repository:** keep a `digest:` field on every image entry of yours in your
+  `environments/base.yaml(.gotmpl)` (the install fills it), and make sure every template that
+  renders one of your images uses the digest when it is set. The first install writes the
+  resolved digests into your file; commit them.
+
+### 0.4b Tenant roles, workflow publishing and lookup by name (fowf, 2026-10-01)
+Full design and progress: `forwardmeasure-openworkflow/docs/workflow-lookup-and-publishing-handoff-2026-10-01.md`.
+In fowf source; not yet built or deployed.
+
+- **Tenant role groups now carry each role on two clients.** fowf's tenant reconciler maps a role
+  group's role on `openworkflow` (what the AuthZEN `organization-role` policy checks) and on the
+  organization client `forwardmeasure-public` (what services read from the token). Before, it did
+  only the first, so every member got 401. A member of a reconciled group now passes both. If your
+  bootstrap maps a fowf role onto a tenant's group, the group already has both mappings.
+- **One publisher for every product's workflows.** A product ships its workflow YAMLs as a release
+  of helm-charts' `openworkflow-workflow-bundle` chart, with:
+  - chart version: `chartVersions.openworkflowWorkflowBundle` (shared layer; first publish 0.1.1);
+  - image: `imageVersions.openworkflowWorkflowPublisher`, by digest;
+  - `domain`: your moniker;
+  - `tenants`: the platform tenant aliases;
+  - fowf's definition-management and token URLs.
+
+  Install it in fowf's namespace, where the publisher identity Secret `openworkflow-bootstrap`
+  lives. Workflows are named `<domain>-<document.name>`, in every listed tenant.
+- **Find workflows by name, not by configured ID:** `GET /v1/workflows?name=<domain>-<name>`
+  (generated Java client: `listWorkflows(name, offset, limit)`), then the published revision as
+  today. Workflow IDs differ per tenant, so a configured ID can't work.
+- **FEI, before the install:**
+  1. Ship your five workflows as a bundle with domain `fei`, and switch the five `*_WORKFLOW_ID`
+     settings to name lookup (`fei-<name>`). Then delete `WorkflowDefinitionPublisherMain` and its
+     image (handoff §6). Until then, fowf's `entity-intelligence-workflows` release keeps running
+     your publisher, now with fowf's pair under the same Secret keys.
+  2. **Done for you (fowf session, 2026-10-01):** `entity-intelligence-credentials` used a fixed
+     `openworkflow` client UUID (`00000000-0000-0000-0000-000000000001`, which exists only in fowf's
+     acceptance realm), so on the platform its hook Job would fail the install. It now looks the
+     client up by `fowfClientId`; `fowfClientUuid` is gone. FDS's `data-streaming-credentials` had
+     the same bug and got the same fix (`clientUuid` removed from its values and
+     `helmfiles/launcher.yaml.gotmpl`). Both render, and `sh -n` passes on both scripts.
+  3. **Publish your API documents to the registry (added 2026-10-02).** Your workflows reference
+     `https://specs.forwardmeasure.com/...`, which doesn't exist, so every workflow fails
+     validation (your K3s test shows it). fowf's side is done: definition-management allows the
+     platform registry automatically, and the bundle chart uploads documents before publishing.
+     - **Bundle release values:** `registry.apiUrl: {{ .Values.platform.endpoints.registry.apiUrl }}`
+       and `apiDocuments:` with `ingestion-worker-kubernetes-job.yaml`
+       (`api-specifications/src/main/resources/asyncapi/`) and `entity-intelligence-api.yaml`
+       (`.../META-INF/openapi/`), read with `readFile` as you do the definitions. They become
+       artifacts `fei/ingestion-worker-kubernetes-job` and `fei/entity-intelligence-api`.
+     - **The five definitions:** every `document.endpoint` becomes
+       ```yaml
+       endpoint:
+         uri: http://platform-registry-app-service.apicurio-registry.svc.cluster.local:8080/apis/registry/v3/groups/fei/artifacts/<artifact>/versions/branch=latest/content
+         authentication:
+           oidc:
+             use: apicurio-registry-reader
+       ```
+       (`apicurio-registry-reader` is the client-credentials secret fowf's platform-clients
+       provisions for definition-management.)
+     - **K3s test:** deploy a real Apicurio (`quay.io/apicurio/apicurio-registry:3.3.1`, no auth)
+       as Service `platform-registry-app-service` in namespace `apicurio-registry`, upload with
+       `RegistryResourceUploader.withoutAuthentication(...)`, and give definition-management
+       `OPENWORKFLOW_DEFINITION_RESOURCE_ALLOWED_HOSTS` (that host and Keycloak's) and
+       `OPENWORKFLOW_DEFINITION_RESOURCE_AUTH_SECRETS` with an `apicurio-registry-reader` entry
+       (a real client in the test realm; the loader fetches a token whenever a policy is declared).
+       Drop the `fei-fixtures` AsyncAPI copy.
+     - Your compiler tests that resolve these documents by URL need the new URLs.
+  4. **`PublishedWorkflowRevisionResolver` picks the oldest published revision (found
+     2026-10-02).** A `status=PUBLISHED` listing is ordered by ascending revision number, and the
+     resolver takes the first entry with `limit=1`. fowf's publisher now deprecates superseded
+     revisions, so bundle-published workflows have exactly one. But a revision published by hand
+     (Studio) leaves several, and FEI would then launch the oldest. Request `limit=100` and take
+     the latest `publishedAt`.
+  5. When the launcher adopts `subjectActor`, set `launcherRole: workflow-operator`
+     (`forwardmeasure-openworkflow/docs/subject-actor-fei-adoption-handoff-2026-09-25.md`).
+
 ### 0.5 What each repository must do before the install
 - **fei:** everything in §3.2, including the **§3.2.1 e2e harness fix**, and the §4 item 3
   readiness items. Run §3.2's verify commands.

@@ -69,6 +69,7 @@ wait_for "$DB_HOST" "$DB_PORT" postgres
 ` }}
 
 {{- $supersetImage := printf "%s:%s" .Values.imageVersions.superset.repository .Values.imageVersions.superset.tag }}
+{{- with .Values.imageVersions.superset.digest }}{{ $supersetImage = printf "%s@%s" $supersetImage . }}{{ end }}
 
 {{- $waitPostgresContainer := dict
   "name" "wait-for-postgres"

@@ -31,17 +31,16 @@ imageVersions:
   # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
   # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own
   # comment for why this replaces the stock apache/superset image.
-  # Tag is not "6.1.0" (the chart's own appVersion) deliberately - this
-  # chart's own image template is a hardcoded repository:tag with no digest
-  # support at all, and GKE's Docker Hub pull-through mirror cached a stale
-  # manifest for that tag across two rebuilds/re-pushes, confirmed the hard
-  # way (imagePullPolicy: Always didn't help - the mirror, not kubelet, was
-  # serving the stale content). A tag string that's never been pushed
-  # before has nothing stale to serve. Bump this suffix again on any future
-  # rebuild under this same base version.
+  # Pinned by digest like every image of ours (sync-image-digests.sh fills it).
+  # GKE's Docker Hub pull-through mirror once served a stale manifest for this
+  # tag across two re-pushes (imagePullPolicy: Always didn't help - the mirror,
+  # not kubelet, was stale); a digest can't be stale. The upstream chart only
+  # renders repository:tag, so releases/superset passes "<tag>@<digest>" as its
+  # tag.
   superset:
     repository: docker.io/forwardmeasure/superset
     tag: "6.1.0"
+    digest: ""
     pullPolicy: Always
   platformDashboard:
     # Quarkus specifically - deploy/helmfile/charts/platform-dashboard's

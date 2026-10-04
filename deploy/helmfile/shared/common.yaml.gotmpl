@@ -38,6 +38,7 @@
       "istio" "istio-system"
       "openworkflow" "forwardmeasure-openworkflow"
       "keycloak" "keycloak"
+      "registry" "apicurio-registry"
       "kafka" "kafka"
       "openSearch" "opensearch-cluster"
       "valkey" "valkey"
@@ -54,6 +55,9 @@
 {{- if not (has $engine (list "kafka-streams" "pekko-postgresql" "pekko-cassandra")) }}
 {{-   fail (printf "platform engine must be kafka-streams, pekko-postgresql or pekko-cassandra, not %q" $engine) }}
 {{- end }}
+{{- /* The platform's Apicurio Registry (environments/base.yaml.gotmpl registry.name); the
+operator names its API Service <name>-app-service. */}}
+{{- $registryName := "platform-registry" }}
 {{- $keycloakService := "keycloak-internal" }}
 {{- $keycloakPort := 8080 }}
 {{- $keycloakRealm := "forwardmeasure" }}
@@ -123,6 +127,11 @@ platform:
     # The platform's bootstrap administrator (the keycloak release creates it) - products grant it
     # their tenant roles.
     platformAdminUsername: platform-admin
+    # The platform's own DID method (did:<didMethod>:...) - the only place it is named. Products
+    # read it as FORWARDMEASURE_DID_METHOD (forwardmeasure-jpa's PlatformDids): workflow bundles are
+    # did:<method>:bundle:<domain> and their documents DID URLs under that; resolved entities are
+    # did:<method>:entity:<tenantId>:<uuid>.
+    didMethod: fwm
   # Secrets forwardmeasure-platform's platform-secrets release delivers into product namespaces -
   # the name is the contract between this repository (producer) and the product (consumer).
   secrets:
@@ -150,6 +159,7 @@ platform:
     decisionEngineValkey: decision-engine-valkey-auth
   endpoints:
     keycloak:
+      host: {{ printf "%s.%s.svc.cluster.local" $keycloakService $namespaces.keycloak }}
       url: {{ $keycloakUrl }}
       realm: {{ $keycloakRealm }}
       issuer: {{ $issuer }}
@@ -162,6 +172,13 @@ platform:
       endpoint: {{ printf "https://%s.%s.svc.cluster.local:%d" $openSearchService $namespaces.openSearch $openSearchPort }}
     valkey:
       host: {{ printf "valkey.%s.svc.cluster.local" $namespaces.valkey }}
+    # The platform's Apicurio Registry, in-cluster (its NetworkPolicy admits fowf's namespace).
+    # Products publish the API documents their workflows reference here (the workflow bundle's
+    # resources); fowf's definition-management fetches them at publication, so its resource
+    # allowlist includes this host.
+    registry:
+      host: {{ printf "%s-app-service.%s.svc.cluster.local" $registryName $namespaces.registry }}
+      apiUrl: {{ printf "http://%s-app-service.%s.svc.cluster.local:8080/apis/registry/v3" $registryName $namespaces.registry }}
     # fowf's own REST services - deployed by forwardmeasure-openworkflow, but every product calls them.
     openworkflow:
       # java-microservice Services listen on port 80 (targetPort 8080), hence no port.

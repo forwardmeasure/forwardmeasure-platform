@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Image pins used by more than one repository - see common.yaml.gotmpl's header. A non-empty digest
-# opts the entry into scripts/sync-image-digests.sh, which re-resolves it on every
-# install-platform.sh run. repository always includes the registry.
+# Image pins used by more than one repository - see common.yaml.gotmpl's header.
+# scripts/sync-image-digests.sh fills/refreshes every digest of ours (docker.io/forwardmeasure/...)
+# on each install-platform.sh run, including an empty one, and fails the install if one can't be
+# resolved; a third-party entry left at digest: "" floats by tag. repository always includes the
+# registry.
 imageVersions:
   # Cloud SQL Auth Proxy sidecar - Keycloak/Superset (this repository), every openworkflow-service
   # and migrations release (forwardmeasure-openworkflow), and decision-engine.
@@ -30,3 +32,9 @@ imageVersions:
     repository: docker.io/forwardmeasure/data-streaming-executor-kafka-streams
     tag: "1.1.0"
     digest: "sha256:8d60d48814d13200fe75af38eb00d9034d15468d83f0a4a5c53a111439a3df8e"
+  # forwardmeasure-openworkflow's workflow publisher - run by every product's workflow bundle
+  # (helm-charts' openworkflow-workflow-bundle chart) to publish its workflows into each tenant.
+  openworkflowWorkflowPublisher:
+    repository: docker.io/forwardmeasure/openworkflow-workflow-publisher
+    tag: "1.1.0"
+    digest: ""

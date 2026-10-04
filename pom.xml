@@ -105,7 +105,7 @@
     <qpid.jms.version>2.10.0</qpid.jms.version>
     <lettuce.version>7.6.0.RELEASE</lettuce.version>
     <pulsar.version>4.2.2</pulsar.version>
-    <aws.sdk.version>2.49.4</aws.sdk.version>
+    <aws.sdk.version>2.50.2</aws.sdk.version>
     <!-- google.pubsub.version (a standalone pin) removed 2026-09-14: this and
          forwardmeasure-object-storage-gcs's own separately-imported com.google.cloud:libraries-bom
          (26.79.0) pinned google-cloud-pubsub and google-cloud-storage independently, which never
@@ -151,6 +151,8 @@
     <forwardmeasure-entity-matching-core.version>1.1.0</forwardmeasure-entity-matching-core.version>
     <jayway-json-path.version>3.0.0</jayway-json-path.version>
     <httpclient5.version>5.6.3</httpclient5.version>
+    <!-- Apicurio Registry Java SDK; matches the platform's registry (environments/image-versions.yaml). -->
+    <apicurio-registry.version>3.3.1</apicurio-registry.version>
     <jersey.version>4.0.2</jersey.version>
     <jboss.logging.version>3.6.3.Final</jboss.logging.version>
     <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
@@ -286,6 +288,10 @@
     <module>forwardmeasure-platform-spring-bom</module>
     <module>forwardmeasure-platform-micronaut-bom</module>
     <module>forwardmeasure-platform-policy-maven-plugin</module>
+    <module>forwardmeasure-platform-server-jaxrs</module>
+    <module>forwardmeasure-platform-micronaut-validation</module>
+    <module>forwardmeasure-platform-spring-security</module>
+    <module>forwardmeasure-platform-quarkus-security</module>
     <module>forwardmeasure-platform-build-contract-tests</module>
     <module>forwardmeasure-platform-bom</module>
     <module>forwardmeasure-platform-compatibility-tests</module>
@@ -293,6 +299,32 @@
 
   <dependencyManagement>
     <dependencies>
+      <!--
+      This repo's own product-neutral server libraries (2026-10-01, moved here from
+      forwardmeasure-openworkflow). Managed here rather than only in forwardmeasure-platform-bom:
+      forwardmeasure-platform-core-bom is a flattened publish of exactly this block, and it's the
+      BOM every product (openworkflow, entity-intelligence, decision-engine) actually imports.
+      -->
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-server-jaxrs</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-micronaut-validation</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-spring-security</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-quarkus-security</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
       <dependency>
         <groupId>io.grpc</groupId>
         <artifactId>grpc-bom</artifactId>
@@ -383,20 +415,14 @@
         <artifactId>pulsar-client</artifactId>
         <version>${pulsar.version}</version>
       </dependency>
+      <!-- The whole AWS SDK at one version: sns/sqs/secretsmanager here, s3 in
+           forwardmeasure-object-storage, and the sdk-core/http-client/auth modules they share. -->
       <dependency>
         <groupId>software.amazon.awssdk</groupId>
-        <artifactId>sns</artifactId>
+        <artifactId>bom</artifactId>
         <version>${aws.sdk.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>sqs</artifactId>
-        <version>${aws.sdk.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>secretsmanager</artifactId>
-        <version>${aws.sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <!-- Manages google-cloud-pubsub's version (and everything it shares transitively with
            forwardmeasure-object-storage-gcs's own google-cloud-storage - proto-google-iam-v1,
@@ -661,6 +687,16 @@
         <groupId>org.apache.httpcomponents.client5</groupId>
         <artifactId>httpclient5</artifactId>
         <version>${httpclient5.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.apicurio</groupId>
+        <artifactId>apicurio-registry-java-sdk</artifactId>
+        <version>${apicurio-registry.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.apicurio</groupId>
+        <artifactId>apicurio-registry-java-sdk-adapter-jdk</artifactId>
+        <version>${apicurio-registry.version}</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jersey.core</groupId>
@@ -1124,6 +1160,10 @@
             override ("once a file is explicitly included it can not be excluded"). -->
             <inputExclude>**/gcp-greenfield.example.yaml</inputExclude>
             <inputExclude>**/target/**</inputExclude>
+            <!-- JVM crash dumps: gitignored, but RAT runs per module and never sees the repo-root
+                 .gitignore that hides them. -->
+            <inputExclude>**/hs_err_pid*.log</inputExclude>
+            <inputExclude>**/replay_pid*.log</inputExclude>
           </inputExcludes>
         </configuration>
         <executions>

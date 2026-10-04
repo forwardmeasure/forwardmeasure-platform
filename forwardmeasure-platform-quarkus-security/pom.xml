@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+  agreements. See the NOTICE file distributed with this work for additional information regarding
+  copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the License. You may obtain
+  a copy of the License at https://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable
+  law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+  for the specific language governing permissions and limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform</artifactId>
+        <version>1.1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>forwardmeasure-platform-quarkus-security</artifactId>
+
+    <name>ForwardMeasure Platform :: Quarkus Security</name>
+
+    <!--
+    A request Quarkus security turns away - no valid bearer token (401) or a caller it doesn't allow
+    (403) - as the same RFC 9457 problem forwardmeasure-platform-server-jaxrs gives every other HTTP
+    error, with WWW-Authenticate: Bearer on a 401, as on Spring and Micronaut. Security stays at the
+    HTTP layer (quarkus.http.auth.permission policies, proactive authentication), before routing,
+    as Spring's filter chain is:
+    - ProblemChallengeMechanism writes every 401 the HTTP layer sends (no token, or one that fails
+      validation); quarkus-oidc's own challenge has an empty body.
+    - The ExceptionMappers cover the same exceptions when they're raised inside JAX-RS
+      (@Authenticated/@RolesAllowed, and Quarkus REST hands an HTTP-layer
+      AuthenticationFailedException to a custom mapper for it).
+    The Spring counterpart is forwardmeasure-platform-spring-security; the Micronaut one is
+    forwardmeasure-platform-micronaut-validation's MicronautAuthorizationProblemHandler. Quarkus finds
+    all of it through this jar's Jandex index.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-quarkus-bom</artifactId>
+                <version>${forwardmeasure.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.forwardmeasure.platform</groupId>
+            <artifactId>forwardmeasure-platform-server-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus.security</groupId>
+            <artifactId>quarkus-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-vertx-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+    </dependencies>
+</project>

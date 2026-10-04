@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+  agreements. See the NOTICE file distributed with this work for additional information regarding
+  copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the License. You may obtain
+  a copy of the License at https://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable
+  law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+  for the specific language governing permissions and limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform</artifactId>
+        <version>1.1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>forwardmeasure-platform-spring-security</artifactId>
+
+    <name>ForwardMeasure Platform :: Spring Security</name>
+
+    <!--
+    A request Spring Security turns away - no valid bearer token (401) or a caller the chain doesn't
+    allow (403) - as the same RFC 9457 problem forwardmeasure-platform-server-jaxrs gives every other
+    HTTP error, with WWW-Authenticate: Bearer on a 401, as on Quarkus and Micronaut. Spring Security
+    answers before Jersey runs, so no JAX-RS mapper can reach these; each SecurityFilterChain passes
+    ProblemAuthenticationEntryPoint/ProblemAccessDeniedHandler to both .exceptionHandling(...) and
+    .oauth2ResourceServer(...). The Micronaut counterpart is forwardmeasure-platform-micronaut-
+    validation's MicronautAuthorizationProblemHandler; the Quarkus one is
+    forwardmeasure-platform-quarkus-security.
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-spring-bom</artifactId>
+                <version>${forwardmeasure.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.forwardmeasure.platform</groupId>
+            <artifactId>forwardmeasure-platform-server-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

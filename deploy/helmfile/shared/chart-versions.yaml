@@ -18,3 +18,8 @@
 chartVersions:
   # java-microservice-helm-chart - every product repository's own Java services deploy through it.
   forwardMeasureJavaMicroservice: "0.1.5"
+  # helm-charts' openworkflow-workflow-bundle-helm-chart - every product's workflow bundle (its
+  # workflow documents, published into each tenant by fowf's workflow publisher). publish_charts.sh
+  # bumps the patch of Chart.yaml's version on each publish. 0.1.2 adds apiDocuments and didMethod
+  # (definitions name bundle documents by DID URL); it must be published before this renders.
+  openworkflowWorkflowBundle: "0.1.2"

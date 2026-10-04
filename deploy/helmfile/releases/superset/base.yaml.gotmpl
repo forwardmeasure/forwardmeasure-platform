@@ -29,7 +29,8 @@
 # the ecosystem.
 image:
   repository: {{ .Values.imageVersions.superset.repository | quote }}
-  tag: {{ .Values.imageVersions.superset.tag | quote }}
+  # The chart renders repository:tag only, so the digest rides on the tag ("6.1.0@sha256:...").
+  tag: {{ printf "%s%s" .Values.imageVersions.superset.tag (ternary (printf "@%s" .Values.imageVersions.superset.digest) "" (ne (.Values.imageVersions.superset.digest | default "") "")) | quote }}
   pullPolicy: {{ .Values.imageVersions.superset.pullPolicy | quote }}
 
 secretEnv: {create: false}
