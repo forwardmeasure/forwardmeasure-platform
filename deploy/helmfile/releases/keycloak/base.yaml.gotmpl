@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-{{- $postLogoutRedirectUris := list (printf "https://%s/*" .Values.gateway.rootHost) (printf "https://%s/*" .Values.gateway.registryHost) (printf "https://%s/*" .Values.gateway.analyticsHost) (printf "https://%s/*" .Values.gateway.studioHost) "http://localhost:3000/*" }}
+{{- $postLogoutRedirectUris := list (printf "https://entity-intelligence.%s/*" .Values.platform.domain) (printf "https://%s/*" .Values.gateway.rootHost) (printf "https://%s/*" .Values.gateway.registryHost) (printf "https://%s/*" .Values.gateway.analyticsHost) (printf "https://%s/*" .Values.gateway.studioHost) "http://localhost:3000/*" }}
 {{- range $tenant := .Values.tenants }}
 {{- $postLogoutRedirectUris = append $postLogoutRedirectUris (printf "https://%s/*" $tenant.host) }}
 {{- end }}
@@ -85,6 +85,7 @@ realm:
     redirectUri1: {{ printf "https://%s/*" .Values.bootstrapIdentity.tenantHost | quote }}
     redirectUri2: http://localhost:3000/*
     additionalRedirectUris:
+      - {{ printf "https://entity-intelligence.%s/*" .Values.platform.domain | quote }}
       {{- range $tenant := .Values.tenants }}
       - {{ printf "https://%s/*" $tenant.host | quote }}
       {{- end }}
@@ -95,6 +96,7 @@ realm:
     webOrigin1: {{ printf "https://%s" .Values.bootstrapIdentity.tenantHost | quote }}
     webOrigin2: http://localhost:3000
     additionalWebOrigins:
+      - {{ printf "https://entity-intelligence.%s" .Values.platform.domain | quote }}
       {{- range $tenant := .Values.tenants }}
       - {{ printf "https://%s" $tenant.host | quote }}
       {{- end }}
@@ -131,7 +133,7 @@ bootstrapAdminUser:
   # own granular roles (author/approver/publisher/execution-controller/
   # auditor/administrator) - additive, not a replacement, since the platform
   # admin needs both entity-intelligence's and OpenWorkflow's roles.
-  tenantGroupRoles: dossier-control,investigation-control,entity-control,resolution-control,evidence-control,audit-control,ingestion-control,screening-control,information-extraction-control,agent-control,workflow-control,workflow-execution-purge,human-task-control,workflow-author,workflow-approver,workflow-publisher,workflow-execution-controller,workflow-auditor,workflow-administrator
+  tenantGroupRoles: dossier-control,investigation-control,entity-control,resolution-control,evidence-control,audit-control,ingestion-control,screening-control,information-extraction-control,agent-control,workflow-control,workflow-execution-purge,human-task-control,workflow-author,workflow-execution-controller,workflow-auditor,workflow-administrator
   # These are plain realm roles above (tenantGroupRoles), not what
   # KeycloakOrganizationClaims reads - that needs the platform admin to be a
   # member of the tenant's Keycloak Organization AND of one of its

@@ -17,7 +17,7 @@
 #
 # Sets every `digest`/`digests.<framework>` field in one or more
 # image-versions files to the digest the registry currently serves for that
-# entry's repository:tag. Queried via `docker manifest inspect -v` (registry
+# entry's repository:tag. Queried via `docker buildx imagetools inspect` (registry
 # API only, no layer pull - fast enough to run on every install).
 #
 # The rule (user decision, 2026-10-01):
@@ -34,8 +34,11 @@
 # resolve-image-digests.sh for environments with a cloudProvider). kind and
 # local environments load locally built images by tag and never come here.
 #
-# Usage: sync-image-digests.sh [--check] <image-versions.yaml> [...]
+# Usage: sync-image-digests.sh [--check] [--exclude-entry name] <image-versions.yaml> [...]
 #   --check  report what would change and what is missing; write nothing.
+#   --framework quarkus|spring|micronaut  resolve only this framework's split entries.
+#   --exclude-entry path  omit an imageVersions subtree, e.g. engines.pekko (repeatable).
+#   --resolved-values file  use rendered image coordinates while updating the base inventory.
 set -euo pipefail
 
 for command in docker yq jq; do
@@ -46,30 +49,58 @@ for command in docker yq jq; do
 done
 
 check_only=false
-if [[ "${1:-}" == "--check" ]]; then
-  check_only=true
-  shift
-fi
+excluded_entries=()
+selected_framework=""
+resolved_values_file=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --check) check_only=true; shift ;;
+    --framework)
+      [[ $# -ge 2 && "$2" =~ ^(quarkus|spring|micronaut)$ ]] || {
+        echo "--framework requires quarkus, spring or micronaut" >&2; exit 1;
+      }
+      selected_framework="$2"; shift 2 ;;
+    --resolved-values)
+      [[ $# -ge 2 && -f "$2" ]] || {
+        echo "--resolved-values requires a rendered values file" >&2; exit 1;
+      }
+      resolved_values_file="$2"; shift 2 ;;
+    --exclude-entry)
+      [[ $# -ge 2 && "$2" =~ ^[A-Za-z][A-Za-z0-9_.-]*$ ]] || {
+        echo "--exclude-entry requires an imageVersions entry path" >&2; exit 1;
+      }
+      excluded_entries+=("$2"); shift 2 ;;
+    --*) echo "Unknown option: $1" >&2; exit 1 ;;
+    *) break ;;
+  esac
+done
 [[ $# -ge 1 ]] || {
-  echo "Usage: $0 [--check] <image-versions.yaml> [<image-versions.yaml> ...]" >&2
+  echo "Usage: $0 [--check] [--framework name] [--exclude-entry path] [--resolved-values file] <image-versions.yaml> [...]" >&2
   exit 1
 }
+excluded_json="$(printf '%s\n' "${excluded_entries[@]}" | jq -Rsc 'split("\n") | map(select(length > 0))')"
+
+resolved_values='{}'
+if [[ -n "${resolved_values_file}" ]]; then
+  resolved_values="$(yq -o=json '.imageVersions' "${resolved_values_file}")"
+fi
 
 OURS='^(docker\.io/)?forwardmeasure/'
 failures=()
 
-# Registry API digest lookup for one repository:tag - the manifest's own
-# digest (what a repo@sha256:... reference resolves to), not the config or
-# layer digests also present in the response. -v returns a single object for
-# a single-platform manifest and an array for a multi-platform manifest
-# list; the [0] fallback keeps this correct either way. Retried: Docker Hub's
-# token endpoint occasionally refuses one of many back-to-back lookups.
+docker buildx version >/dev/null 2>&1 || {
+  echo "Docker Buildx is required to resolve architecture-independent image digests." >&2
+  exit 1
+}
+
+# Resolve the top-level manifest digest, preserving the platform index for multi-architecture
+# images. Selecting the first child manifest can silently pin the wrong node architecture.
 resolve_digest() {
   local repository="$1" tag="$2" attempt digest
   for attempt in 1 2 3; do
-    digest="$(docker manifest inspect -v "${repository}:${tag}" 2>/dev/null \
-      | jq -r 'if type == "array" then .[0].Descriptor.digest else .Descriptor.digest end' 2>/dev/null || true)"
-    if [[ -n "${digest}" && "${digest}" != "null" ]]; then
+    digest="$(docker buildx imagetools inspect "${repository}:${tag}" --format '{{json .Manifest}}' 2>/dev/null \
+      | jq -er '.digest | select(test("^sha256:[0-9a-f]{64}$"))' 2>/dev/null || true)"
+    if [[ "${digest}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
       echo "${digest}"
       return 0
     fi
@@ -79,8 +110,37 @@ resolve_digest() {
 }
 
 sync_file() {
-  local file="$1"
+  local file="$1" rows
   echo "Syncing digests in ${file}"
+
+  # Capture parser failures before registry access or inventory mutation.
+  rows="$(yq -o=json '.imageVersions' "${file}" | jq -r --argjson excluded "${excluded_json}" --arg framework "${selected_framework}" --argjson resolved "${resolved_values}" '
+    # The single-repository and per-framework branches must stay independent
+    # generators - chaining one behind the other silently drops every entry
+    # of the second shape (found the hard way: every repositories/digests
+    # entry was once skipped).
+    def entries_at($segs; $obj):
+      ( if ($obj | has("repository")) then
+          [ ($segs + ["digest"]), ($obj.repository // ""), ($obj.tag // ""),
+            ($obj.digest // ""), (if ($obj | has("digest")) then "pin" else "nofield" end) ]
+        else empty end ),
+      ( ($obj.repositories // {}) | to_entries[] | select($framework == "" or .key == $framework) | .key as $k | .value as $repository |
+          [ ($segs + ["digests", $k]), ($repository // ""), ($obj.tag // ""),
+            ($obj.digests[$k]? // ""),
+            (if (($obj.digests // {}) | has($k)) then "pin" else "nofield" end) ] );
+    def walk_node($segs; $obj):
+      if ($obj | type) != "object" or ($excluded | index($segs[1:] | join("."))) != null then empty
+      else
+        entries_at($segs; $obj),
+        ( $obj | to_entries[]
+          | select(.key as $k | ["digest","digests","repository","repositories","tag","pullPolicy"] | index($k) | not)
+          | walk_node($segs + [.key]; .value) )
+      end;
+    to_entries[]
+    | walk_node(["imageVersions", .key]; ($resolved[.key] // .value))
+    | [ ( .[0] | map("[\"" + . + "\"]") | join("") ), .[1], .[2], .[3], .[4] ]
+    | join("\u001f")
+  ')"
 
   # One row per digest field (pinned or empty), plus one per entry of any
   # repository that has no digest field: yq path to the field, repository,
@@ -112,33 +172,7 @@ sync_file() {
       echo "  updating ${repository}:${tag}: ${current_digest:-<none>} -> ${new_digest}"
       yq -i ".${digest_path} = \"${new_digest}\"" "${file}"
     fi
-  done < <(yq -o=json '.imageVersions' "${file}" | jq -r '
-    # The single-repository and per-framework branches must stay independent
-    # generators - chaining one behind the other silently drops every entry
-    # of the second shape (found the hard way: every repositories/digests
-    # entry was once skipped).
-    def entries_at($segs; $obj):
-      ( if ($obj | has("repository")) then
-          [ ($segs + ["digest"]), ($obj.repository // ""), ($obj.tag // ""),
-            ($obj.digest // ""), (if ($obj | has("digest")) then "pin" else "nofield" end) ]
-        else empty end ),
-      ( ($obj.repositories // {}) | to_entries[] | .key as $k | .value as $repository |
-          [ ($segs + ["digests", $k]), ($repository // ""), ($obj.tag // ""),
-            ($obj.digests[$k]? // ""),
-            (if (($obj.digests // {}) | has($k)) then "pin" else "nofield" end) ] );
-    def walk_node($segs; $obj):
-      if ($obj | type) != "object" then empty
-      else
-        entries_at($segs; $obj),
-        ( $obj | to_entries[]
-          | select(.key as $k | ["digest","digests","repository","repositories","tag","pullPolicy"] | index($k) | not)
-          | walk_node($segs + [.key]; .value) )
-      end;
-    to_entries[]
-    | walk_node(["imageVersions", .key]; .value)
-    | [ ( .[0] | map("[\"" + . + "\"]") | join("") ), .[1], .[2], .[3], .[4] ]
-    | join("\u001f")
-  ')
+  done <<<"${rows}"
 }
 
 for file in "$@"; do

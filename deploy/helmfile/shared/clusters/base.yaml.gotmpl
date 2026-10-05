@@ -28,6 +28,11 @@
 platform:
   domain: {{ $domain | quote }}
   environment: production
+  # Match Keycloak's advertised hostname exactly, including its configured :443.
+  # Token/admin transport URLs remain internal in common.yaml.gotmpl.
+  endpoints:
+    keycloak:
+      issuer: {{ printf "https://auth.%s:443/realms/forwardmeasure" $domain | quote }}
   gateway:
     loadBalancerIp: {{ $loadBalancerIp | quote }}
     hosts:

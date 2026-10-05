@@ -147,7 +147,7 @@ identity:
       # this client's own authz resources/scopes/policies/permissions (the capability-pack
       # reconciliation) - without this, /authz/resource-server/* 404s for the client.
       authorizationServicesEnabled: true
-      realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
+      realmRoles: [workflow-author, workflow-execution-controller, workflow-auditor, workflow-administrator]
       audiences: [openworkflow-api]
       claims:
         tenant_did: {{ $tenantDid | quote }}

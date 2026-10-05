@@ -71,7 +71,7 @@ identity:
       secretKey: OPENWORKFLOW_CLIENT_SECRET
       secretRemoteKey: platform-openworkflow-client-secret
       authorizationServicesEnabled: true
-      realmRoles: [workflow-author, workflow-approver, workflow-publisher, workflow-execution-controller, workflow-auditor, workflow-administrator]
+      realmRoles: [workflow-author, workflow-execution-controller, workflow-auditor, workflow-administrator]
       audiences: [openworkflow-api]
       claims:
         tenant_did: did:web:example-bank.new-platform.example

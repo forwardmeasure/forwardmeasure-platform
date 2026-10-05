@@ -45,7 +45,9 @@ secrets:
       # forwardmeasure-entity-intelligence's and forwardmeasure-decision-engine's private
       # docker.io/forwardmeasure/* images.
       - {{ .Values.namespaces.entityIntelligence }}
+      {{- if .Values.platform.products.decisionEngine.enabled }}
       - {{ .Values.namespaces.decisionEngine }}
+      {{- end }}
     remoteRefs:
       - secretKey: .dockerconfigjson
         remoteKey: {{ .Values.secretStore.remoteKeys.dockerConfig | quote }}
@@ -175,7 +177,7 @@ secrets:
       # databases, same admin workload identity) reads DECISION_ENGINE_RUNTIME_DATABASE_PASSWORD from
       # this Secret, creates/rotates the role with it, and grants it tenant_registry read. Without this
       # key that Job's pod cannot start (non-optional secretKeyRef).
-      {{- if (dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values) }}
+      {{- if and .Values.platform.products.decisionEngine.enabled (dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values) }}
       - {secretKey: DECISION_ENGINE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values | quote }} }
       {{- end }}
   - name: huggingface-token
@@ -206,11 +208,13 @@ secrets:
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.valkeyPassword | quote }}}
   # decision-engine's fact window uses the shared Valkey as its default ACL user - same password
   # superset's REDIS_PASSWORD carries, delivered into decision-engine's own namespace.
+  {{- if .Values.platform.products.decisionEngine.enabled }}
   - name: {{ .Values.platform.secrets.decisionEngineValkey }}
     enabled: true
     namespaces: [{{ .Values.namespaces.decisionEngine }}]
     remoteRefs:
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.valkeyPassword | quote }}}
+  {{- end }}
   # entity-intelligence's server credentials, in its own namespace - same shape as decision-engine's
   # below: the entityintelligence runtime role (created by forwardmeasure-openworkflow's
   # entity-intelligence-migrations Job from the same remote key delivered into
@@ -235,7 +239,7 @@ secrets:
   # chart's Cloud SQL Auth Proxy sidecar (cloudSqlProxy.existingSecretName). The username and the
   # instance connection name are not secret - they come from the shared layer, composed in by
   # External Secrets' template ({{ "{{ .password }}" }} is evaluated by the operator, not Helm).
-  {{- if (dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values) }}
+  {{- if and .Values.platform.products.decisionEngine.enabled (dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values) }}
   - name: {{ .Values.platform.secrets.decisionEngineDatabase }}
     enabled: true
     namespaces: [{{ .Values.namespaces.decisionEngine }}]

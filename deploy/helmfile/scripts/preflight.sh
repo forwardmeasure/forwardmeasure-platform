@@ -147,7 +147,11 @@ SECRET_STORE_NAME="$(value secretStore.name)"
 if [[ "${SECRET_STORE_NAME}" != "fake-secret-store" ]]; then
   while IFS= read -r secret_name; do
     gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null
-  done < <(printf '%s' "${MERGED_JSON}" | jq -r '.secretStore.remoteKeys[]')
+  done < <(printf '%s' "${MERGED_JSON}" | jq -r '
+      .platform.products.decisionEngine.enabled as $fde
+      | .secretStore.remoteKeys | to_entries[]
+      | select($fde or .key != "decisionEngineRuntimeDatabasePassword")
+      | .value')
 
   while IFS= read -r secret_name; do
     gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null

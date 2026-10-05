@@ -90,11 +90,16 @@ After publishing them, change only their `chartSources.*.mode` and
 `chartSources.*.chart` values; their release versions already have dedicated
 entries in `chart-versions.yaml`.
 
-The umbrella `deploy/validate-platform.sh` and `deploy/install-platform.sh`
-commands install or update the ForwardMeasure platform as a whole: shared
-platform services plus every product built on them. Today that's the shared
-services here plus OpenWorkflow (`forwardmeasure-openworkflow/deploy/helmfile`);
-Entity Intelligence is a planned addition, not wired into these commands yet.
+The umbrella `deploy/validate-platform.sh` and `deploy/install-platform.sh` select shared
+platform services, OpenWorkflow, Data Streaming and Entity Intelligence, in that order.
+Decision Engine is disabled by default during rehabilitation. The same
+`FORWARDMEASURE_ENABLE_FDE=false` default applies to direct Helmfile renders, FOWF's FDE
+migration release, digest resolution and FDE-only secret prerequisites. Existing FDE workloads
+are not uninstalled by omitting them from this composition.
+
+Enable FDE deliberately only after its rehabilitation, by exporting
+`FORWARDMEASURE_ENABLE_FDE=true` for both validation and installation. Any other nonempty
+value is rejected. Keep the same value throughout the deployment session.
 
 The corrected OpenSearch and Keycloak wrappers are consumed from the sibling
 `helm-charts` checkout until versions `0.1.4` and `0.0.22` are published.

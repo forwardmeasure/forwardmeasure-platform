@@ -21,13 +21,7 @@
 # reconciles to desired state whether or not anything already exists, so
 # this is not a one-time bootstrap script.
 #
-# Today that's OpenWorkflow plus forwardmeasure-data-streaming's own launcher (added 2026-09-26,
-# gcp-openworkflow-prod only so far - see forwardmeasure-data-streaming's own deploy/helmfile) plus
-# forwardmeasure-entity-intelligence's own REST services (added 2026-09-27 - fei needs both
-# OpenWorkflow and data-streaming's WorkflowIngestionLauncher at runtime, so it runs last; its own
-# schema migration/workflow-definition-publish Jobs already run earlier, bundled into
-# OpenWorkflow's own deploy/helmfile - see forwardmeasure-entity-intelligence's own deploy/helmfile
-# for the full rationale). forwardmeasure-decision-engine runs last (added 2026-09-29).
+# FDE is opt-in while FOWF, FDS and FEI complete deployment rehabilitation.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -35,16 +29,20 @@ PLATFORM_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 WORKSPACE_DIR="$(cd -- "${PLATFORM_DIR}/.." && pwd)"
 ENVIRONMENT="${1:?Usage: $0 <configured-environment>}"
 
-# FDS/FEI/FDE keep their imageVersions in their own environments/base.yaml(.gotmpl), not a separate
-# image-versions.yaml - sync-image-digests.sh only reads the top-level .imageVersions key, so the
-# file name doesn't matter.
-"${SCRIPT_DIR}/scripts/sync-image-digests.sh" \
-  "${SCRIPT_DIR}/helmfile/shared/image-versions.yaml" \
-  "${SCRIPT_DIR}/helmfile/environments/image-versions.yaml" \
-  "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/environments/image-versions.yaml" \
-  "${WORKSPACE_DIR}/forwardmeasure-data-streaming/deploy/helmfile/environments/base.yaml" \
-  "${WORKSPACE_DIR}/forwardmeasure-entity-intelligence/deploy/helmfile/environments/base.yaml" \
-  "${WORKSPACE_DIR}/forwardmeasure-decision-engine/deploy/helmfile/environments/base.yaml.gotmpl"
+source "${SCRIPT_DIR}/scripts/product-selection.sh"
+
+image_files=(
+  "${SCRIPT_DIR}/helmfile/shared/image-versions.yaml"
+  "${SCRIPT_DIR}/helmfile/environments/image-versions.yaml"
+  "${WORKSPACE_DIR}/forwardmeasure-data-streaming/deploy/helmfile/environments/base.yaml"
+  "${WORKSPACE_DIR}/forwardmeasure-entity-intelligence/deploy/helmfile/environments/base.yaml"
+)
+if [[ "${FORWARDMEASURE_ENABLE_FDE}" == true ]]; then
+  image_files+=("${WORKSPACE_DIR}/forwardmeasure-decision-engine/deploy/helmfile/environments/base.yaml.gotmpl")
+fi
+framework="$("${SCRIPT_DIR}/helmfile/scripts/environment-value.sh" "${ENVIRONMENT}" platform.framework)"
+"${SCRIPT_DIR}/scripts/sync-image-digests.sh" --framework "${framework}" "${DIGEST_SELECTION_ARGS[@]}" "${image_files[@]}"
+"${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/scripts/resolve-image-digests.sh" "${ENVIRONMENT}"
 
 # Before touching the cluster: everything renders, and every product references our images by
 # digest (a template that drops a digest fails here, not on a stale pull).
@@ -55,9 +53,8 @@ ENVIRONMENT="${1:?Usage: $0 <configured-environment>}"
 # this sibling checkout (see helmfile/shared/common.yaml.gotmpl).
 
 "${SCRIPT_DIR}/helmfile/install.sh" "${ENVIRONMENT}"
-"${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/install.sh" "${ENVIRONMENT}"
-"${WORKSPACE_DIR}/forwardmeasure-data-streaming/deploy/helmfile/install.sh" "${ENVIRONMENT}"
-"${WORKSPACE_DIR}/forwardmeasure-entity-intelligence/deploy/helmfile/install.sh" "${ENVIRONMENT}"
-"${WORKSPACE_DIR}/forwardmeasure-decision-engine/deploy/helmfile/install.sh" "${ENVIRONMENT}"
+for product in "${PRODUCT_REPOSITORIES[@]}"; do
+  "${WORKSPACE_DIR}/${product}/deploy/helmfile/install.sh" "${ENVIRONMENT}"
+done
 
-echo "ForwardMeasure platform (shared services + OpenWorkflow + data-streaming + entity-intelligence + decision-engine) installed/updated for ${ENVIRONMENT}."
+echo "ForwardMeasure platform (${PRODUCT_SUMMARY}) installed/updated for ${ENVIRONMENT}."

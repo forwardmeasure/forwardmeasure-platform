@@ -89,7 +89,14 @@ operator names its API Service <name>-app-service. */}}
 {{- range $path, $owner := $entityIntelligencePathOwners }}
 {{-   $httpEndpointRoutes = append $httpEndpointRoutes (printf "%s%s=%s%s" $entityIntelligenceApiUrl $path (index $entityIntelligenceBaseUrls $owner) $path) }}
 {{- end }}
+{{- $enableFde := env "FORWARDMEASURE_ENABLE_FDE" | default "false" }}
+{{- if not (has $enableFde (list "true" "false")) }}
+{{- fail "FORWARDMEASURE_ENABLE_FDE must be true or false" }}
+{{- end }}
 platform:
+  products:
+    decisionEngine:
+      enabled: {{ $enableFde }}
   # quarkus | spring | micronaut. Every product (forwardmeasure-openworkflow, -entity-intelligence,
   # -data-streaming, -decision-engine) deploys each of its services in this framework: it picks the
   # image flavor, and the java-microservice chart derives probe paths and datasource env from it.

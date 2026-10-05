@@ -38,6 +38,11 @@
 platform:
   domain: {{ $domain | quote }}
   environment: production
+  # Match Keycloak's advertised hostname exactly, including its configured :443.
+  # Token/admin transport URLs remain internal in common.yaml.gotmpl.
+  endpoints:
+    keycloak:
+      issuer: {{ printf "https://auth.%s:443/realms/forwardmeasure" $domain | quote }}
   gateway:
     loadBalancerIp: {{ $loadBalancerIp | quote }}
     hosts:
@@ -74,6 +79,8 @@ platform:
         serviceAccount: {{ $decisionEngineServiceAccount | quote }}
       entityIntelligence:
         serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
+        # Set from the entity-intelligence entry of the OpenTofu bucket_names output.
+        evidenceBucket: "replace-with-entity-intelligence-bucket-output"
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

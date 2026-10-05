@@ -23,6 +23,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PLATFORM_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 WORKSPACE_DIR="$(cd -- "${PLATFORM_DIR}/.." && pwd)"
 ENVIRONMENT="${1:-gcp-greenfield-example}"
+source "${SCRIPT_DIR}/scripts/product-selection.sh"
 
 "${SCRIPT_DIR}/helmfile/validate.sh" "${ENVIRONMENT}"
 "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/validate.sh" "${ENVIRONMENT}"
@@ -30,15 +31,14 @@ ENVIRONMENT="${1:-gcp-greenfield-example}"
 # Every product's render must reference our images by digest (check-image-digests.sh). For the
 # products with no validate.sh of their own, rendering is also the whole check (it fails on an
 # undeclared environment or a missing shared value).
-for helmfile in \
-  "${SCRIPT_DIR}/helmfile/helmfile.yaml.gotmpl" \
-  "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/helmfile.yaml.gotmpl" \
-  "${WORKSPACE_DIR}/forwardmeasure-data-streaming/deploy/helmfile/helmfile.yaml.gotmpl" \
-  "${WORKSPACE_DIR}/forwardmeasure-entity-intelligence/deploy/helmfile/helmfile.yaml.gotmpl" \
-  "${WORKSPACE_DIR}/forwardmeasure-decision-engine/deploy/helmfile/helmfile.yaml.gotmpl"; do
+helmfiles=("${SCRIPT_DIR}/helmfile/helmfile.yaml.gotmpl")
+for product in "${PRODUCT_REPOSITORIES[@]}"; do
+  helmfiles+=("${WORKSPACE_DIR}/${product}/deploy/helmfile/helmfile.yaml.gotmpl")
+done
+for helmfile in "${helmfiles[@]}"; do
   product="$(basename "$(dirname "$(dirname "$(dirname "${helmfile}")")")")"
   helmfile --file "${helmfile}" --environment "${ENVIRONMENT}" template \
     | "${SCRIPT_DIR}/scripts/check-image-digests.sh" "${product} (${ENVIRONMENT})"
 done
 
-echo "ForwardMeasure platform (shared services + OpenWorkflow + data-streaming + entity-intelligence + decision-engine) validated for ${ENVIRONMENT}."
+echo "ForwardMeasure platform (${PRODUCT_SUMMARY}) validated for ${ENVIRONMENT}."

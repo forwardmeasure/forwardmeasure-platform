@@ -37,6 +37,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- REST Assured 5 uses Groovy 4 internals; Boot's Groovy 5 requires REST Assured 6.
+                 Keep every REST Assured module aligned, including json-path and xml-path. -->
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured-bom</artifactId>
+                <version>${rest-assured.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
