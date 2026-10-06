@@ -8,7 +8,7 @@ https://lux.kriyagentic.com/ei/studio/, and the full installer's completion mess
 Studio backend is tenant-routed; the earlier dedicated hostname section is superseded by FEI's
 2026-10-06 tenant-URL correction and docs/access.md. Behavioral validation remains incomplete.
 
-Local source checkpoint commits (not pushed by Codex):
+Source checkpoint commits (all pushed by Codex after the user's request):
 
 | Repository | Commit |
 |---|---|
@@ -18,8 +18,9 @@ Local source checkpoint commits (not pushed by Codex):
 | forwardmeasure-entity-intelligence | 72f9a2e |
 | forwardmeasure-decision-engine | 30f75b6 |
 | openworkflow-k8s-setup | 4f4415c |
+| forwardmeasure-platform | 97866d1 |
 
-This document and platform changes are included in the accompanying platform checkpoint commit.
+Platform changes and the earlier version of this document are included in the platform checkpoint.
 Helm charts and the other inspected supporting repositories were already clean. Ignored credential
 files, infrastructure state, build output and Python caches were excluded. No tests or image builds
 were run for the commit operation; earlier compilation/render evidence remains recorded below and
@@ -30,7 +31,10 @@ confirmed background error is execution-management's recovery thread reporting m
 Investigate migration coverage and schema selection before asserting dispatch recovery works.
 Each fix should have a reproduction, regression code, compilation evidence, exact image rebuild
 scope and post-deploy verification. The standing instruction is to compile tests without running
-them until explicitly authorized.
+them until explicitly authorized. The next priorities are complete FOWF/FDS/FEI integration-test
+development, then FDE alignment and activation through FOWF. Read the
+[current Claude handover](../../forwardmeasure-openworkflow/CLAUDE_HANDOVER.md) and
+[detailed testing instructions](../../forwardmeasure-openworkflow/docs/rehabilitation/claude-testing-instructions-2026-10-06.md).
 
 ## Original implementation record
 
