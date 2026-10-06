@@ -153,6 +153,25 @@ platform:
         - openworkflow-api
         organizationClaim: false
         enabled: true
+      decisionEngine:
+        clientId: decisionengine
+        name: Decision Engine Resource Server
+        secretKey: DECISION_ENGINE_CLIENT_SECRET
+        secretRemoteKey: platform-decision-engine-client-secret
+        authorizationServicesEnabled: true
+        organizationClaim: false
+        enabled: {{ $enableFde }}
+      decisionEngineEvaluator:
+        clientId: openworkflow-decision-evaluator
+        name: OpenWorkflow Decision Evaluator
+        secretKey: DECISION_ENGINE_EVALUATOR_CLIENT_SECRET
+        secretRemoteKey: platform-decision-engine-evaluator-client-secret
+        authorizationServicesEnabled: false
+        organizationClaim: true
+        audiences: [decision-engine-api]
+        capabilityPack: decision-engine
+        tenantRoles: [decision-evaluator]
+        enabled: {{ $enableFde }}
       platformOperator:
         clientId: openworkflow-platform-operator
         name: OpenWorkflow Platform Operator

@@ -41,7 +41,14 @@ if [[ "${FORWARDMEASURE_ENABLE_FDE}" == true ]]; then
   image_files+=("${WORKSPACE_DIR}/forwardmeasure-decision-engine/deploy/helmfile/environments/base.yaml.gotmpl")
 fi
 framework="$("${SCRIPT_DIR}/helmfile/scripts/environment-value.sh" "${ENVIRONMENT}" platform.framework)"
+# Render the workflow environment before any registry lookups. Invalid configuration must fail
+# visibly here, rather than after resolving every other product's image inventory.
+echo "Checking OpenWorkflow environment inputs (${ENVIRONMENT})"
+"${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/scripts/environment-value.sh" \
+  "${ENVIRONMENT}" cloudProvider >/dev/null
+echo "Resolving selected platform/product image digests"
 "${SCRIPT_DIR}/scripts/sync-image-digests.sh" --framework "${framework}" "${DIGEST_SELECTION_ARGS[@]}" "${image_files[@]}"
+echo "Resolving OpenWorkflow image digests"
 "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/scripts/resolve-image-digests.sh" "${ENVIRONMENT}"
 
 # Before touching the cluster: everything renders, and every product references our images by

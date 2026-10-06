@@ -402,8 +402,11 @@ output match the shared cluster file directly.
 
 From the `forwardmeasure-platform` repository root, run:
 
+Select product image tags in their committed image inventories and shared tags in
+`deploy/helmfile/shared/image-versions.yaml`. No `OPENWORKFLOW_VERSION` export is required.
+
 ```bash
-OPENWORKFLOW_VERSION=<release> ./deploy/validate-platform.sh <env>
+./deploy/validate-platform.sh <env>
 ```
 
 This renders and validates the ForwardMeasure platform - shared services plus
@@ -412,7 +415,7 @@ every product built on them - without installing anything.
 When validation passes, install (or update) it:
 
 ```bash
-OPENWORKFLOW_VERSION=<release> ./deploy/install-platform.sh <env>
+./deploy/install-platform.sh <env>
 ```
 
 The installer deploys, in order:

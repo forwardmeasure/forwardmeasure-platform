@@ -105,7 +105,7 @@ realm:
     # oks-api replaced with openworkflow-api - stale pre-unification naming
     # (OKS = the old openworkflow-kafka-streams repo, see
     # docs/source-provenance.md in forwardmeasure-openworkflow).
-    audiences: [entity-intelligence-api, openworkflow-api, platform-dashboard-api]
+    audiences: [entity-intelligence-api, openworkflow-api, platform-dashboard-api, decision-engine-api]
     postLogoutRedirectUris: {{ join "##" $postLogoutRedirectUris | quote }}
   adminConfidentialClient:
     clientId: {{ .Values.identity.confidentialClientId | quote }}

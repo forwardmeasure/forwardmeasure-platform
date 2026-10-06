@@ -45,7 +45,7 @@ class ReleasePreparationTest(unittest.TestCase):
         import yaml
         fei = ROOT.parent / 'forwardmeasure-entity-intelligence'
         env = {key: os.environ[key] for key in ('PATH', 'HOME')}
-        env.update(OPENWORKFLOW_VERSION='1.1.0', FORWARDMEASURE_ENABLE_FDE='false')
+        env.update(FORWARDMEASURE_ENABLE_FDE='false')
         rendered = subprocess.run([
             'helmfile', '--file', 'deploy/helmfile/helmfile.yaml.gotmpl',
             '--environment', 'gcp-openworkflow-prod', 'template', '--skip-deps'],

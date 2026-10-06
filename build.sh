@@ -35,6 +35,8 @@ Options:
                            module first, then pass it here.
   --full                  Build every module (default).
   --skip-push             Build only; don't docker push the images.
+  --no-cache              Rebuild Docker layers without using the cache
+                           (Docker caching is enabled by default).
   --run-tests             Run tests (skipped by default).
   --coverage              Collect Jacoco code coverage via the "coverage"
                            profile (disabled by default).
@@ -65,6 +67,7 @@ target=
 push=true
 skip_tests=true
 coverage=false
+no_cache=false
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -92,6 +95,10 @@ while [ $# -gt 0 ]; do
 			skip_tests=false
 			shift
 			;;
+		--no-cache)
+			no_cache=true
+			shift
+			;;
 		--coverage)
 			coverage=true
 			shift
@@ -116,15 +123,15 @@ fi
 case "$mode" in
 	module)
 		mvn -f reactor.xml -pl "$target" -am spotless:apply
-		mvn -f reactor.xml -pl "$target" -am -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests="$skip_tests" clean install
+		mvn -f reactor.xml -pl "$target" -am -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -DskipTests="$skip_tests" clean install
 		;;
 	resume)
 		mvn -f reactor.xml -rf "$target" spotless:apply
-		mvn -f reactor.xml -rf "$target" -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests="$skip_tests" clean install
+		mvn -f reactor.xml -rf "$target" -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -DskipTests="$skip_tests" clean install
 		;;
 	full)
 		mvn -f reactor.xml spotless:apply
-		mvn -f reactor.xml -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache=true -DskipTests="$skip_tests" clean install
+		mvn -f reactor.xml -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -DskipTests="$skip_tests" clean install
 		;;
 esac
 

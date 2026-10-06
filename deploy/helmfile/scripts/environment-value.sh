@@ -40,6 +40,7 @@ KEY="${2:?value key is required}"
 # select(di==0) takes only the first document - safe because every
 # top-level entry shares the same environment: layer, so renderedvalues is
 # identical across all of them (verified: md5-identical across all 9).
-helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" --environment "${ENVIRONMENT}" build 2>/dev/null \
+# Preserve render failures on stderr while stdout remains the selected value for command callers.
+helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" --environment "${ENVIRONMENT}" build \
   | yq 'select(di==0) | .renderedvalues' \
   | yq -r ".${KEY} // \"\""

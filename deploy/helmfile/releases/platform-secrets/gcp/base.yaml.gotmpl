@@ -76,6 +76,22 @@ secrets:
       - {secretKey: operatorSecret, remoteKey: {{ .Values.platform.identity.serviceClients.platformOperator.secretRemoteKey | quote }}}
       - {secretKey: publisherSecret, remoteKey: {{ .Values.platform.identity.serviceClients.workflowPublisher.secretRemoteKey | quote }}}
       - {secretKey: apicurioReaderSecret, remoteKey: {{ .Values.platform.identity.serviceClients.apicurioReader.secretRemoteKey | quote }}}
+  {{- if .Values.platform.products.decisionEngine.enabled }}
+  - name: decision-engine-identity-credentials
+    identityClientCredentials: true
+    enabled: true
+    namespaces: [{{ .Values.namespaces.decisionEngine }}]
+    remoteRefs:
+      - {secretKey: DECISION_ENGINE_CLIENT_SECRET, remoteKey: {{ .Values.platform.identity.serviceClients.decisionEngine.secretRemoteKey | quote }}}
+  - name: openworkflow-decision-engine-credentials
+    identityClientCredentials: true
+    enabled: true
+    namespaces: [{{ .Values.namespaces.openworkflow }}]
+    templateData:
+      OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS: {{ printf "{{ dict \"decision-engine-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .evaluatorSecret) | toJson }}" .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.decisionEngineEvaluator.clientId | quote }}
+    remoteRefs:
+      - {secretKey: evaluatorSecret, remoteKey: {{ .Values.platform.identity.serviceClients.decisionEngineEvaluator.secretRemoteKey | quote }}}
+  {{- end }}
   - name: data-streaming-launcher-credentials
     identityClientCredentials: true
     enabled: {{ .Values.platform.identity.serviceClients.dataStreaming.enabled }}
