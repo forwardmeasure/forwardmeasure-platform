@@ -134,6 +134,108 @@ platform:
     # The platform's bootstrap administrator (the keycloak release creates it) - products grant it
     # their tenant roles.
     platformAdminUsername: platform-admin
+    # Human administrator membership is limited to the first configured tenant by default.
+    administratorTenantAliases: []
+    administratorAllTenants: false
+    serviceClients:
+      openworkflow:
+        clientId: openworkflow
+        name: OpenWorkflow Service Client
+        secretKey: OPENWORKFLOW_CLIENT_SECRET
+        secretRemoteKey: platform-openworkflow-client-secret
+        authorizationServicesEnabled: true
+        realmRoles:
+        - workflow-author
+        - workflow-execution-controller
+        - workflow-auditor
+        - workflow-administrator
+        audiences:
+        - openworkflow-api
+        organizationClaim: false
+        enabled: true
+      platformOperator:
+        clientId: openworkflow-platform-operator
+        name: OpenWorkflow Platform Operator
+        secretKey: OPENWORKFLOW_PLATFORM_OPERATOR_CLIENT_SECRET
+        secretRemoteKey: platform-openworkflow-platform-operator-client-secret
+        realmRoles:
+        - openworkflow-platform-operator
+        authorizationServicesEnabled: false
+        organizationClaim: false
+        enabled: true
+      workflowPublisher:
+        clientId: openworkflow-workflow-publisher
+        name: OpenWorkflow Workflow Publisher
+        secretKey: OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_SECRET
+        secretRemoteKey: platform-openworkflow-workflow-publisher-client-secret
+        organizationClaim: true
+        tenantRoles:
+        - workflow-author
+        authorizationServicesEnabled: false
+        enabled: true
+        capabilityPack: openworkflow
+      apicurioReader:
+        clientId: openworkflow-definition-management-apicurio-reader
+        name: OpenWorkflow Apicurio Reader
+        secretKey: OPENWORKFLOW_APICURIO_READER_CLIENT_SECRET
+        secretRemoteKey: platform-openworkflow-apicurio-reader-client-secret
+        authorizationServicesEnabled: false
+        organizationClaim: false
+        enabled: true
+      dataStreaming:
+        clientId: datastreaming
+        name: Data Streaming Launcher
+        secretKey: DATA_STREAMING_CLIENT_SECRET
+        secretRemoteKey: platform-data-streaming-client-secret
+        organizationClaim: true
+        tenantRoles:
+        - workflow-execution-controller
+        authorizationServicesEnabled: true
+        enabled: true
+        capabilityPack: openworkflow
+      entityIntelligence:
+        clientId: entityintelligence
+        name: Entity Intelligence Resource Server
+        secretKey: ENTITY_INTELLIGENCE_CLIENT_SECRET
+        secretRemoteKey: platform-entity-intelligence-client-secret
+        authorizationServicesEnabled: true
+        organizationClaim: true
+        enabled: true
+      entityIntelligenceLauncher:
+        clientId: entity-intelligence-launcher
+        name: Entity Intelligence Launcher
+        secretKey: ENTITY_INTELLIGENCE_LAUNCHER_CLIENT_SECRET
+        secretRemoteKey: platform-entity-intelligence-launcher-client-secret
+        organizationClaim: true
+        tenantRoles:
+        - workflow-operator
+        authorizationServicesEnabled: false
+        enabled: true
+        capabilityPack: openworkflow
+      entityIntelligenceIngestionWorker:
+        clientId: entity-intelligence-ingestion-worker
+        name: Entity Intelligence Ingestion Worker
+        secretKey: ENTITY_INTELLIGENCE_INGESTION_WORKER_CLIENT_SECRET
+        secretRemoteKey: platform-entity-intelligence-ingestion-worker-client-secret
+        organizationClaim: true
+        authorizationServicesEnabled: false
+        enabled: true
+        tenantRoles:
+        - fei-ingestion-worker-caller
+        - entity-intelligence-worker
+        capabilityPack: entity-intelligence
+      entityIntelligenceScreeningWorker:
+        clientId: entity-intelligence-screening-worker
+        name: Entity Intelligence Screening Worker
+        secretKey: ENTITY_INTELLIGENCE_SCREENING_WORKER_CLIENT_SECRET
+        secretRemoteKey: platform-entity-intelligence-screening-worker-client-secret
+        organizationClaim: true
+        authorizationServicesEnabled: false
+        enabled: true
+        tenantRoles:
+        - fei-screening-worker-caller
+        - entity-intelligence-worker
+        capabilityPack: entity-intelligence
     # The platform's own DID method (did:<didMethod>:...) - the only place it is named. Products
     # read it as FORWARDMEASURE_DID_METHOD (forwardmeasure-jpa's PlatformDids): workflow bundles are
     # did:<method>:bundle:<domain> and their documents DID URLs under that; resolved entities are
@@ -146,6 +248,10 @@ platform:
     # fowf's own bundle: OPENWORKFLOW_CLIENT_SECRET/OPENWORKFLOW_RUNTIME_DATABASE_PASSWORD/
     # OPENWORKFLOW_ADMIN_DATABASE_PASSWORD, synced into forwardmeasure-openworkflow's namespace.
     openworkflowIdentity: openworkflow-identity-credentials
+    # The service-client credentials openworkflow-platform-clients' Job creates in Keycloak (platform
+    # operator, workflow publisher, definition-resource auth). Owned by that Job alone: it can't share
+    # openworkflowIdentity, which its ExternalSecret owns and restores, dropping any key it didn't put.
+    openworkflowPlatformClients: openworkflow-platform-clients
     # Narrow, dedicated secrets carrying ONLY the Keycloak admin credential (KC_BOOTSTRAP_ADMIN_*),
     # synced into each product's own namespace for its own bootstrap Job to create/grant its own
     # Keycloak client(s) - deliberately NOT the openworkflowIdentity bundle, which those products

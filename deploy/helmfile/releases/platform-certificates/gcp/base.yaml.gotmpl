@@ -58,7 +58,8 @@ gateway:
   tenantHost: {{ .Values.gateway.tenantHost | quote }}
   tenantSecret: platform-tenant-tls
   listeners:
-    - {name: auth-https, hostname: {{ .Values.gateway.authHost | quote }}, tlsSecret: auth-tls}
+    # AuthZEN requires the PDP to echo the caller's request ID. Preserve it through ingress.
+    - {name: auth-https, hostname: {{ .Values.gateway.authHost | quote }}, tlsSecret: auth-tls, preserveRequestId: true}
     - {name: registry-https, hostname: {{ .Values.gateway.registryHost | quote }}, tlsSecret: registry-tls}
     - {name: search-https, hostname: {{ .Values.gateway.searchHost | quote }}, tlsSecret: search-tls}
     - {name: analytics-https, hostname: {{ .Values.gateway.analyticsHost | quote }}, tlsSecret: analytics-tls}

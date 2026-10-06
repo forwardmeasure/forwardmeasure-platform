@@ -16,6 +16,20 @@ The ordered release stages are:
 8. `dashboard`: the tenant-routed, read-only operational dashboard for the
    shared platform services.
 
+Installers reconcile releases with `helmfile sync --skip-needs=false --wait --wait-for-jobs`.
+They do not run a separate failed-release retry pass. An unchanged failed release is retried in
+its normal dependency position, after prerequisite upgrades. Nested Helmfiles run in declaration
+order; `needs` orders releases within each file, including when a stage selector is supplied.
+The stage selector is not expanded to include disabled/unselected releases. A prerequisite failure
+stops the installer before dependent groups and subsequent stages.
+
+Reruns execute upgrade hooks and create Helm revisions even when manifests are unchanged. Migration,
+identity and workflow-publication hooks must therefore be repeatable. Existing workload pods roll
+only when their pod templates change (including explicit credential-reload annotations).
+After publishing a corrected image, rerun `deploy/install-platform.sh` from this repository;
+it refreshes digests before reconciling the shared platform and products. No separate engine rollout
+is needed to recover a failed operation adapter. Let any active install finish before starting another.
+
 Open WebUI is deliberately not deployed. The implementation-neutral GLiNER NER
 service is a shared platform capability because multiple vertical products use
 it. Relationship extraction remains an Entity Intelligence model release. The

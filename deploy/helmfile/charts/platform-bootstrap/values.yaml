@@ -73,4 +73,6 @@ gateway:
   rootSecret: platform-root-tls
   tenantHost: "*.example.com"
   tenantSecret: platform-tenant-tls
+  # Set preserveRequestId: true on an Istio HTTPS listener whose protocol requires exact
+  # X-Request-ID round-tripping (AuthZEN). Other listeners retain Envoy's defaults.
   listeners: []

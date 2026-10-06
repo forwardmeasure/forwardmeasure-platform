@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-{{- $postLogoutRedirectUris := list (printf "https://entity-intelligence.%s/*" .Values.platform.domain) (printf "https://%s/*" .Values.gateway.rootHost) (printf "https://%s/*" .Values.gateway.registryHost) (printf "https://%s/*" .Values.gateway.analyticsHost) (printf "https://%s/*" .Values.gateway.studioHost) "http://localhost:3000/*" }}
+{{- $postLogoutRedirectUris := list (printf "https://%s/*" .Values.gateway.rootHost) (printf "https://%s/*" .Values.gateway.registryHost) (printf "https://%s/*" .Values.gateway.analyticsHost) (printf "https://%s/*" .Values.gateway.studioHost) "http://localhost:3000/*" }}
 {{- range $tenant := .Values.tenants }}
 {{- $postLogoutRedirectUris = append $postLogoutRedirectUris (printf "https://%s/*" $tenant.host) }}
 {{- end }}
@@ -85,7 +85,6 @@ realm:
     redirectUri1: {{ printf "https://%s/*" .Values.bootstrapIdentity.tenantHost | quote }}
     redirectUri2: http://localhost:3000/*
     additionalRedirectUris:
-      - {{ printf "https://entity-intelligence.%s/*" .Values.platform.domain | quote }}
       {{- range $tenant := .Values.tenants }}
       - {{ printf "https://%s/*" $tenant.host | quote }}
       {{- end }}
@@ -96,7 +95,6 @@ realm:
     webOrigin1: {{ printf "https://%s" .Values.bootstrapIdentity.tenantHost | quote }}
     webOrigin2: http://localhost:3000
     additionalWebOrigins:
-      - {{ printf "https://entity-intelligence.%s" .Values.platform.domain | quote }}
       {{- range $tenant := .Values.tenants }}
       - {{ printf "https://%s" $tenant.host | quote }}
       {{- end }}
@@ -113,7 +111,11 @@ realm:
     clientId: {{ .Values.identity.confidentialClientId | quote }}
     name: ForwardMeasure Confidential Client
   serviceClients:
-    {{- toYaml .Values.identity.serviceClients | nindent 4 }}
+    {{- range $name, $client := .Values.platform.identity.serviceClients }}
+    {{- if $client.enabled }}
+    - {{ toYaml (omit $client "tenantRoles" "capabilityPack" "enabled") | nindent 6 | trim }}
+    {{- end }}
+    {{- end }}
   clientSecretsSecret: {{ .Values.identity.clientSecret | quote }}
 bootstrapAdminUser:
   utilityImage:
@@ -134,21 +136,6 @@ bootstrapAdminUser:
   # auditor/administrator) - additive, not a replacement, since the platform
   # admin needs both entity-intelligence's and OpenWorkflow's roles.
   tenantGroupRoles: dossier-control,investigation-control,entity-control,resolution-control,evidence-control,audit-control,ingestion-control,screening-control,information-extraction-control,agent-control,workflow-control,workflow-execution-purge,human-task-control,workflow-author,workflow-execution-controller,workflow-auditor,workflow-administrator
-  # These are plain realm roles above (tenantGroupRoles), not what
-  # KeycloakOrganizationClaims reads - that needs the platform admin to be a
-  # member of the tenant's Keycloak Organization AND of one of its
-  # client-role-mapped groups, which TenantOrganizationReconciler
-  # deliberately never assigns on its own. Defaults to the first configured
-  # tenant so the platform admin can exercise OpenWorkflow end-to-end
-  # without a separate per-tenant grant; environments with no tenants yet
-  # leave this empty and configure_tenant_organization_membership() skips.
-  {{- if .Values.tenants }}
-  tenantOrganizationAlias: {{ (index .Values.tenants 0).code | quote }}
-  tenantOrganizationRole: workflow-administrator
-  {{- else }}
-  tenantOrganizationAlias: ""
-  tenantOrganizationRole: ""
-  {{- end }}
   platformRoles:
     viewer: platform-viewer
     accessAdmin: platform-access-admin

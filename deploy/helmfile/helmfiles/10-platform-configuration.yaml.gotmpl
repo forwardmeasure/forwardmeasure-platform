@@ -43,7 +43,7 @@ releases:
       # Fake-provider placeholder data (plus one real value), layered on top
       # - see that file's own header for what replaces it when migrating to
       # a real backend.
-      - ../releases/platform-secrets/{{ $cloud }}/{{ $cluster }}.credentials.yaml.gotmpl
+      - ../releases/platform-secrets/{{ $cloud }}/with-client-secrets.yaml.gotmpl
     {{- end }}
 
   # Both of these need a real ACME DNS-01 solver (clusterIssuer/gcpProject),

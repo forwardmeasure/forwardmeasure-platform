@@ -25,16 +25,16 @@ imageVersions:
   cloudSqlProxy:
     repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
     tag: "2.25.3"
-    digest: sha256:821e5050a77697269399cadcaf5fa55322411dd1922020ea9729fd4ad174810a
+    digest: sha256:bbed57264fe9215e3a20d5d9110cad46ed96f8926ff938c5517f4bc629dd2179
   # forwardmeasure-data-streaming's kafka-streams executor - launched by data-streaming's own
   # launcher and by entity-intelligence's ingestion service.
   dataStreamingExecutorKafkaStreams:
     repository: docker.io/forwardmeasure/data-streaming-executor-kafka-streams
     tag: "1.1.0"
-    digest: "sha256:8d60d48814d13200fe75af38eb00d9034d15468d83f0a4a5c53a111439a3df8e"
+    digest: "sha256:c051a40cadd220f44604a5b0df516af7503c7707cd01cf8e449c64a71106a367"
   # forwardmeasure-openworkflow's workflow publisher - run by every product's workflow bundle
   # (helm-charts' openworkflow-workflow-bundle chart) to publish its workflows into each tenant.
   openworkflowWorkflowPublisher:
     repository: docker.io/forwardmeasure/openworkflow-workflow-publisher
     tag: "1.1.0"
-    digest: ""
+    digest: "sha256:d7baad54ee2c8baa5401c78ec17a7b254b6971eb9b08d22916b58fba1f221071"

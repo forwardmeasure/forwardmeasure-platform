@@ -17,7 +17,7 @@
 #
 # Installs or updates the ForwardMeasure platform as a whole - shared
 # platform services plus every product built on them. Safe to re-run against
-# an existing environment: each step below is a `helmfile ... apply`, which
+# an existing environment: each step below is an ordered `helmfile ... sync`, which
 # reconciles to desired state whether or not anything already exists, so
 # this is not a one-time bootstrap script.
 #
@@ -56,5 +56,7 @@ framework="$("${SCRIPT_DIR}/helmfile/scripts/environment-value.sh" "${ENVIRONMEN
 for product in "${PRODUCT_REPOSITORIES[@]}"; do
   "${WORKSPACE_DIR}/${product}/deploy/helmfile/install.sh" "${ENVIRONMENT}"
 done
+
+python3 "${SCRIPT_DIR}/helmfile/scripts/reload-secret-consumers.py"
 
 echo "ForwardMeasure platform (${PRODUCT_SUMMARY}) installed/updated for ${ENVIRONMENT}."

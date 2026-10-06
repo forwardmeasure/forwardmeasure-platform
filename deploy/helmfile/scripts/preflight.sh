@@ -48,20 +48,8 @@ done
 # relying on the objects staying identical.
 MERGED_JSON="$(helmfile --file "${HELMFILE_DIR}/helmfile.yaml.gotmpl" \
   --environment "${ENVIRONMENT}" build 2>/dev/null | yq -o=json 'select(di==0) | .renderedvalues')"
-printf '%s' "${MERGED_JSON}" | jq -e '
-  (.tenants | type == "array" and length > 0)
-  and (.identity.serviceClients | type == "array")
-  and ((.tenants | map(.did) | sort)
-       == (.identity.serviceClients | map(.claims.tenant_did) | sort))
-  and (.identity.serviceClients | all(. as $client |
-    (.clientId | type == "string" and length > 0)
-    and (.secretKey | test("^[A-Z0-9_]+$"))
-    and (.secretRemoteKey | type == "string" and length > 0)
-    and (.claims.actor_type == "SERVICE")
-    and ($client.claims.actor_did
-      | startswith($client.claims.tenant_did + ":actors:"))))
-' >/dev/null || {
-  echo "Every tenant must have exactly one tenant-bound SERVICE identity client." >&2
+printf '%s' "${MERGED_JSON}" | jq -e -f "${SCRIPT_DIR}/validate-service-clients.jq" >/dev/null || {
+  echo "Service clients must have valid, unique client IDs and non-reserved secret keys." >&2
   exit 1
 }
 
@@ -152,12 +140,15 @@ if [[ "${SECRET_STORE_NAME}" != "fake-secret-store" ]]; then
       | .secretStore.remoteKeys | to_entries[]
       | select($fde or .key != "decisionEngineRuntimeDatabasePassword")
       | .value')
-
-  while IFS= read -r secret_name; do
-    gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null
-  done < <(printf '%s' "${MERGED_JSON}" \
-    | jq -r '.identity.serviceClients[].secretRemoteKey')
 fi
+
+while IFS= read -r secret_name; do
+  if [[ "${SECRET_STORE_NAME}" == "fake-secret-store" ]]; then
+    secret_name="$(value platform.cloud.gcp.clusterName)-${secret_name}"
+  fi
+  gcloud secrets describe "${secret_name}" --project "${PROJECT_ID}" >/dev/null
+done < <(printf '%s' "${MERGED_JSON}" \
+  | jq -r '.platform.identity.serviceClients[] | select(.enabled) | .secretRemoteKey')
 
 gcloud storage buckets describe "gs://${MODEL_BUCKET}" --project "${PROJECT_ID}" >/dev/null
 kubectl cluster-info >/dev/null

@@ -26,7 +26,7 @@ imageVersions:
   keycloak:
     repository: docker.io/forwardmeasure/keycloak
     tag: "26.7.4-authz"
-    digest: "sha256:5e08b337d22a8d6ceed485b7fa527b200fe389d4aae9eac4ca6dfb94b5a59cc1"
+    digest: "sha256:1357281a173ca170f0e8d611ab43d08571097bb64b8c4327337ac6fde6673b3a"
     pullPolicy: IfNotPresent
   # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
   # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own
@@ -40,7 +40,7 @@ imageVersions:
   superset:
     repository: docker.io/forwardmeasure/superset
     tag: "6.1.0"
-    digest: ""
+    digest: "sha256:920971d09860033c2e1d10b4b2684004a23b7863382034d3a6edbff8ed161aef"
     pullPolicy: Always
   platformDashboard:
     # Quarkus specifically - deploy/helmfile/charts/platform-dashboard's
@@ -87,5 +87,5 @@ imageVersions:
   opa:
     repository: docker.io/openpolicyagent/opa
     tag: "1.20.1"
-    digest: "sha256:4ea5e3f5c5fa36f300448c701d48a5411ee3b7eafe399ec58cf5fb777853ad86"
+    digest: "sha256:39daf255ae7f25d81103f03a0c18308a50b7b5bb67907bed6166f70e24a970ff"
     pullPolicy: IfNotPresent

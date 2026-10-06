@@ -50,30 +50,4 @@ secretStore:
     entityIntelligenceRuntimeDatabasePassword: platform-entity-intelligence-runtime-database-password
     decisionEngineRuntimeDatabasePassword: platform-decision-engine-runtime-database-password
 
-# bootstrapIdentity and tenants[] (example-bank) come from the shared layer's cluster file. The
-# service client's tenant_did below must match that tenant's DID - preflight.sh checks it.
-
-
-# helmfile values merging replaces lists wholesale, not per-element - if this
-# cluster also deploys forwardmeasure-openworkflow, copy base.yaml.gotmpl's
-# "openworkflow" identity.serviceClients entry into this list too, or it'll
-# be silently dropped for this cluster (confirmed the hard way against the
-# real gcp-openworkflow-prod cluster - same fix applied there).
-identity:
-  # Replaces base's list wholesale, so it must carry forwardmeasure-openworkflow's own "openworkflow"
-  # client (same definition as base.yaml.gotmpl/gcp-openworkflow-prod) scoped to this environment's
-  # tenant. It used to declare only an example operation-adapter client, so Keycloak would never
-  # have created the client OPENWORKFLOW_CLIENT_SECRET belongs to. One client per tenant -
-  # scripts/preflight.sh enforces it.
-  serviceClients:
-    - clientId: openworkflow
-      name: OpenWorkflow Service Client
-      secretKey: OPENWORKFLOW_CLIENT_SECRET
-      secretRemoteKey: platform-openworkflow-client-secret
-      authorizationServicesEnabled: true
-      realmRoles: [workflow-author, workflow-execution-controller, workflow-auditor, workflow-administrator]
-      audiences: [openworkflow-api]
-      claims:
-        tenant_did: did:web:example-bank.new-platform.example
-        actor_did: did:web:example-bank.new-platform.example:actors:openworkflow
-        actor_type: SERVICE
+# Client identities are centrally declared in shared/common.yaml.gotmpl.

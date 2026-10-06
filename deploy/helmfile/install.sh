@@ -25,7 +25,7 @@ WORKSPACE_DIR="$(cd -- "${SCRIPT_DIR}/../../.." && pwd)"
 ENVIRONMENT="${1:?Usage: $0 <configured-environment> [stage]}"
 REQUESTED_STAGE="${2:-}"
 
-for command in kubectl helm helmfile yq; do
+for command in kubectl helm helmfile yq python3; do
   command -v "${command}" >/dev/null || {
     echo "Required command is unavailable: ${command}" >&2
     exit 1
@@ -39,11 +39,17 @@ kubectl apply -f "${SCRIPT_DIR}/manifests/namespaces.yaml"
 GATEWAY_API_VERSION="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" gatewayApi.version)"
 kubectl apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml"
 
+# Reconcile every selected release in Helmfile order, including unchanged failed releases.
+# A separate failed-release prepass can retry a dependent before its prerequisite is updated.
+# Honor needs even with stage selectors; do not implicitly include disabled or unselected releases.
+# sync reruns hooks; migrations, identity reconciliation and publication must remain repeatable.
+
 apply_stage() {
   local stage="$1"
   echo "Applying ForwardMeasure platform stage: ${stage}"
   helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \
-    --environment "${ENVIRONMENT}" --selector "stage=${stage}" apply
+    --environment "${ENVIRONMENT}" --selector "stage=${stage}" \
+    sync --skip-needs=false --wait --wait-for-jobs
 }
 
 if [[ -n "${REQUESTED_STAGE}" ]]; then
@@ -63,13 +69,7 @@ apply_stage configuration
 SECRET_STORE="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" secretStore.name)"
 kubectl wait --for=condition=Ready --timeout=180s "clustersecretstore/${SECRET_STORE}"
 
-OPENWORKFLOW_NAMESPACE="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" namespaces.openworkflow)"
-
-for namespace in keycloak apicurio-registry opensearch-cluster kserve-serving docling-serve valkey superset "${OPENWORKFLOW_NAMESPACE}"; do
-  if kubectl --namespace "${namespace}" get externalsecret >/dev/null 2>&1; then
-    kubectl --namespace "${namespace}" wait --for=condition=Ready --timeout=300s externalsecret --all
-  fi
-done
+python3 "${SCRIPT_DIR}/scripts/sync-platform-secrets.py" "${SECRET_STORE}"
 
 # Keycloak's/Superset's Postgres roles don't exist until OpenWorkflow's
 # migrations Job creates them (OpenWorkflowTenantMigrator.ensureRuntimeRole) -
@@ -87,6 +87,8 @@ done
 "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/install.sh" "${ENVIRONMENT}" migrations
 
 apply_stage identity
+# Existing applications must load new credentials before product publishing hooks call them.
+python3 "${SCRIPT_DIR}/scripts/reload-secret-consumers.py"
 apply_stage messaging
 apply_stage search
 apply_stage ml-serving

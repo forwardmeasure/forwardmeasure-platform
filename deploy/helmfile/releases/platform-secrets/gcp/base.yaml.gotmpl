@@ -48,27 +48,60 @@ secrets:
       {{- if .Values.platform.products.decisionEngine.enabled }}
       - {{ .Values.namespaces.decisionEngine }}
       {{- end }}
+    {{- if and (dig "secretStore" "remoteKeys" "dockerRegistryServer" "" .Values) (dig "secretStore" "remoteKeys" "dockerRegistryAuth" "" .Values) }}
+    # The store holds the registry's parts separately (gcp-openworkflow-prod's, since 2026-09-16):
+    # External Secrets composes .dockerconfigjson from them at sync time ({{ "{{ .server }}" }} and
+    # {{ "{{ .auth }}" }} are evaluated by the operator, not Helm). auth is base64("user:token").
+    templateData:
+      .dockerconfigjson: '{"auths":{"{{ "{{ .server }}" }}":{"auth":"{{ "{{ .auth }}" }}"}}}'
+    remoteRefs:
+      - {secretKey: server, remoteKey: {{ .Values.secretStore.remoteKeys.dockerRegistryServer | quote }}}
+      - {secretKey: auth, remoteKey: {{ .Values.secretStore.remoteKeys.dockerRegistryAuth | quote }}}
+    {{- else }}
     remoteRefs:
       - secretKey: .dockerconfigjson
         remoteKey: {{ .Values.secretStore.remoteKeys.dockerConfig | quote }}
-  # forwardmeasure-data-streaming's own launcher (2026-09-26) - mirrors entityIntelligence's own
-  # "genuinely optional until a real Terraform/Secret-Manager entry exists" precedent immediately
-  # below (dig with an empty default plus an if-guard, not a bare .Values dot-access) - the real
-  # remote keys don't exist yet; this is additive/inert until they do, and does not error this
-  # release for any environment that never sets them.
-  - name: data-streaming-launcher-credentials
+    {{- end }}
+  - name: {{ .Values.platform.secrets.openworkflowPlatformClients }}
+    identityClientCredentials: true
     enabled: true
-    namespaces: [{{ .Values.namespaces.dataStreaming }}]
+    namespaces: [{{ .Values.namespaces.openworkflow }}]
+    templateData:
+      OPENWORKFLOW_PLATFORM_OPERATOR_CLIENT_ID: {{ .Values.platform.identity.serviceClients.platformOperator.clientId | quote }}
+      OPENWORKFLOW_PLATFORM_OPERATOR_CLIENT_SECRET: {{ "{{ .operatorSecret }}" | quote }}
+      OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_ID: {{ .Values.platform.identity.serviceClients.workflowPublisher.clientId | quote }}
+      OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_SECRET: {{ "{{ .publisherSecret }}" | quote }}
+      OPENWORKFLOW_DEFINITION_RESOURCE_AUTH_SECRETS: {{ printf "{{ dict \"apicurio-registry-reader\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .apicurioReaderSecret) | toJson }}" .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.apicurioReader.clientId | quote }}
     remoteRefs:
-      {{- if (dig "secretStore" "remoteKeys" "dataStreamingAuthorizationClientSecret" "" .Values) }}
-      - {secretKey: authorization-client-secret, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingAuthorizationClientSecret" "" .Values | quote }} }
-      {{- end }}
-      {{- if (dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientId" "" .Values) }}
-      - {secretKey: fowf-keycloak-client-id, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientId" "" .Values | quote }} }
-      {{- end }}
-      {{- if (dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientSecret" "" .Values) }}
-      - {secretKey: fowf-keycloak-client-secret, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingFowfKeycloakClientSecret" "" .Values | quote }} }
-      {{- end }}
+      - {secretKey: operatorSecret, remoteKey: {{ .Values.platform.identity.serviceClients.platformOperator.secretRemoteKey | quote }}}
+      - {secretKey: publisherSecret, remoteKey: {{ .Values.platform.identity.serviceClients.workflowPublisher.secretRemoteKey | quote }}}
+      - {secretKey: apicurioReaderSecret, remoteKey: {{ .Values.platform.identity.serviceClients.apicurioReader.secretRemoteKey | quote }}}
+  - name: data-streaming-launcher-credentials
+    identityClientCredentials: true
+    enabled: {{ .Values.platform.identity.serviceClients.dataStreaming.enabled }}
+    namespaces: [{{ .Values.namespaces.dataStreaming }}]
+    templateData:
+      authorization-client-secret: {{ "{{ .clientSecret }}" | quote }}
+      fowf-keycloak-client-id: {{ .Values.platform.identity.serviceClients.dataStreaming.clientId | quote }}
+      fowf-keycloak-client-secret: {{ "{{ .clientSecret }}" | quote }}
+    remoteRefs:
+      - {secretKey: clientSecret, remoteKey: {{ .Values.platform.identity.serviceClients.dataStreaming.secretRemoteKey | quote }}}
+  - name: entity-intelligence-credentials
+    identityClientCredentials: true
+    enabled: {{ .Values.platform.identity.serviceClients.entityIntelligence.enabled }}
+    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
+    templateData:
+      keycloak-client-secret: {{ "{{ .resourceServerSecret }}" | quote }}
+      fowf-keycloak-client-secret: {{ "{{ .launcherSecret }}" | quote }}
+      ENTITY_INTELLIGENCE_INGESTION_WORKER_KEYCLOAK_CLIENT_ID: {{ .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.clientId | quote }}
+      ENTITY_INTELLIGENCE_INGESTION_WORKER_KEYCLOAK_CLIENT_SECRET: {{ "{{ .ingestionWorkerSecret }}" | quote }}
+      ENTITY_INTELLIGENCE_SCREENING_WORKER_KEYCLOAK_CLIENT_ID: {{ .Values.platform.identity.serviceClients.entityIntelligenceScreeningWorker.clientId | quote }}
+      ENTITY_INTELLIGENCE_SCREENING_WORKER_KEYCLOAK_CLIENT_SECRET: {{ "{{ .screeningWorkerSecret }}" | quote }}
+    remoteRefs:
+      - {secretKey: resourceServerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligence.secretRemoteKey | quote }}}
+      - {secretKey: launcherSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceLauncher.secretRemoteKey | quote }}}
+      - {secretKey: ingestionWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.secretRemoteKey | quote }}}
+      - {secretKey: screeningWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceScreeningWorker.secretRemoteKey | quote }}}
   - name: {{ .Values.identity.databaseSecret }}
     enabled: true
     namespaces: [{{ .Values.namespaces.keycloak }}]
@@ -88,41 +121,21 @@ secrets:
     remoteRefs:
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakBootstrapPassword | quote }}}
   - name: {{ .Values.identity.clientSecret }}
+    identityClientCredentials: true
     enabled: true
     namespaces: [{{ .Values.namespaces.keycloak }}]
     remoteRefs:
       - {secretKey: FORWARDMEASURE_ADMIN_CONFIDENTIAL_CLIENT_SECRET, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakConfidentialClientSecret | quote }}}
-      {{- range $index, $client := .Values.identity.serviceClients }}
-      - secretKey: {{ required (printf "identity.serviceClients[%d].secretKey is required" $index) $client.secretKey | quote }}
-        remoteKey: {{ required (printf "identity.serviceClients[%d].secretRemoteKey is required" $index) $client.secretRemoteKey | quote }}
+      {{- range $index, $client := .Values.platform.identity.serviceClients }}
+      {{- if $client.enabled }}
+      - secretKey: {{ required (printf "platform.identity.serviceClients[%s].secretKey is required" $index) $client.secretKey | quote }}
+        remoteKey: {{ required (printf "platform.identity.serviceClients[%s].secretRemoteKey is required" $index) $client.secretRemoteKey | quote }}
       {{- end }}
-  # Narrow companion below (identity.dataStreamingCredentialsSecret), carrying only the Keycloak
-  # admin credential - forwardmeasure-data-streaming's own launcher-credentials bootstrap Job
-  # (deploy/helmfile/helmfiles/credentials.yaml.gotmpl in that repo) needs it to create/grant its
-  # own "datastreaming" Keycloak client, exactly as openworkflow-platform-clients already does for
-  # openworkflow-entity-intelligence-workflow-{author,publisher}. It deliberately does NOT get the
-  # rest of this Secret's own bundle (OPENWORKFLOW_CLIENT_SECRET/database passwords below), which
-  # belongs to fowf alone - see that entry's own comment.
-  - name: {{ .Values.identity.dataStreamingCredentialsSecret }}
-    enabled: true
-    namespaces: [{{ .Values.namespaces.dataStreaming }}]
-    remoteRefs:
-      - {secretKey: KC_BOOTSTRAP_ADMIN_USERNAME, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminUsername | quote }} }
-      - {secretKey: KC_BOOTSTRAP_ADMIN_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminPassword | quote }} }
-  # Mirrors identity.dataStreamingCredentialsSecret immediately above exactly, same reasoning, for
-  # forwardmeasure-entity-intelligence's own bootstrap Job (2026-09-29) - see identity.
-  # entityIntelligenceCredentialsSecret's own comment in environments/base.yaml.gotmpl.
-  - name: {{ .Values.identity.entityIntelligenceCredentialsSecret }}
-    enabled: true
-    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
-    remoteRefs:
-      - {secretKey: KC_BOOTSTRAP_ADMIN_USERNAME, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminUsername | quote }} }
-      - {secretKey: KC_BOOTSTRAP_ADMIN_PASSWORD, remoteKey: {{ .Values.secretStore.remoteKeys.keycloakAdminPassword | quote }} }
+      {{- end }}
   # OpenSearch credentials for forwardmeasure-entity-intelligence (2026-09-29) - the same remote keys
   # the opensearch-cluster release's own admin Secret uses, delivered into fei's namespace so its REST
   # services and dispatched worker Jobs can authenticate to the platform's secured OpenSearch. Its own
-  # Secret, not a key in fei's entity-intelligence-credentials: that one is owned and patched by fei's
-  # own bootstrap Job, and an ExternalSecret targeting it would fight that Job over the same object.
+  # Secret, not a key in fei's entity-intelligence-credentials: application credentials are separately owned by the ExternalSecret above.
   - name: {{ .Values.openSearch.entityIntelligenceCredentialsSecret }}
     enabled: true
     namespaces: [{{ .Values.namespaces.entityIntelligence }}]
@@ -130,6 +143,7 @@ secrets:
       - {secretKey: username, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchUsername | quote }} }
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchPassword | quote }} }
   - name: {{ .Values.identity.openworkflowCredentialsSecret }}
+    identityClientCredentials: true
     enabled: true
     namespaces: [{{ .Values.namespaces.openworkflow }}]
     remoteRefs:
@@ -140,6 +154,7 @@ secrets:
       # dedicated service client (identity.serviceClients, clientId:
       # openworkflow) and its own remote key.
       - {secretKey: OPENWORKFLOW_CLIENT_SECRET, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowClientSecret | quote }} }
+      - {secretKey: OPENWORKFLOW_HUMAN_TASK_REVIEW_SECRET, remoteKey: {{ .Values.secretStore.remoteKeys.openworkflowHumanTaskReviewSecret | quote }} }
       # Runtime credential (role: openworkflow) - used by application
       # services and by the migrations Job to create runtime-scoped tenant
       # schema objects. Never used to connect as admin.
