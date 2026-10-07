@@ -60,3 +60,18 @@ and Micronaut (21 total), including a separate required-execution-version reject
 and test sources compiled. Log: `/tmp/fowf-event-ingress-frameworks-02-20261007.log` (2m02s).
 The shared fixture and aggregate ownership changes are checkpointed next; run59 resumes the
 wider build from the event server. These are validation/not-found cases, not full ingestion.
+
+Latest verified code checkpoint: FOWF `d4a3cc7715ab90dd39f4230c1af7be933694efc0`. The clean
+test-JAR verification subsequently passed all 21 event-ingress HTTP cases across the three
+frameworks (`/tmp/fowf-event-ingress-frameworks-03-20261007.log`, 2m15s). FEI documentation
+checkpoint was `9b37575f390f9c3163cf9009229785452b36bcdd`; platform guide/manifest checkpoint
+was `fa9108a54c35340417f912d560a9ddea4551e500`. These hashes are verified on the same remote
+backup branch; later evidence-only commits advance its documentation further.
+
+## Latest execution HTTP contracts
+
+FOWF `23a0dc84791929cb7f6db8638e39aac73b9b0b59` is pushed and SHA-verified. The three frameworks each passed 107 execution API
+cases and seven event-ingress cases (342 total) after production/test compilation; log
+`/tmp/fowf-execution-api-frameworks-02-20261007.log`, 3m43s. This uses an HTTP engine double
+and an existing SQL definition seed, so it is not real-engine/public-publication acceptance.
+The updated FEI handover and testing guide identify those remaining repairs.

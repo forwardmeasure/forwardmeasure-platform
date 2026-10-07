@@ -303,3 +303,31 @@ Existing `VerifiedJwtTenantResolverTest` is a useful direct signature/claims con
 prove packaged-server wiring, real authorization or transaction commit before RPC success. Its
 fixture must also satisfy the production audience contract. No FDE full-framework pass is claimed
 by this analysis.
+
+## 10. Reusable test contracts and newly confirmed fixture gap
+
+Keep reusable JUnit contracts in `src/test/java`, attach a test JAR at `test-compile`, and select
+it with `<type>test-jar</type><scope>test</scope>` from each framework leaf. This permits reactor
+`test-compile`/`test` consumers without packaging assertions as production code or introducing a
+coverage waiver. Declare fixture dependencies explicitly or deliberately preserve transitive
+fixture dependencies in the artifact POM; never let them enter deployment runtime dependencies.
+The shared Testcontainers implementation itself remains a real library requiring its own tests.
+
+The event-ingress contracts now use this packaging and the shared PostgreSQL container; all
+seven HTTP cases pass on each of the three frameworks after a clean build. Their scope is
+validation and unadmitted-execution rejection, not successful workflow dispatch.
+
+Additional confirmed repair candidate: `WorkflowExecutionManagementFixture.seedPublishedRevision`
+uses SQL to insert actors, workflows, definitions and publication rows. The owning definition API
+exists. Replace that business setup with authenticated definition creation/publication through the
+current packaged service, keeping schema/tenant provisioning through migrators. Its execution API
+suite is useful diagnostic coverage but must not be called end-to-end public workflow-creation
+acceptance. The same fixture uses an HTTP engine double: that isolates execution-management
+behavior and does not establish real FOWF engine/operation-adapter delivery.
+
+Latest execution contract verification: 107 execution API cases plus seven event-ingress cases
+pass on each framework (342 total), `/tmp/fowf-execution-api-frameworks-02-20261007.log`.
+The SQL definition seed and HTTP engine double limitations above still apply. Durable admission
+is committed before dispatch: do not resurrect old assertions expecting its deletion after an
+engine/network error. Verify retained identity, stable retry, replayed permanent rejection and
+unchanged acknowledged state; distinguish retryable unknown outcomes from definite rejection.
