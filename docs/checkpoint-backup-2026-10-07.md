@@ -75,3 +75,17 @@ cases and seven event-ingress cases (342 total) after production/test compilatio
 `/tmp/fowf-execution-api-frameworks-02-20261007.log`, 3m43s. This uses an HTTP engine double
 and an existing SQL definition seed, so it is not real-engine/public-publication acceptance.
 The updated FEI handover and testing guide identify those remaining repairs.
+
+## Latest source checkpoints and active build
+
+- FOWF `3c4cbb50c6865cf2a78bad579d1f128ab5578a93`: real organization-policy fixture repair (five cases, 19/19 lines,
+  4/4 branches), six consumer leaves compiled, definition-test tenant isolation, and corrected
+  tenant-application aggregate ownership. Verified remotely.
+- FEI `45e4d90d6a9be6563c4c051daac941a4f5e301b5`: current evidence and remaining acceptance gaps. Verified remotely.
+- Platform guide includes the authorization fixture regression and prohibits global role grants
+  from substituting for organization policy tests.
+
+Run64 (`/tmp/forwardmeasure-takeover-64-jdk2503.log`) confirms the corrected ownership and is
+running downstream provisioning tests. This is an in-progress build, not a whole-stack pass.
+Livy remains local; the user has been asked for a writable destination because Apache's origin
+rejects pushes. All other checkpoint destinations remain the existing recovery branch.
