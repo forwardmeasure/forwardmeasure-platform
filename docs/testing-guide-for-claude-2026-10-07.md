@@ -263,3 +263,41 @@ not yet executed; the unchanged three-row premium sample is representative, not 
 - [AuthzenOperationSecurityResolverTest](../../forwardmeasure-openworkflow/openworkflow-operation-adapter/openworkflow-operation-adapter-kafka-streams/src/test/java/com/forwardmeasure/openworkflow/adapter/kafka/AuthzenOperationSecurityResolverTest.java)
 - [CloudEventSubscriptionRepositoryParityTest](../../forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/CloudEventSubscriptionRepositoryParityTest.java)
 - [RealCloudEventOutboxRecoveryTest](../../forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/RealCloudEventOutboxRecoveryTest.java)
+
+## 9. FDE deployment acceptance supplement
+
+FDE exposes gRPC. Apply the same authenticated public-interface rule through real gRPC calls to
+each packaged Quarkus, Spring and Micronaut server; do not invent a REST interface for the test.
+
+Inspection of `DecisionEngineContainerConformanceTest` found an opt-in property
+`decision.engine.conformance.live` that the ordinary full-suite profile does not enable. The
+fixture still sends unsigned tenant metadata and omits JWT/AuthZEN deployment configuration,
+although current production bindings require verified tokens. It also starts raw PostgreSQL
+Testcontainers instead of the shared PostgreSqlTestContainer. It is not current deployment
+acceptance evidence merely because its source compiles.
+
+Repair requirements:
+
+- Use shared PostgreSQL and Keycloak fixtures. Start real migration and service images; record
+  their tags/digests. Limit resources and execute framework containers sequentially.
+- Provision tenant registry records through the owning provisioning path. FDE migrations
+  deliberately do not register tenants themselves; creating tenant databases alone is insufficient.
+- Configure issuer, container-reachable JWKS, expected audience, organization client and AuthZEN
+  confidential-client secret. Mint real tokens with the expected audience and tenant roles.
+  The existing generic AuthZEN fixture realm has no explicit audience mapper; verify issued claims
+  and provision the appropriate mapper rather than disabling production audience validation.
+- Give two distinct actors separate tenant memberships. Prove cross-tenant ruleset and stateful
+  window isolation with the same ruleset names and caller keys. Never select the tenant using only
+  an unsigned header. Reject conflicting metadata, missing/invalid tokens and wrong audiences.
+- Exercise separate evaluate/manage/admin grants. An evaluate-only caller must be unable to
+  upload rules or clear caches. Denials must leave rules and state unchanged.
+- Retain golden stateless/stateful evaluations, pinned versions, cache lifecycle and public health
+  probes. Read-only JDBC observation may independently verify physical database isolation after
+  gRPC writes; it must not create the expected business rows.
+- Exercise the actual FOWF-to-FDE adapter/token path separately; direct gRPC acceptance cannot
+  establish workflow publication, dispatch, credential resolution or adapter egress correctness.
+
+Existing `VerifiedJwtTenantResolverTest` is a useful direct signature/claims contract. It does not
+prove packaged-server wiring, real authorization or transaction commit before RPC success. Its
+fixture must also satisfy the production audience contract. No FDE full-framework pass is claimed
+by this analysis.
