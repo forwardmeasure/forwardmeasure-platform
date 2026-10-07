@@ -44,7 +44,6 @@
     generally.
     -->
     <properties>
-        <openworkflow.version>1.1.0</openworkflow.version>
     </properties>
 
     <!--
@@ -69,7 +68,6 @@
         <dependency>
             <groupId>com.forwardmeasure.openworkflow</groupId>
             <artifactId>openworkflow-common-models</artifactId>
-            <version>${openworkflow.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>

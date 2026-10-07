@@ -23,7 +23,7 @@
 # cluster file is chosen by environment name; an environment without its own cluster file (the
 # abstract `gcp` layer) falls back to the placeholder clusters/base.yaml.gotmpl, and its cloud keys
 # (cloudProvider, gcp.*) then stay whatever environments/gcp.yaml sets.
-{{- $common := (tpl (readFile "../shared/common.yaml.gotmpl") (dict) | fromYaml).platform }}
+{{- $common := (tpl (readFile "../shared/common.yaml.gotmpl") (dict "Values" (dict "deploymentSharedDir" "../shared") "Environment" .Environment) | fromYaml).platform }}
 {{- $clusterFile := printf "../shared/clusters/%s.yaml.gotmpl" .Environment.Name }}
 {{- if not (isFile $clusterFile) }}{{ $clusterFile = "../shared/clusters/base.yaml.gotmpl" }}{{ end }}
 {{- $cluster := (tpl (readFile $clusterFile) (dict) | fromYaml).platform }}

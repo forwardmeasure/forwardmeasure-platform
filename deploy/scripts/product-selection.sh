@@ -15,12 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Sourced by the umbrella entrypoints. Direct Helmfile invocations read the same
-# flag in shared/common.yaml.gotmpl. Default to the three-product recovery scope.
-case "${FORWARDMEASURE_ENABLE_FDE:-false}" in
-  true|false) export FORWARDMEASURE_ENABLE_FDE="${FORWARDMEASURE_ENABLE_FDE:-false}" ;;
-  *) echo "FORWARDMEASURE_ENABLE_FDE must be true or false" >&2; return 1 ;;
-esac
+# Resolve once in the top-level process. Nested installs/validation reuse this snapshot.
+_selection_script="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/deployment-selection.py"
+_selection_was_resolved="${FORWARDMEASURE_RESOLVED_SELECTION+x}"
+FORWARDMEASURE_RESOLVED_SELECTION="$(python3 "$_selection_script" --environment "${ENVIRONMENT:?environment is required}")" || return 1
+export FORWARDMEASURE_RESOLVED_SELECTION
+FORWARDMEASURE_FRAMEWORK="$(jq -r '.framework' <<< "$FORWARDMEASURE_RESOLVED_SELECTION")"
+FORWARDMEASURE_ENGINE="$(jq -r '.engine' <<< "$FORWARDMEASURE_RESOLVED_SELECTION")"
+FORWARDMEASURE_ENABLE_FDE="$(jq -r '.enableFde' <<< "$FORWARDMEASURE_RESOLVED_SELECTION")"
+export FORWARDMEASURE_FRAMEWORK FORWARDMEASURE_ENGINE FORWARDMEASURE_ENABLE_FDE
+if [[ -z "$_selection_was_resolved" ]]; then
+  echo "Deployment selection (${ENVIRONMENT}): ${FORWARDMEASURE_RESOLVED_SELECTION}"
+fi
+unset _selection_script _selection_was_resolved
 PRODUCT_REPOSITORIES=(forwardmeasure-openworkflow forwardmeasure-data-streaming forwardmeasure-entity-intelligence)
 PRODUCT_SUMMARY="shared services + OpenWorkflow + data-streaming + entity-intelligence"
 DIGEST_SELECTION_ARGS=(--exclude-entry decisionEngineMigrations)

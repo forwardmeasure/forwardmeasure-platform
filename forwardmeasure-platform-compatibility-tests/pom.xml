@@ -28,22 +28,18 @@
     <dependency>
       <groupId>com.forwardmeasure.openworkflow</groupId>
       <artifactId>openworkflow-authorization-api</artifactId>
-      <version>${forwardmeasure.openworkflow.version}</version>
     </dependency>
     <dependency>
       <groupId>com.forwardmeasure.openworkflow</groupId>
       <artifactId>openworkflow-engine-api</artifactId>
-      <version>${forwardmeasure.openworkflow.version}</version>
     </dependency>
     <dependency>
       <groupId>com.forwardmeasure.openworkflow</groupId>
       <artifactId>openworkflow-definition-management-models</artifactId>
-      <version>${forwardmeasure.openworkflow.version}</version>
     </dependency>
     <dependency>
       <groupId>com.forwardmeasure.openworkflow</groupId>
       <artifactId>openworkflow-execution-models</artifactId>
-      <version>${forwardmeasure.openworkflow.version}</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

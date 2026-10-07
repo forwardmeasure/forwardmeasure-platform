@@ -15,7 +15,8 @@
 # limitations under the License.
 set -eou pipefail
 
-cd /home/pn/Documents/code/forwardmeasure/forwardmeasure-platform
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
+maven_command=("../forwardmeasure-openworkflow/scripts/build-bounded.sh" -f "${PWD}/reactor.xml")
 
 usage() {
 	cat <<'EOF'
@@ -37,7 +38,8 @@ Options:
   --skip-push             Build only; don't docker push the images.
   --no-cache              Rebuild Docker layers without using the cache
                            (Docker caching is enabled by default).
-  --run-tests             Run tests (skipped by default).
+  --no-build-cache       Disable Maven build-cache reuse for this invocation.
+  --run-tests             Run tests and enforce coverage (tests skipped by default).
   --coverage              Collect Jacoco code coverage via the "coverage"
                            profile (disabled by default).
   -h, --help              Show this help and exit.
@@ -48,7 +50,7 @@ Options:
 
 Examples:
   ./build.sh
-      Full build of every module, then push all images.
+      Full build of every module, then push images from the selected reactor.
 
   ./build.sh --module :decision-engine-api-language-bindings-python-grpc
       Build only that module and its dependencies, then push.
@@ -68,6 +70,7 @@ push=true
 skip_tests=true
 coverage=false
 no_cache=false
+build_cache=true
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -99,6 +102,10 @@ while [ $# -gt 0 ]; do
 			no_cache=true
 			shift
 			;;
+		--no-build-cache)
+			build_cache=false
+			shift
+			;;
 		--coverage)
 			coverage=true
 			shift
@@ -116,28 +123,23 @@ while [ $# -gt 0 ]; do
 done
 
 profiles=container-image
-if [ "$coverage" = true ]; then
+if [ "$coverage" = true ] || [ "$skip_tests" = false ]; then
 	profiles="$profiles,coverage"
 fi
 
 case "$mode" in
 	module)
-		mvn -f reactor.xml -pl "$target" -am spotless:apply
-		mvn -f reactor.xml -pl "$target" -am -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -DskipTests="$skip_tests" clean install
+		"${maven_command[@]}" -pl "$target" -am spotless:apply
+		"${maven_command[@]}" -pl "$target" -am -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -Dmaven.build.cache.enabled="$build_cache" -Dmaven.test.skip=false -DskipTests="$skip_tests" clean install
 		;;
 	resume)
-		mvn -f reactor.xml -rf "$target" spotless:apply
-		mvn -f reactor.xml -rf "$target" -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -DskipTests="$skip_tests" clean install
+		"${maven_command[@]}" -rf "$target" spotless:apply
+		"${maven_command[@]}" -rf "$target" -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -Dmaven.build.cache.enabled="$build_cache" -Dmaven.test.skip=false -DskipTests="$skip_tests" clean install
 		;;
 	full)
-		mvn -f reactor.xml spotless:apply
-		mvn -f reactor.xml -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -DskipTests="$skip_tests" clean install
+		"${maven_command[@]}" spotless:apply
+		"${maven_command[@]}" -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -Dmaven.build.cache.enabled="$build_cache" -Dmaven.test.skip=false -DskipTests="$skip_tests" clean install
 		;;
 esac
 
-if [ "$push" = true ]; then
-	for i in $(docker images | grep forwardmeasure | awk '{ print $1 }')
-	do
-		docker push "$i"
-	done
-fi
+# Container publication is owned by the selected Maven modules; never push unrelated local images.

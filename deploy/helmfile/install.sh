@@ -24,6 +24,8 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_DIR="$(cd -- "${SCRIPT_DIR}/../../.." && pwd)"
 ENVIRONMENT="${1:?Usage: $0 <configured-environment> [stage]}"
 REQUESTED_STAGE="${2:-}"
+source "${SCRIPT_DIR}/../scripts/product-selection.sh"
+python3 "${SCRIPT_DIR}/../scripts/check-deployment-transition.py"
 
 for command in kubectl helm helmfile yq python3; do
   command -v "${command}" >/dev/null || {
@@ -36,6 +38,7 @@ done
 "${SCRIPT_DIR}/scripts/preflight.sh" "${ENVIRONMENT}"
 
 kubectl apply -f "${SCRIPT_DIR}/manifests/namespaces.yaml"
+python3 "${SCRIPT_DIR}/../scripts/selection-manifests.py" namespaces | kubectl apply -f -
 GATEWAY_API_VERSION="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" gatewayApi.version)"
 kubectl apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml"
 

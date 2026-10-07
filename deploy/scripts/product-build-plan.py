@@ -15,21 +15,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Select container-producing modules for the configured three-product deployment."""
+"""Select container-producing modules for the resolved product deployment."""
 import argparse
 import json
+import os
+import re
+import importlib.util
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--framework', choices=('quarkus', 'spring', 'micronaut'), required=True)
-parser.add_argument('--engine', choices=('kafka-streams', 'pekko-postgresql', 'pekko-cassandra'), required=True)
-parser.add_argument('--repository', choices=('forwardmeasure-openworkflow', 'forwardmeasure-data-streaming', 'forwardmeasure-entity-intelligence'))
+parser.add_argument('--framework', choices=('quarkus', 'spring', 'micronaut'), default=None)
+parser.add_argument('--engine', choices=('kafka-streams', 'pekko-postgresql', 'pekko-cassandra'), default=None)
+parser.add_argument('--repository', choices=('forwardmeasure-openworkflow', 'forwardmeasure-data-streaming', 'forwardmeasure-entity-intelligence', 'forwardmeasure-decision-engine'))
+parser.add_argument('--environment', default='gcp-openworkflow-prod')
+parser.add_argument('--enable-fde', choices=('true', 'false'))
 args = parser.parse_args()
+spec = importlib.util.spec_from_file_location("deployment_selection", Path(__file__).with_name("deployment-selection.py"))
+resolver = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(resolver)
+environ = dict(os.environ)
+for key, value in (("framework", args.framework), ("engine", args.engine), ("enableFde", args.enable_fde)):
+    if value is not None:
+        if resolver.SNAPSHOT in environ:
+            saved = json.loads(environ[resolver.SNAPSHOT])[key]
+            if str(saved).lower() != value:
+                parser.error("Build arguments conflict with the resolved deployment selection")
+        environ[resolver.OVERRIDES[key]] = value
+try:
+    selection = resolver.resolve(args.environment, environ)
+except ValueError as error:
+    parser.error(str(error))
+args.framework, args.engine = selection["framework"], selection["engine"]
+repositories = ['forwardmeasure-openworkflow', 'forwardmeasure-data-streaming', 'forwardmeasure-entity-intelligence']
+if selection['enableFde']:
+    repositories.append('forwardmeasure-decision-engine')
+if args.repository and args.repository not in repositories:
+    parser.error("Requested repository is disabled in the deployment selection")
 workspace = Path(__file__).resolve().parents[3]
 ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
 result = {}
-for name in ('forwardmeasure-openworkflow', 'forwardmeasure-data-streaming', 'forwardmeasure-entity-intelligence'):
+for name in repositories:
     repo = workspace / name
     selected = []
     # Follow the reactor, not arbitrary target/generated POMs or cached artifacts.
@@ -40,6 +66,20 @@ for name in ('forwardmeasure-openworkflow', 'forwardmeasure-data-streaming', 'fo
         for module in root.findall('./m:modules/m:module', ns):
             pending.append(pom.parent / module.text / 'pom.xml')
         image = root.findtext('./m:properties/m:container-image.name', namespaces=ns)
+        container_profile = next((profile for profile in root.findall('./m:profiles/m:profile', ns)
+                                  if profile.findtext('m:id', namespaces=ns) == 'container-image'), None)
+        if not image and container_profile is not None:
+            image = container_profile.findtext('./m:properties/m:container-image.name', namespaces=ns)
+            if not image:
+                for plugin in container_profile.findall('./m:build/m:plugins/m:plugin', ns):
+                    if plugin.findtext('m:artifactId', namespaces=ns) != 'docker-maven-plugin':
+                        continue
+                    for node in plugin.findall('./m:configuration/m:images/m:image/m:name', ns):
+                        match = re.search(r'/([A-Za-z0-9._-]+):', node.text or '')
+                        if match:
+                            image = match.group(1)
+                        else:
+                            raise SystemExit(f'Cannot resolve container image name in {pom}: {node.text}')
         if not image:
             continue
         if any(image.endswith('-' + framework) for framework in ('quarkus', 'spring', 'micronaut')):
@@ -56,4 +96,4 @@ for name in ('forwardmeasure-openworkflow', 'forwardmeasure-data-streaming', 'fo
 if args.repository:
     print(','.join(entry['module'] for entry in result[args.repository]))
 else:
-    print(json.dumps({'framework': args.framework, 'engine': args.engine, 'products': result}, indent=2))
+    print(json.dumps({**selection, 'products': result}, indent=2))

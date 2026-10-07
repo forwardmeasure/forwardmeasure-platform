@@ -78,21 +78,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>com.forwardmeasure.platform.operations</groupId>
-        <artifactId>operations-api-models</artifactId>
-        <version>${forwardmeasure.platform-operations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.forwardmeasure.platform.operations</groupId>
-        <artifactId>operations-api-server-jaxrs</artifactId>
-        <version>${forwardmeasure.platform-operations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.forwardmeasure.platform.operations</groupId>
-        <artifactId>operations-api-client-typescript</artifactId>
-        <version>${forwardmeasure.platform-operations.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 

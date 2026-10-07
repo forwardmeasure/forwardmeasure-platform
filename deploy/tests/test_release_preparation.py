@@ -29,7 +29,7 @@ class ReleasePreparationTest(unittest.TestCase):
     def test_selected_build_omits_fde_other_frameworks_and_inactive_engine(self):
         result = subprocess.run([
             'python3', str(ROOT / 'deploy/scripts/product-build-plan.py'),
-            '--framework', 'quarkus', '--engine', 'kafka-streams'],
+            '--framework', 'quarkus', '--engine', 'kafka-streams', '--enable-fde', 'false'],
             check=True, capture_output=True, text=True)
         plan = json.loads(result.stdout)
         self.assertEqual(set(plan['products']), {
@@ -40,6 +40,16 @@ class ReleasePreparationTest(unittest.TestCase):
         self.assertIn('entity-intelligence-ingestion-worker-spark', images)
         self.assertFalse(any('decision-engine' in name or 'engine-pekko' in name
                              or name.endswith(('-spring', '-micronaut')) for name in images))
+
+    def test_fde_selection_includes_the_framework_server_and_migrator(self):
+        for framework in ('quarkus', 'spring', 'micronaut'):
+            with self.subTest(framework=framework):
+                result = subprocess.run([
+                    'python3', str(ROOT / 'deploy/scripts/product-build-plan.py'),
+                    '--framework', framework, '--engine', 'kafka-streams', '--enable-fde', 'true'],
+                    check=True, capture_output=True, text=True)
+                images = {entry['image'] for entry in json.loads(result.stdout)['products']['forwardmeasure-decision-engine']}
+                self.assertEqual({'decision-engine-' + framework, 'decision-engine-database-migration-service'}, images)
 
     def test_fei_studio_uses_public_login_and_private_upstreams(self):
         import yaml

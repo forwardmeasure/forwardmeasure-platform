@@ -10,85 +10,53 @@
  */
 package com.forwardmeasure.build.policy;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 
-final class PlatformPolicy {
-  static final Set<String> MANAGED_PROPERTIES =
-      Set.of(
-          "maven.compiler.release",
-          "jackson.version",
-          "slf4j.version",
-          "junit.version",
-          "testcontainers.version",
-          "jakarta.inject.version",
-          "jakarta.persistence.version",
-          "jakarta.transaction.version",
-          "jakarta.validation.version",
-          "postgresql.version",
-          "keycloak.version",
-          "lombok.version",
-          "mapstruct.version",
-          "lombok-mapstruct-binding.version",
-          "quarkus.platform.version",
-          "spring-boot.version",
-          "micronaut.platform.version",
-          "maven.clean.version",
-          "maven.compiler.version",
-          "maven.resources.version",
-          "maven.surefire.version",
-          "maven.failsafe.version",
-          "maven.jar.version",
-          "maven.install.version",
-          "maven.deploy.version",
-          "maven.site.version",
-          "maven.source.version",
-          "maven.javadoc.version",
-          "maven.enforcer.version",
-          "maven.dependency.version",
-          "jacoco.version",
-          "flatten.version",
-          "spotless.version",
-          "google-java-format.version",
-          "cyclonedx.version");
+/** Ownership is derived from the actual platform ancestor, never a hand-maintained allowlist. */
+record PlatformPolicy(
+    Set<String> properties, Map<String, String> dependencies, Map<String, String> plugins) {
+  static PlatformPolicy from(Model platform) {
+    Map<String, String> dependencies = new TreeMap<>();
+    if (platform.getDependencyManagement() != null) {
+      platform
+          .getDependencyManagement()
+          .getDependencies()
+          .forEach(d -> dependencies.put(dependencyKey(d), d.getVersion()));
+    }
+    Map<String, String> plugins = new TreeMap<>();
+    if (platform.getBuild() != null) {
+      if (platform.getBuild().getPluginManagement() != null) {
+        platform
+            .getBuild()
+            .getPluginManagement()
+            .getPlugins()
+            .forEach(p -> plugins.put(p.getGroupId() + ":" + p.getArtifactId(), p.getVersion()));
+      }
+      platform
+          .getBuild()
+          .getPlugins()
+          .forEach(
+              p -> {
+                if (p.getVersion() != null)
+                  plugins.put(p.getGroupId() + ":" + p.getArtifactId(), p.getVersion());
+              });
+    }
+    return new PlatformPolicy(
+        Set.copyOf(platform.getProperties().stringPropertyNames()),
+        Map.copyOf(dependencies),
+        Map.copyOf(plugins));
+  }
 
-  static final Set<String> MANAGED_DEPENDENCIES =
-      Set.of(
-          "com.fasterxml.jackson:jackson-bom",
-          "org.slf4j:slf4j-bom",
-          "org.junit:junit-bom",
-          "org.testcontainers:testcontainers-bom",
-          "jakarta.inject:jakarta.inject-api",
-          "jakarta.persistence:jakarta.persistence-api",
-          "jakarta.transaction:jakarta.transaction-api",
-          "jakarta.validation:jakarta.validation-api",
-          "org.postgresql:postgresql",
-          "org.projectlombok:lombok",
-          "org.mapstruct:mapstruct",
-          "org.mapstruct:mapstruct-processor",
-          "org.projectlombok:lombok-mapstruct-binding",
-          "io.quarkus.platform:quarkus-bom",
-          "org.springframework.boot:spring-boot-dependencies",
-          "io.micronaut.platform:micronaut-platform");
-
-  static final Set<String> MANAGED_PLUGINS =
-      Set.of(
-          "org.apache.maven.plugins:maven-clean-plugin",
-          "org.apache.maven.plugins:maven-compiler-plugin",
-          "org.apache.maven.plugins:maven-resources-plugin",
-          "org.apache.maven.plugins:maven-surefire-plugin",
-          "org.apache.maven.plugins:maven-failsafe-plugin",
-          "org.apache.maven.plugins:maven-jar-plugin",
-          "org.apache.maven.plugins:maven-install-plugin",
-          "org.apache.maven.plugins:maven-deploy-plugin",
-          "org.apache.maven.plugins:maven-site-plugin",
-          "org.apache.maven.plugins:maven-source-plugin",
-          "org.apache.maven.plugins:maven-javadoc-plugin",
-          "org.apache.maven.plugins:maven-enforcer-plugin",
-          "org.apache.maven.plugins:maven-dependency-plugin",
-          "org.jacoco:jacoco-maven-plugin",
-          "org.codehaus.mojo:flatten-maven-plugin",
-          "com.diffplug.spotless:spotless-maven-plugin",
-          "org.cyclonedx:cyclonedx-maven-plugin");
-
-  private PlatformPolicy() {}
+  static String dependencyKey(Dependency dependency) {
+    String base = dependency.getGroupId() + ":" + dependency.getArtifactId();
+    String classifier = dependency.getClassifier();
+    String type = dependency.getType();
+    if ((type == null || "jar".equals(type)) && (classifier == null || classifier.isEmpty()))
+      return base;
+    return base + ":" + type + ":" + (classifier == null ? "" : classifier);
+  }
 }

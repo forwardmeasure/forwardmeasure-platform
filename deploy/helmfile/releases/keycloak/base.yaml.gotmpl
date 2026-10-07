@@ -77,7 +77,7 @@ realm:
   # isn't registered.
   features: "scripts,authorization,organization,authzen"
   realm: {{ .Values.identity.realm | quote }}
-  displayName: {{ .Values.identity.displayName | quote }}
+  displayName: {{ .Values.platform.branding.displayName | quote }}
   loginTheme: {{ .Values.identity.loginTheme | quote }}
   adminPublicClient:
     clientId: {{ .Values.identity.publicClientId | quote }}

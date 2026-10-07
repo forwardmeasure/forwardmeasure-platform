@@ -24,9 +24,28 @@ public final class CheckPolicyMojo extends AbstractMojo {
   @Parameter(defaultValue = "${project}", readonly = true, required = true)
   MavenProject project;
 
+  /** Explicit local exceptions, also checked against the original POM by PolicyInspector. */
+  @Parameter List<VersionOverride> overrides;
+
+  public static final class VersionOverride {
+    public String key;
+    public String reason;
+  }
+
   @Override
   public void execute() throws MojoFailureException {
-    List<String> violations = new PolicyInspector().inspect(project.getOriginalModel());
+    MavenProject platform = project;
+    while (platform != null
+        && !("com.forwardmeasure.platform".equals(platform.getGroupId())
+            && "forwardmeasure-platform".equals(platform.getArtifactId())))
+      platform = platform.getParent();
+    if (platform == null)
+      throw new MojoFailureException("ForwardMeasure platform ancestor is missing");
+    // The authority POM itself necessarily declares all owned versions.
+    if (platform == project) return;
+    List<String> violations =
+        new PolicyInspector(PlatformPolicy.from(platform.getOriginalModel()), project.getGroupId())
+            .inspect(project.getOriginalModel());
     if (!violations.isEmpty()) {
       throw new MojoFailureException(
           "ForwardMeasure Java platform policy violations in "

@@ -113,6 +113,20 @@ class JacksonRequestBodyReaderTest {
     assertFalse(reader.isReadable(argument(byte[].class), MediaType.APPLICATION_JSON_TYPE));
   }
 
+  @Test
+  void leavesStreamingReactiveAndFrameworkOwnedBodiesToTheirDedicatedReaders() {
+    for (Class<?> type :
+        List.of(
+            java.io.InputStream.class,
+            org.reactivestreams.Publisher.class,
+            java.util.concurrent.CompletionStage.class,
+            io.micronaut.http.HttpRequest.class,
+            java.nio.ByteBuffer.class)) {
+      assertFalse(
+          reader.isReadable(argument(type), MediaType.APPLICATION_JSON_TYPE), type.getName());
+    }
+  }
+
   private Request read(String body) {
     return (Request)
         reader.read(

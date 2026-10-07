@@ -1,0 +1,886 @@
+{
+  "meaning": "Static candidates, not verdicts or execution evidence. Production factories are excluded. Read the guide for classification.",
+  "repositories": {
+    "forwardmeasure-entity-intelligence": 139,
+    "forwardmeasure-openworkflow": 384,
+    "forwardmeasure-data-streaming": 128
+  },
+  "candidates": [
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-screening-worker/src/test/java/com/forwardmeasure/entityintelligence/screeningworker/PopulationScreeningWorkerIntegrationTest.java",
+      "class": "PopulationScreeningWorkerIntegrationTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-k3s-verification/src/test/java/com/forwardmeasure/entityintelligence/ingestion/k3s/IngestionPipelineFowfK3sVerificationTest.java",
+      "class": "IngestionPipelineFowfK3sVerificationTest",
+      "signals": [
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-worker/src/test/java/com/forwardmeasure/entityintelligence/ingestionworker/CustomerMasterIngestionWorkerIntegrationTest.java",
+      "class": "CustomerMasterIngestionWorkerIntegrationTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-worker/src/test/java/com/forwardmeasure/entityintelligence/ingestionworker/SimpleSourceIngestionWorkerProgressCheckpointingIntegrationTest.java",
+      "class": "SimpleSourceIngestionWorkerProgressCheckpointingIntegrationTest",
+      "signals": [
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/support/DomainTestSupport.java",
+      "class": "DomainTestSupport",
+      "signals": [
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/DossierEntityRepositoryTest.java",
+      "class": "DossierEntityRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/InvestigationEvidenceRepositoryTest.java",
+      "class": "InvestigationEvidenceRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/AssertionRepositoryTest.java",
+      "class": "AssertionRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/InvestigationRepositoryTest.java",
+      "class": "InvestigationRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/DossierRepositoryTest.java",
+      "class": "DossierRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/CandidateEntityRepositoryTest.java",
+      "class": "CandidateEntityRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/SourceFeedProfileRepositoryTest.java",
+      "class": "SourceFeedProfileRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/ReferencePopulationRepositoryTest.java",
+      "class": "ReferencePopulationRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/ReferencePopulationRevisionRepositoryTest.java",
+      "class": "ReferencePopulationRevisionRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/ResolvedEntityRepositoryTest.java",
+      "class": "ResolvedEntityRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/IngestionPipelineRepositoryTest.java",
+      "class": "IngestionPipelineRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/DidDocumentAndAliasRepositoryTest.java",
+      "class": "DidDocumentAndAliasRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/ResolvedEntityRepositoryQueriesTest.java",
+      "class": "ResolvedEntityRepositoryQueriesTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/DossierRepositoryQueriesTest.java",
+      "class": "DossierRepositoryQueriesTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/ScreeningRunRepositoriesQueriesTest.java",
+      "class": "ScreeningRunRepositoriesQueriesTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/InvestigationRepositoryQueriesTest.java",
+      "class": "InvestigationRepositoryQueriesTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/AssertionRepositoryQueriesTest.java",
+      "class": "AssertionRepositoryQueriesTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/CatalogAndCandidateRepositoryQueriesTest.java",
+      "class": "CatalogAndCandidateRepositoryQueriesTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-domain/src/test/java/com/forwardmeasure/entityintelligence/domain/repository/PromptRelationshipAndDidRepositoryQueriesTest.java",
+      "class": "PromptRelationshipAndDidRepositoryQueriesTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-resolution-service/forwardmeasure-entity-intelligence-resolution-service-application/src/test/java/com/forwardmeasure/entityintelligence/resolutionservice/application/ResolutionCascadeServiceTest.java",
+      "class": "ResolutionCascadeServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-resolution-service/forwardmeasure-entity-intelligence-resolution-service-application/src/test/java/com/forwardmeasure/entityintelligence/resolutionservice/application/AssertionApplicationServiceTest.java",
+      "class": "AssertionApplicationServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-resolution-service/forwardmeasure-entity-intelligence-resolution-service-application/src/test/java/com/forwardmeasure/entityintelligence/resolutionservice/application/EntityApplicationServiceTest.java",
+      "class": "EntityApplicationServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-screening-service/forwardmeasure-entity-intelligence-screening-service-application/src/test/java/com/forwardmeasure/entityintelligence/screeningservice/application/PopulationScreeningExportApplicationServiceTest.java",
+      "class": "PopulationScreeningExportApplicationServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-service/forwardmeasure-entity-intelligence-ingestion-service-application/src/test/java/com/forwardmeasure/entityintelligence/ingestionservice/application/ReferencePopulationApplicationServiceTest.java",
+      "class": "ReferencePopulationApplicationServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-service/forwardmeasure-entity-intelligence-ingestion-service-application/src/test/java/com/forwardmeasure/entityintelligence/ingestionservice/application/ReferencePopulationIndexingAndComparisonIntegrationTest.java",
+      "class": "ReferencePopulationIndexingAndComparisonIntegrationTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-service/forwardmeasure-entity-intelligence-ingestion-service-application/src/test/java/com/forwardmeasure/entityintelligence/ingestionservice/application/ReferencePopulationRetentionApplicationServiceTest.java",
+      "class": "ReferencePopulationRetentionApplicationServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-service/forwardmeasure-entity-intelligence-ingestion-service-application/src/test/java/com/forwardmeasure/entityintelligence/ingestionservice/application/IngestionPipelineFinderConcurrencyTest.java",
+      "class": "IngestionPipelineFinderConcurrencyTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-service/forwardmeasure-entity-intelligence-ingestion-service-application/src/test/java/com/forwardmeasure/entityintelligence/ingestionservice/application/ReferencePopulationIngestionApplicationServiceTest.java",
+      "class": "ReferencePopulationIngestionApplicationServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-migration/src/test/java/com/forwardmeasure/openworkflow/migration/OpenWorkflowCassandraMigrationTest.java",
+      "class": "OpenWorkflowCassandraMigrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-migration/src/test/java/com/forwardmeasure/openworkflow/migration/OpenWorkflowMigrationsJobTest.java",
+      "class": "OpenWorkflowMigrationsJobTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-human-task/openworkflow-human-task-jpa/src/test/java/com/forwardmeasure/openworkflow/humantask/domain/repository/JpaHumanTaskRepositoryContractTest.java",
+      "class": "JpaHumanTaskRepositoryContractTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-human-task/openworkflow-human-task-jpa/src/test/java/com/forwardmeasure/openworkflow/humantask/domain/repository/HumanTaskConcurrencyTenancyContractTest.java",
+      "class": "HumanTaskConcurrencyTenancyContractTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-human-task/openworkflow-human-task-kafka/src/test/java/com/forwardmeasure/openworkflow/humantask/kafka/KafkaHumanTaskTransportTest.java",
+      "class": "KafkaHumanTaskTransportTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-human-task/openworkflow-human-task-jaxrs/src/test/java/com/forwardmeasure/openworkflow/humantask/jaxrs/HumanTaskResourceTest.java",
+      "class": "HumanTaskResourceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-human-task/openworkflow-human-task-domain/src/test/java/com/forwardmeasure/openworkflow/humantask/application/HumanTaskApplicationServiceTest.java",
+      "class": "HumanTaskApplicationServiceTest",
+      "signals": [
+        "repository construction",
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/human-task-management/micronaut/src/test/java/com/forwardmeasure/openworkflow/deployment/humantask/micronaut/HumanTaskManagementMicronautApiParityTest.java",
+      "class": "HumanTaskManagementMicronautApiParityTest",
+      "signals": [
+        "repository construction",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/human-task-management/spring/src/test/java/com/forwardmeasure/openworkflow/deployment/humantask/spring/HumanTaskManagementSpringApiParityTest.java",
+      "class": "HumanTaskManagementSpringApiParityTest",
+      "signals": [
+        "repository construction",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/human-task-management/quarkus/src/test/java/com/forwardmeasure/openworkflow/deployment/humantask/quarkus/HumanTaskManagementQuarkusApiParityTest.java",
+      "class": "HumanTaskManagementQuarkusApiParityTest",
+      "signals": [
+        "repository construction",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/operation-adapter/kafka-streams/micronaut/src/test/java/com/forwardmeasure/openworkflow/deployment/adapter/kafka/micronaut/KafkaOperationAdapterMicronautBindingTest.java",
+      "class": "KafkaOperationAdapterMicronautBindingTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/operation-adapter/kafka-streams/spring/src/test/java/com/forwardmeasure/openworkflow/deployment/adapter/kafka/spring/KafkaOperationAdapterSpringBindingTest.java",
+      "class": "KafkaOperationAdapterSpringBindingTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/operation-adapter/kafka-streams/quarkus/src/test/java/com/forwardmeasure/openworkflow/deployment/adapter/kafka/quarkus/KafkaOperationAdapterQuarkusBindingTest.java",
+      "class": "KafkaOperationAdapterQuarkusBindingTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/execution-management/micronaut/src/test/java/com/forwardmeasure/openworkflow/deployment/execution/micronaut/WorkflowExecutionManagementMicronautWorkflowExecutionEventsApiParityTest.java",
+      "class": "WorkflowExecutionManagementMicronautWorkflowExecutionEventsApiParityTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/execution-management/spring/src/test/java/com/forwardmeasure/openworkflow/deployment/execution/spring/WorkflowExecutionManagementSpringWorkflowExecutionEventsApiParityTest.java",
+      "class": "WorkflowExecutionManagementSpringWorkflowExecutionEventsApiParityTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/execution-management/quarkus/src/test/java/com/forwardmeasure/openworkflow/deployment/execution/quarkus/WorkflowExecutionManagementQuarkusTenantSchemaTest.java",
+      "class": "WorkflowExecutionManagementQuarkusTenantSchemaTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/execution-management/quarkus/src/test/java/com/forwardmeasure/openworkflow/deployment/execution/quarkus/WorkflowExecutionManagementQuarkusWorkflowExecutionEventsApiParityTest.java",
+      "class": "WorkflowExecutionManagementQuarkusWorkflowExecutionEventsApiParityTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/engine-kafka-streams/micronaut/src/test/java/com/forwardmeasure/openworkflow/deployment/engine/kafka/micronaut/KafkaEngineMicronautBindingTest.java",
+      "class": "KafkaEngineMicronautBindingTest",
+      "signals": [
+        "authorization double",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/engine-kafka-streams/spring/src/test/java/com/forwardmeasure/openworkflow/deployment/engine/kafka/spring/KafkaEngineSpringBindingTest.java",
+      "class": "KafkaEngineSpringBindingTest",
+      "signals": [
+        "authorization double",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/engine-kafka-streams/quarkus/src/test/java/com/forwardmeasure/openworkflow/deployment/engine/kafka/quarkus/KafkaEngineQuarkusBindingTest.java",
+      "class": "KafkaEngineQuarkusBindingTest",
+      "signals": [
+        "authorization double",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-deployments/engine-kafka-streams/quarkus/src/test/java/com/forwardmeasure/openworkflow/deployment/engine/kafka/quarkus/KafkaEngineStartupQuarkusTest.java",
+      "class": "KafkaEngineStartupQuarkusTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-definition-management/openworkflow-definition-management-jpa/src/test/java/com/forwardmeasure/openworkflow/definition/persistence/WorkflowDefinitionRepositoryTest.java",
+      "class": "WorkflowDefinitionRepositoryTest",
+      "signals": [
+        "repository construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-definition-management/openworkflow-definition-management-application/src/test/java/com/forwardmeasure/openworkflow/definition/management/WorkflowDefinitionManagementServiceTest.java",
+      "class": "WorkflowDefinitionManagementServiceTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-operation-adapter/openworkflow-operation-adapter-kafka-streams/src/test/java/com/forwardmeasure/openworkflow/adapter/kafka/KafkaOperationAdapterDispatcherIntegrationTest.java",
+      "class": "KafkaOperationAdapterDispatcherIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-operation-adapter/openworkflow-operation-adapter-kafka-streams/src/test/java/com/forwardmeasure/openworkflow/adapter/kafka/KafkaOperationAdapterDispatcherContractTest.java",
+      "class": "KafkaOperationAdapterDispatcherContractTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-operation-adapter/openworkflow-operation-adapter-kafka-streams/src/test/java/com/forwardmeasure/openworkflow/adapter/kafka/KafkaOperationAdapterRuntimeTest.java",
+      "class": "KafkaOperationAdapterRuntimeTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-operation-adapter/openworkflow-operation-adapter-pekko/src/test/java/com/forwardmeasure/openworkflow/adapter/pekko/PekkoOperationAdapterRuntimeTest.java",
+      "class": "PekkoOperationAdapterRuntimeTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-execution-management/openworkflow-execution-management-jpa/src/test/java/com/forwardmeasure/openworkflow/execution/persistence/JpaWorkflowExecutionRepositoryTest.java",
+      "class": "JpaWorkflowExecutionRepositoryTest",
+      "signals": [
+        "repository construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-execution-management/openworkflow-execution-management-jpa/src/test/java/com/forwardmeasure/openworkflow/execution/persistence/AsyncTaskUpgradeAndCommandRecoveryTest.java",
+      "class": "AsyncTaskUpgradeAndCommandRecoveryTest",
+      "signals": [
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-execution-management/openworkflow-execution-management-jpa/src/test/java/com/forwardmeasure/openworkflow/execution/query/persistence/JpaWorkflowExecutionProjectionStoreTest.java",
+      "class": "JpaWorkflowExecutionProjectionStoreTest",
+      "signals": [
+        "repository construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-execution-management/openworkflow-execution-management-application/src/test/java/com/forwardmeasure/openworkflow/execution/management/WorkflowExecutionManagementServiceTest.java",
+      "class": "WorkflowExecutionManagementServiceTest",
+      "signals": [
+        "repository construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-kafka-streams-engine/openworkflow-kafka-streams-engine-jaxrs/src/test/java/com/forwardmeasure/openworkflow/workflow/runtime/kafka/jaxrs/OksCloudEventIngressResourceKafkaIntegrationTest.java",
+      "class": "OksCloudEventIngressResourceKafkaIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-kafka-streams-engine/openworkflow-kafka-streams-engine/src/test/java/com/forwardmeasure/openworkflow/workflow/runtime/kafka/OksMultiInstanceRebalanceIntegrationTest.java",
+      "class": "OksMultiInstanceRebalanceIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-kafka-streams-engine/openworkflow-kafka-streams-engine/src/test/java/com/forwardmeasure/openworkflow/workflow/runtime/kafka/OksRestorationIntegrationTest.java",
+      "class": "OksRestorationIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-kafka-streams-engine/openworkflow-kafka-streams-engine/src/test/java/com/forwardmeasure/openworkflow/workflow/runtime/kafka/OksWorkflowComputationWorkerIntegrationTest.java",
+      "class": "OksWorkflowComputationWorkerIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-kafka-streams-engine/openworkflow-kafka-streams-engine/src/test/java/com/forwardmeasure/openworkflow/workflow/runtime/kafka/OksKafkaCommandGatewayIntegrationTest.java",
+      "class": "OksKafkaCommandGatewayIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-kafka-streams-engine/openworkflow-kafka-streams-engine/src/test/java/com/forwardmeasure/openworkflow/workflow/runtime/kafka/OksCommandOutcomeRecoveryIntegrationTest.java",
+      "class": "OksCommandOutcomeRecoveryIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-kafka-streams-engine/openworkflow-durable-processing/openworkflow-durable-processing-kafka-streams/src/test/java/com/forwardmeasure/durableprocessing/kafka/DurableKafkaStreamsRestorationTest.java",
+      "class": "DurableKafkaStreamsRestorationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-kafka/src/test/java/com/forwardmeasure/openworkflow/eventing/kafka/KafkaCloudEventTransportIntegrationTest.java",
+      "class": "KafkaCloudEventTransportIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-kafka/src/test/java/com/forwardmeasure/openworkflow/eventing/kafka/KafkaHumanTaskOutcomeTransportIntegrationTest.java",
+      "class": "KafkaHumanTaskOutcomeTransportIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-kafka/src/test/java/com/forwardmeasure/openworkflow/eventing/kafka/KafkaHumanTaskOutcomeBackoffIntegrationTest.java",
+      "class": "KafkaHumanTaskOutcomeBackoffIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-kafka/src/test/java/com/forwardmeasure/openworkflow/eventing/kafka/KafkaCloudEventConsumerRoutingIntegrationTest.java",
+      "class": "KafkaCloudEventConsumerRoutingIntegrationTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-jpa/src/test/java/com/forwardmeasure/openworkflow/eventing/persistence/JpaSubworkflowPlanResolverTest.java",
+      "class": "JpaSubworkflowPlanResolverTest",
+      "signals": [
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-jpa/src/test/java/com/forwardmeasure/openworkflow/eventing/persistence/HibernateSessionWorkflowExecutionQueryRepositoryTest.java",
+      "class": "HibernateSessionWorkflowExecutionQueryRepositoryTest",
+      "signals": [
+        "repository construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-cassandra/src/test/java/com/forwardmeasure/openworkflow/eventing/cassandra/CassandraCloudEventSubscriptionRepositoryTest.java",
+      "class": "CassandraCloudEventSubscriptionRepositoryTest",
+      "signals": [
+        "repository construction",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-postgresql/src/test/java/com/forwardmeasure/openworkflow/eventing/persistence/postgresql/PostgresqlCloudEventSubscriptionRepositoryTest.java",
+      "class": "PostgresqlCloudEventSubscriptionRepositoryTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-postgresql/src/test/java/com/forwardmeasure/openworkflow/eventing/persistence/postgresql/TenantAwareCloudEventSubscriptionRoutingTest.java",
+      "class": "TenantAwareCloudEventSubscriptionRoutingTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-core/src/test/java/com/forwardmeasure/openworkflow/eventing/SubscriptionProjectionHandlerTest.java",
+      "class": "SubscriptionProjectionHandlerTest",
+      "signals": [
+        "repository construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-eventing/openworkflow-pekko-eventing-core/src/test/java/com/forwardmeasure/openworkflow/eventing/CloudEventOutboxHandlerTest.java",
+      "class": "CloudEventOutboxHandlerTest",
+      "signals": [
+        "repository construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/CloudEventSubscriptionRepositoryParityTest.java",
+      "class": "CloudEventSubscriptionRepositoryParityTest",
+      "signals": [
+        "repository construction",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/RealCloudEventOutboxRecoveryTest.java",
+      "class": "RealCloudEventOutboxRecoveryTest",
+      "signals": [
+        "repository construction",
+        "manual persistence bootstrap",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/RealJournalWorkflowRecoveryTest.java",
+      "class": "RealJournalWorkflowRecoveryTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/RealSubworkflowRecoveryTest.java",
+      "class": "RealSubworkflowRecoveryTest",
+      "signals": [
+        "manual persistence bootstrap",
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/RealHumanTaskRequestOutboxTest.java",
+      "class": "RealHumanTaskRequestOutboxTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "path": "forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/RealTenantConnectionLifecycleTest.java",
+      "class": "RealTenantConnectionLifecycleTest",
+      "signals": [
+        "raw container construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-jaxrs/src/test/java/com/forwardmeasure/datastreaming/launcher/jaxrs/IngestionRunResourceTest.java",
+      "class": "IngestionRunResourceTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-jaxrs/src/test/java/com/forwardmeasure/datastreaming/launcher/jaxrs/WorkflowRunResourceTest.java",
+      "class": "WorkflowRunResourceTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/DirectIngestionLauncherKeycloakIntegrationTest.java",
+      "class": "DirectIngestionLauncherKeycloakIntegrationTest",
+      "signals": [
+        "service construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/DirectIngestionLauncherTest.java",
+      "class": "DirectIngestionLauncherTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/DirectIngestionLauncherSparkTwoJobRealImageIntegrationTest.java",
+      "class": "DirectIngestionLauncherSparkTwoJobRealImageIntegrationTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/DirectIngestionLauncherSparkTwoJobCorrelatedRealImageIntegrationTest.java",
+      "class": "DirectIngestionLauncherSparkTwoJobCorrelatedRealImageIntegrationTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/WorkflowIngestionLauncherTest.java",
+      "class": "WorkflowIngestionLauncherTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/DirectIngestionLauncherRealImageIntegrationTest.java",
+      "class": "DirectIngestionLauncherRealImageIntegrationTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/DirectIngestionLauncherKafkaStreamsRealImageIntegrationTest.java",
+      "class": "DirectIngestionLauncherKafkaStreamsRealImageIntegrationTest",
+      "signals": [
+        "service construction",
+        "authorization double"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/fowf/RealFowfWorkflowBoundedIngestionTest.java",
+      "class": "RealFowfWorkflowBoundedIngestionTest",
+      "signals": [
+        "service construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/fowf/RealFowfWorkflowFixtureEndToEndTest.java",
+      "class": "RealFowfWorkflowFixtureEndToEndTest",
+      "signals": [
+        "service construction"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-executor-pekko/src/test/java/com/forwardmeasure/datastreaming/executor/pekko/PekkoJpaSourceIntegrationTest.java",
+      "class": "PekkoJpaSourceIntegrationTest",
+      "signals": [
+        "repository construction",
+        "manual persistence bootstrap"
+      ]
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-connector-jdbc/src/test/java/com/forwardmeasure/datastreaming/connector/jdbc/JpaPagingSourceTest.java",
+      "class": "JpaPagingSourceTest",
+      "signals": [
+        "repository construction",
+        "manual persistence bootstrap"
+      ]
+    }
+  ]
+}

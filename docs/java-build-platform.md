@@ -1,79 +1,64 @@
-# Java Build Platform
+# Java build platform
 
-`forwardmeasure-platform` is the published Maven parent and dependency-policy
-source for ForwardMeasure's open-source Java repositories. It replaces the
-retired `forwardmeasure-java-reactor` and `forwardmeasure-java-parent` artifacts.
+`forwardmeasure-platform` is the Maven parent and version authority for ForwardMeasure Java
+repositories, including proprietary FEI. Each product retains its own reactor and release identity.
+The platform root builds its own modules; the separate `reactor.xml` is the wider compatibility
+reactor, not a parent POM. FEI remains outside that open-source compatibility reactor.
 
-## Published artifacts
+## Managed artifacts
 
-- `com.forwardmeasure.platform:forwardmeasure-platform` — Java 25 build parent,
-  core dependency management, plugin management, formatting, coverage and SBOM
-  conventions.
-- `com.forwardmeasure.platform:forwardmeasure-platform-core-bom` — importable
-  view of the parent's shared Java and protocol dependency management for
-  consumers that inherit a different Maven parent.
-- `com.forwardmeasure.platform:forwardmeasure-platform-quarkus-bom` — core BOM
-  plus the supported Quarkus platform.
-- `com.forwardmeasure.platform:forwardmeasure-platform-spring-bom` — core BOM
-  plus the supported Spring Boot platform.
-- `com.forwardmeasure.platform:forwardmeasure-platform-micronaut-bom` — core
-  BOM plus the supported Micronaut platform.
-- `com.forwardmeasure.platform:forwardmeasure-platform-policy-maven-plugin` —
-  version-policy checks available to product builds.
-- `com.forwardmeasure.platform:forwardmeasure-platform-bom` — compatible
-  ForwardMeasure component releases; this is distinct from the core Java BOM.
+The platform parent owns shared dependency and plugin versions. `forwardmeasure-platform-core-bom`
+exports that management to consumers using another parent. The Quarkus, Spring and Micronaut BOMs
+provide framework overlays; `forwardmeasure-platform-bom` records compatible component releases.
 
-## Consumer pattern
+`forwardmeasure-platform-policy-maven-plugin` runs at `validate` for inheriting consumers. It derives
+ownership from the actual platform POM and inspects local declarations in both ordinary and inactive
+profile configuration. There is no separately maintained Java list of owned versions.
 
-Repository roots inherit the Platform parent:
+Repository roots inherit `com.forwardmeasure.platform:forwardmeasure-platform:1.1.0`, normally with
+`../forwardmeasure-platform/pom.xml` as the parent relative path. Omit local library/plugin version
+declarations and use the managed versions. A local `revision` names the product being built; it does
+not authorize overriding sibling product dependency versions.
 
-```xml
-<parent>
-  <groupId>com.forwardmeasure.platform</groupId>
-  <artifactId>forwardmeasure-platform</artifactId>
-  <version>1.0.0</version>
-  <relativePath>../forwardmeasure-platform/pom.xml</relativePath>
-</parent>
-```
+Actual third-party compatibility exceptions require an exact key and a reason in the local policy
+plugin configuration. First-party dependency-version exceptions are forbidden. See
+[the consolidation handover](version-consolidation-2026-10-07.md) for examples, current exceptions,
+bootstrap commands and per-repository compile evidence.
 
-Product roots inheriting the Platform parent receive the core dependency
-management directly. A project that must inherit another Maven parent imports
-`forwardmeasure-platform-core-bom` instead. Framework binding modules import
-exactly one framework overlay BOM. Products retain their own source reactor,
-product versions, public BOM, tests and release lifecycle. The Platform reactor
-also aggregates the open-source product roots from the standard sibling checkout
-layout, allowing the complete open-source stack to be built with one command.
+## Building from a fresh checkout
 
-The Platform root references sibling source directories solely for aggregation.
-Each component remains independently buildable: when the sibling Platform
-checkout is absent, Maven resolves the published Platform parent normally.
+Install the platform parent and policy plugin first using the bounded bootstrap commands in that
+handover. The explicit bootstrap switch is for those initial artifacts only. Normal downstream
+builds inherit the policy execution. Install required component artifacts in dependency order;
+there is no need to rebuild unrelated container images.
 
-The proprietary `forwardmeasure-entity-intelligence` repository is deliberately
-excluded from the Platform reactor.
+Use the bounded wrapper with `test-compile -DskipTests -DskipITs -Dmaven.test.skip=false` when checking
+production and test sources without test execution. Tests, image builds/publication and deployment
+remain separate operations requiring the user's instruction in this session.
 
-## Complete open-source build
+## Coverage policy
 
-Use the standard sibling checkout layout and run Maven once from the Platform
-repository:
+The platform owns `jacoco.minimum.line.coverage=0.85` and
+`jacoco.minimum.branch.coverage=0.85`. The user requested both minimums across the stack on
+2026-10-07. `build.sh --run-tests` enables the shared `coverage` profile automatically;
+direct Maven regression builds must include `-Pcoverage`. This is the Java coverage policy;
+it does not measure browser, Python or other non-Java code.
 
-```bash
-cd forwardmeasure-platform
-mvn clean install
-```
+The shared profile instruments tests, produces reports and checks handwritten Java code. Generated
+code is exempt by the user's 2026-10-07 instruction. The policy identifies compiled classes through
+generated-source provenance or retained Generated annotations and writes exact class exclusions to
+`target/coverage-generated-excludes.txt`; it does not exempt an entire package containing both kinds
+of code. Unknown provenance remains subject to coverage. Generated-only and resource-only modules
+need no Java execution data; their configured tests still execute. Missing or empty execution data
+for handwritten classes fails through the policy plugin's `require-coverage-data` goal.
+Explicit test-skip flags permit compilation/bootstrap without claiming coverage evidence.
 
-This builds the Platform foundation, Testcontainers support, database migration
-support, JPA, object storage, NLP, entity matching, OpenWorkflow, Platform
-Operations, the compatibility BOM and compatibility tests. ForwardMeasure
-Agents remains outside the train until its dependency on retired OKS artifacts
-has been migrated to the current OpenWorkflow contracts.
-
-## Build order for an unpublished Platform version
-
-1. Run the complete Platform reactor from the sibling checkout layout.
-2. Publish the Platform parent, BOMs and policy plugin.
-3. Publish independently versioned component artifacts as required.
-4. Run Platform component compatibility tests against the selected releases.
-
-The proprietary Entity Intelligence repository is not part of the open-source
-source reactor. It may consume published Platform BOMs explicitly while keeping
-its own parent and release policy.
+JPA, OpenWorkflow and FEI retain product aggregate checks because their framework/contract tests
+exercise sibling production modules. They declare a reasoned policy exception for
+`jacoco.module.check.skip=true`. The policy honors this request only when a selected reactor
+aggregate directly includes the module at the same version, stages its classes and configures both
+aggregate reporting and a coverage check. Modules omitted from the aggregate retain their local
+gate. Exact generated exclusions propagate to aggregate reports and checks. Their
+aggregate checks inherit the same 85%/85% thresholds and retain zero permitted missed classes;
+the aggregate modules also reject missing merged execution data. Thresholds must not be lowered
+to get a build through. Passing compilation is not evidence of passing these gates.

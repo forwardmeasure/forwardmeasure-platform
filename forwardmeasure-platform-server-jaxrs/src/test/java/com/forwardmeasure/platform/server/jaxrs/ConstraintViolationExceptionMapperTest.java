@@ -172,6 +172,70 @@ class ConstraintViolationExceptionMapperTest {
     assertNull(problem.getDetail());
   }
 
+  interface BatchApi {
+    void submit(@Valid BatchRequest request);
+  }
+
+  static class BatchResource implements BatchApi {
+    public void submit(BatchRequest request) {}
+  }
+
+  public static class NamedItem {
+    private final String displayName;
+
+    NamedItem(String displayName) {
+      this.displayName = displayName;
+    }
+
+    @NotNull
+    @com.fasterxml.jackson.annotation.JsonProperty("display_name")
+    public String getDisplayName() {
+      return displayName;
+    }
+  }
+
+  public static class BatchRequest {
+    @Valid
+    @com.fasterxml.jackson.annotation.JsonProperty("items_by_key")
+    public java.util.Map<String, NamedItem> keyed;
+
+    @Valid
+    @com.fasterxml.jackson.annotation.JsonProperty("list_items")
+    public List<NamedItem> listed;
+
+    @Valid
+    @com.fasterxml.jackson.annotation.JsonProperty("array_items")
+    public NamedItem[] array;
+  }
+
+  @Test
+  void nestedCollectionErrorsPointToTheExactFieldsClientsSeeInJson() throws Exception {
+    BatchRequest request = new BatchRequest();
+    request.keyed = java.util.Map.of("bad", new NamedItem(null));
+    request.listed = List.of(new NamedItem("valid"), new NamedItem(null));
+    request.array = new NamedItem[] {new NamedItem(null)};
+    Method submit = BatchResource.class.getMethod("submit", BatchRequest.class);
+    var violations =
+        validator
+            .forExecutables()
+            .validateParameters(new BatchResource(), submit, new Object[] {request});
+
+    Problem problem = problem(violations, 400);
+    assertEquals(
+        List.of(
+            violation("array_items[0].display_name", null),
+            violation("items_by_key[bad].display_name", null),
+            violation("list_items[1].display_name", null)),
+        fieldsAndValues(problem));
+    // Check the wire shape with real Jackson, independently of the path-discovery helper.
+    com.fasterxml.jackson.databind.JsonNode json =
+        new com.fasterxml.jackson.databind.ObjectMapper().valueToTree(request);
+    assertTrue(json.at("/array_items/0/display_name").isNull());
+    assertTrue(json.at("/items_by_key/bad/display_name").isNull());
+    assertTrue(json.at("/list_items/1/display_name").isNull());
+    assertEquals("valid", json.at("/list_items/0/display_name").asText());
+  }
+
   private static Set<ConstraintViolation<ContractResource>> update(
       String ifMatch, UUID definitionId, UpdateRequest body) throws Exception {
     Method update =

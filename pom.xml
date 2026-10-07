@@ -50,6 +50,8 @@
   </issueManagement>
 
   <properties>
+    <!-- The JDK release file includes vendor, patch version and architecture in cache inputs. -->
+    <maven.build.cache.input.jdk>${java.home}/release</maven.build.cache.input.jdk>
     <revision>1.1.0</revision>
     <forwardmeasure.platform.version>1.1.0</forwardmeasure.platform.version>
     <forwardmeasure.testcontainers.version>1.1.0</forwardmeasure.testcontainers.version>
@@ -87,7 +89,7 @@
     <pekko.management.version>1.2.1</pekko.management.version>
     <pekko.persistence.jdbc.version>1.3.0</pekko.persistence.jdbc.version>
     <pekko.persistence.cassandra.version>1.1.0</pekko.persistence.cassandra.version>
-    <camel.version>4.10.2</camel.version>
+    <camel.version>4.22.1</camel.version>
     <spark.version>4.2.0</spark.version>
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
     <checkerframework.version>3.55.1</checkerframework.version>
@@ -149,11 +151,13 @@
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-text.version>1.15.0</commons-text.version>
     <icu4j.version>78.3</icu4j.version>
-    <forwardmeasure-entity-matching-core.version>1.1.0</forwardmeasure-entity-matching-core.version>
+    <forwardmeasure.entitymatching.version>1.1.0</forwardmeasure.entitymatching.version>
     <jayway-json-path.version>3.0.0</jayway-json-path.version>
     <httpclient5.version>5.6.3</httpclient5.version>
     <!-- Apicurio Registry Java SDK; matches the platform's registry (environments/image-versions.yaml). -->
     <apicurio-registry.version>3.3.1</apicurio-registry.version>
+    <!-- Align HK2 with the existing Jersey 4.0.2 parent; Spark also declares HK2 directly. -->
+    <hk2.version>4.0.0-M3</hk2.version>
     <jersey.version>4.0.2</jersey.version>
     <jboss.logging.version>3.6.3.Final</jboss.logging.version>
     <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
@@ -221,6 +225,11 @@
     <maven.enforcer.version>3.6.3</maven.enforcer.version>
     <maven.dependency.version>3.9.0</maven.dependency.version>
     <jacoco.version>0.8.15</jacoco.version>
+    <!-- Shared Java coverage policy. Products with aggregate checks use these same thresholds. -->
+    <jacoco.minimum.line.coverage>0.85</jacoco.minimum.line.coverage>
+    <jacoco.minimum.branch.coverage>0.85</jacoco.minimum.branch.coverage>
+    <jacoco.maximum.missed.classes>0</jacoco.maximum.missed.classes>
+    <jacoco.module.check.skip>false</jacoco.module.check.skip>
     <flatten.version>1.8.0</flatten.version>
     <spotless.version>3.9.0</spotless.version>
     <google-java-format.version>1.29.0</google-java-format.version>
@@ -240,13 +249,67 @@
     <keycloak.image.digest>sha256:7523ccfbd950f59783504cdf5a0138dae48746dfe36075bbfccdb5a9ee245ee2</keycloak.image.digest>
     <container-image.registry>docker.io</container-image.registry>
     <container-image.group>forwardmeasure</container-image.group>
-    <container-image.tag>${revision}</container-image.tag>
+    <container-image.tag>${project.version}</container-image.tag>
     <container-image.build>false</container-image.build>
     <container-image.push>false</container-image.push>
     <docker.skip.push>true</docker.skip.push>
     <container-image.base-jre>
       eclipse-temurin:25-jre-ubi10-minimal@sha256:35f47084a4c1e34636fc8842780d5ca1e85b1b74de139723d1a541137932ddf2
     </container-image.base-jre>
+    <!-- Shared product, library and plugin versions; consuming POMs inherit these pins. -->
+    <a2a-java-sdk.version>1.1.0.Final</a2a-java-sdk.version>
+    <aircompressor.version>2.0.3</aircompressor.version>
+    <animal-sniffer-annotations.version>1.27</animal-sniffer-annotations.version>
+    <animal.sniffer.annotations.version>1.27</animal.sniffer.annotations.version>
+    <annotations-api.version>6.0.53</annotations-api.version>
+    <antlr4-runtime.version>4.13.2</antlr4-runtime.version>
+    <archunit.version>1.4.1</archunit.version>
+    <azure-sdk.version>1.3.7</azure-sdk.version>
+    <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
+    <byte-buddy.version>1.18.11</byte-buddy.version>
+    <commons-csv.version>1.14.1</commons-csv.version>
+    <commons-logging.version>1.3.6</commons-logging.version>
+    <dependency.check.version>12.2.2</dependency.check.version>
+    <drools.version>10.2.0</drools.version>
+    <duplicate.finder.version>2.0.1</duplicate.finder.version>
+    <exec-maven-plugin.version>3.6.2</exec-maven-plugin.version>
+    <forwardmeasure.authzen.version>1.1.0</forwardmeasure.authzen.version>
+    <forwardmeasure.datastreaming.version>1.1.0</forwardmeasure.datastreaming.version>
+    <forwardmeasure.decisionengine.version>1.1.0</forwardmeasure.decisionengine.version>
+    <hadoop-client.version>3.5.0</hadoop-client.version>
+    <jackson.jq.version>1.6.2</jackson.jq.version>
+    <jakarta.activation-api.version>2.1.4</jakarta.activation-api.version>
+    <jakarta.json-api.version>2.1.3</jakarta.json-api.version>
+    <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
+    <json.schema.validator.version>2.0.4</json.schema.validator.version>
+    <jsr305.version>3.0.2</jsr305.version>
+    <kotlin-stdlib.version>1.9.10</kotlin-stdlib.version>
+    <kubernetes.client.version>7.8.0</kubernetes.client.version>
+    <!-- Explicit compatibility pins; consuming overrides must give their reason. -->
+    <quarkus.rest-assured.version>5.5.6</quarkus.rest-assured.version>
+    <lettuce.quarkus.version>6.5.5.RELEASE</lettuce.quarkus.version>
+    <liquibase.cassandra.version>5.0.3</liquibase.cassandra.version>
+    <liquibase.version>5.0.3</liquibase.version>
+    <logback.version>1.6.1</logback.version>
+    <mcp-java-sdk.version>2.0.0</mcp-java-sdk.version>
+    <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
+    <opencsv.version>5.12.0</opencsv.version>
+    <opensearch-java.version>3.10.0</opensearch-java.version>
+    <opensearch-testcontainers.version>4.1.0</opensearch-testcontainers.version>
+    <osgi-resource-locator.version>3.0.0</osgi-resource-locator.version>
+    <paranamer.version>2.8.3</paranamer.version>
+    <parsson.version>1.1.9</parsson.version>
+    <pekko.connectors.kafka.version>1.1.0</pekko.connectors.kafka.version>
+    <plexus-xml.version>3.0.2</plexus-xml.version>
+    <plexus-utils.version>4.0.3</plexus-utils.version>
+    <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+    <serverlessworkflow.sdk.version>7.29.0.Final</serverlessworkflow.sdk.version>
+    <snakeyaml.version>2.6</snakeyaml.version>
+    <snappy-java.version>1.1.10.8</snappy-java.version>
+    <swagger-annotations.version>1.6.16</swagger-annotations.version>
+    <xz.version>1.12</xz.version>
+    <zookeeper.version>3.9.5</zookeeper.version>
+    <zstd-jni.version>1.5.7-7</zstd-jni.version>
   </properties>
 
   <!--
@@ -778,7 +841,7 @@
              production-validated matcher, not two independent implementations. -->
         <groupId>com.forwardmeasure.entitymatching</groupId>
         <artifactId>forwardmeasure-entity-matching-core</artifactId>
-        <version>${forwardmeasure-entity-matching-core.version}</version>
+        <version>${forwardmeasure.entitymatching.version}</version>
       </dependency>
       <dependency>
         <!-- JSONPath evaluation for application-layer, externally-authored transform specs (e.g.
@@ -839,6 +902,569 @@
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.annotation.bundle</artifactId>
         <version>${osgi.annotation.bundle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <!-- Classic and Core must share a release; imported framework BOMs otherwise split them. -->
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.azure</groupId>
+        <artifactId>azure-sdk-bom</artifactId>
+        <version>${azure-sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.authzen</groupId>
+        <artifactId>forwardmeasure-authzen-api</artifactId>
+        <version>${forwardmeasure.authzen.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.authzen</groupId>
+        <artifactId>forwardmeasure-authzen-client</artifactId>
+        <version>${forwardmeasure.authzen.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.authzen</groupId>
+        <artifactId>forwardmeasure-authzen-testkit</artifactId>
+        <version>${forwardmeasure.authzen.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.database</groupId>
+        <artifactId>forwardmeasure-database-migrations-liquibase</artifactId>
+        <version>${forwardmeasure.database-migrations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-api</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-connector-camel</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-core</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-executor-pekko</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-executor-spark</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-launcher-application</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-mappers</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-test-fixtures</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-transforms</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.decisionengine</groupId>
+        <artifactId>decision-engine-api-language-bindings-java-grpc</artifactId>
+        <version>${forwardmeasure.decisionengine.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.jpa</groupId>
+        <artifactId>forwardmeasure-jpa-core</artifactId>
+        <version>${forwardmeasure.jpa.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.jpa</groupId>
+        <artifactId>forwardmeasure-jpa-liquibase</artifactId>
+        <version>${forwardmeasure.jpa.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.jpa</groupId>
+        <artifactId>forwardmeasure-jpa-tenancy</artifactId>
+        <version>${forwardmeasure.jpa.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.objectstorage</groupId>
+        <artifactId>forwardmeasure-object-storage-api</artifactId>
+        <version>${forwardmeasure.objectstorage.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.objectstorage</groupId>
+        <artifactId>forwardmeasure-object-storage-core</artifactId>
+        <version>${forwardmeasure.objectstorage.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.objectstorage</groupId>
+        <artifactId>forwardmeasure-object-storage-s3</artifactId>
+        <version>${forwardmeasure.objectstorage.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-authorization-api</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-common-models</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-definition</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-definition-management-client-apachehttp</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-definition-management-models</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-engine-api</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-execution-client-apachehttp</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-execution-models</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-kubernetes-job-lifecycle</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform.operations</groupId>
+        <artifactId>operations-api-client-typescript</artifactId>
+        <version>${forwardmeasure.platform-operations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform.operations</groupId>
+        <artifactId>operations-api-models</artifactId>
+        <version>${forwardmeasure.platform-operations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform.operations</groupId>
+        <artifactId>operations-api-server-jaxrs</artifactId>
+        <version>${forwardmeasure.platform-operations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-junit-jupiter</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-kafka</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-keycloak</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-kubernetes</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-minio</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-opensearch</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-postgresql</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-quarkus</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.luben</groupId>
+        <artifactId>zstd-jni</artifactId>
+        <version>${zstd-jni.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>${jsr305.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.networknt</groupId>
+        <artifactId>json-schema-validator</artifactId>
+        <version>${json.schema.validator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>${nimbus-jose-jwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>${opencsv.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.thoughtworks.paranamer</groupId>
+        <artifactId>paranamer</artifactId>
+        <version>${paranamer.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tngtech.archunit</groupId>
+        <artifactId>archunit-junit5</artifactId>
+        <version>${archunit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${commons-logging.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.airlift</groupId>
+        <artifactId>aircompressor</artifactId>
+        <version>${aircompressor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>kubernetes-client</artifactId>
+        <version>${kubernetes.client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.fabric8</groupId>
+        <artifactId>kubernetes-server-mock</artifactId>
+        <version>${kubernetes.client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-api</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-context</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-services</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.micronaut.jaxrs</groupId>
+        <artifactId>micronaut-jaxrs-bom</artifactId>
+        <version>${micronaut.jaxrs.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.micronaut.platform</groupId>
+        <artifactId>micronaut-platform</artifactId>
+        <version>${micronaut.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.modelcontextprotocol.sdk</groupId>
+        <artifactId>mcp-core</artifactId>
+        <version>${mcp-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.modelcontextprotocol.sdk</groupId>
+        <artifactId>mcp-json-jackson2</artifactId>
+        <version>${mcp-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkus.platform</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>${rest-assured.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured-bom</artifactId>
+        <version>${rest-assured.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.serverlessworkflow</groupId>
+        <artifactId>serverlessworkflow-bom</artifactId>
+        <version>${serverlessworkflow.sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-annotations</artifactId>
+        <version>${swagger-annotations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.activation</groupId>
+        <artifactId>jakarta.activation-api</artifactId>
+        <version>${jakarta.activation-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.json</groupId>
+        <artifactId>jakarta.json-api</artifactId>
+        <version>${jakarta.json-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${byte-buddy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.thisptr</groupId>
+        <artifactId>jackson-jq</artifactId>
+        <version>${jackson.jq.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.a2aproject.sdk</groupId>
+        <artifactId>a2a-java-sdk-server-common</artifactId>
+        <version>${a2a-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.a2aproject.sdk</groupId>
+        <artifactId>a2a-java-sdk-spec</artifactId>
+        <version>${a2a-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.a2aproject.sdk</groupId>
+        <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
+        <version>${a2a-java-sdk.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>${antlr4-runtime.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>${commons-csv.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-client-api</artifactId>
+        <version>${hadoop-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-client-runtime</artifactId>
+        <version>${hadoop-client.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>${maven-plugin-annotations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>${maven-plugin-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>${maven-plugin-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pekko</groupId>
+        <artifactId>pekko-connectors-kafka_${scala.binary.version}</artifactId>
+        <version>${pekko.connectors.kafka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>annotations-api</artifactId>
+        <version>${annotations-api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>${zookeeper.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>animal-sniffer-annotations</artifactId>
+        <version>${animal-sniffer-annotations.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>${plexus-utils.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-compiler</artifactId>
+        <version>${drools.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-core</artifactId>
+        <version>${drools.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-mvel</artifactId>
+        <version>${drools.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.parsson</groupId>
+        <artifactId>parsson</artifactId>
+        <version>${parsson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.hk2</groupId>
+        <artifactId>osgi-resource-locator</artifactId>
+        <version>${osgi-resource-locator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>${jaxb-runtime.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-platform</artifactId>
+        <version>${hibernate.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-stdlib</artifactId>
+        <version>${kotlin-stdlib.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.kie</groupId>
+        <artifactId>kie-api</artifactId>
+        <version>${drools.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.liquibase.ext</groupId>
+        <artifactId>liquibase-cassandra</artifactId>
+        <version>${liquibase.cassandra.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-core</artifactId>
+        <version>${liquibase.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensearch.client</groupId>
+        <artifactId>opensearch-java</artifactId>
+        <version>${opensearch-java.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensearch</groupId>
+        <artifactId>opensearch-testcontainers</artifactId>
+        <version>${opensearch-testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-k3s</artifactId>
+        <version>${testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.tukaani</groupId>
+        <artifactId>xz</artifactId>
+        <version>${xz.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xerial.snappy</groupId>
+        <artifactId>snappy-java</artifactId>
+        <version>${snappy-java.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
+      </dependency>
+      <!-- Plexus Utils 4 split Xpp3Dom into plexus-xml; Maven model configuration uses it. -->
+      <dependency><groupId>org.codehaus.plexus</groupId><artifactId>plexus-xml</artifactId><version>${plexus-xml.version}</version></dependency>
+      <dependency><groupId>org.glassfish.hk2</groupId><artifactId>hk2-locator</artifactId><version>${hk2.version}</version></dependency>
+      <dependency><groupId>org.glassfish.hk2</groupId><artifactId>hk2-api</artifactId><version>${hk2.version}</version></dependency>
+      <dependency><groupId>org.glassfish.hk2</groupId><artifactId>hk2-utils</artifactId><version>${hk2.version}</version></dependency>
+      <dependency><groupId>org.glassfish.hk2.external</groupId><artifactId>aopalliance-repackaged</artifactId><version>${hk2.version}</version></dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.objectstorage</groupId>
+        <artifactId>forwardmeasure-object-storage-gcs</artifactId>
+        <version>${forwardmeasure.objectstorage.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -1020,6 +1646,41 @@
           <artifactId>forwardmeasure-platform-policy-maven-plugin</artifactId>
           <version>${forwardmeasure.platform.version}</version>
         </plugin>
+        <plugin>
+          <groupId>io.quarkus.platform</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.platform.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <version>${apache.rat.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.basepom.maven</groupId>
+          <artifactId>duplicate-finder-maven-plugin</artifactId>
+          <version>${duplicate.finder.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build-helper-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>${exec-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>${dependency.check.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.xolstice.maven.plugins</groupId>
+          <artifactId>protobuf-maven-plugin</artifactId>
+          <version>${protobuf-maven-plugin.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -1180,6 +1841,19 @@
     </plugins>
   </build>
   <profiles>
+    <!-- Bootstrap is only for building/installing the policy plugin before its first use. -->
+    <profile>
+      <id>platform-version-policy</id>
+      <activation><property><name>!platform.policy.bootstrap</name></property></activation>
+      <build><plugins><plugin>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-policy-maven-plugin</artifactId>
+        <executions><execution><id>platform-version-policy</id><phase>validate</phase>
+          <goals><goal>check</goal></goals>
+        </execution></executions>
+      </plugin></plugins></build>
+    </profile>
+
     <!--
     Centralized here so every repo that inherits from this pom (directly or transitively) gets
     correct -Pcontainer-image / -Dcontainer-image.push=true behavior without redeclaring it -
@@ -1213,6 +1887,17 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>com.forwardmeasure.platform</groupId>
+            <artifactId>forwardmeasure-platform-policy-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>require-coverage-data</id>
+                <phase>verify</phase>
+                <goals><goal>require-coverage-data</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <executions>
@@ -1228,6 +1913,35 @@
                 <goals>
                   <goal>report</goal>
                 </goals>
+                <configuration>
+                  <excludes>${forwardmeasure.coverage.generated.excludes}</excludes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>enforce-module-coverage</id>
+                <phase>verify</phase>
+                <goals><goal>check</goal></goals>
+                <configuration>
+                  <skip>${forwardmeasure.coverage.module.skip}</skip>
+                  <excludes>${forwardmeasure.coverage.generated.excludes}</excludes>
+                  <rules>
+                    <rule>
+                      <element>BUNDLE</element>
+                      <limits>
+                        <limit>
+                          <counter>LINE</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>${jacoco.minimum.line.coverage}</minimum>
+                        </limit>
+                        <limit>
+                          <counter>BRANCH</counter>
+                          <value>COVEREDRATIO</value>
+                          <minimum>${jacoco.minimum.branch.coverage}</minimum>
+                        </limit>
+                      </limits>
+                    </rule>
+                  </rules>
+                </configuration>
               </execution>
             </executions>
           </plugin>

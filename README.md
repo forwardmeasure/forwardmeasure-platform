@@ -47,11 +47,13 @@ replaced as the remaining products publish consumer BOMs.
 
 ## Platform Operations and shared deployment
 
-The operational API, dashboard and Keycloak theme are built by
-`forwardmeasure-platform-operations`. The shared Kubernetes release under
-[`deploy/helmfile`](deploy/helmfile/README.md) deploys their immutable images
-alongside common infrastructure, including Keycloak. Product charts consume
-those services by URL and credentials; they do not deploy competing copies.
+The operational API and dashboard are built by `forwardmeasure-platform-operations`.
+The shared release under [`deploy/helmfile`](deploy/helmfile/README.md) deploys its
+Quarkus image alongside common infrastructure. Keycloak uses its stock image and
+`keycloak.v2` theme; the legacy custom theme module is not deployed. The dashboard
+repository is still outside the compatibility reactor and product image builder.
+See the [dashboard source review](../forwardmeasure-platform-operations/README.md)
+for outstanding identity, framework and multi-tenant alignment work.
 
 ```bash
 ./deploy/helmfile/validate.sh gcp-greenfield-example

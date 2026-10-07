@@ -34,7 +34,11 @@
 #
 # Consumers load these files LAST in their environment values lists, so a shared value always
 # wins over a stale product-local copy of the same key.
+{{- $sharedDir := .Values | get "deploymentSharedDir" "." }}
+{{- $selection := exec "python3" (list (printf "%s/../../scripts/deployment-selection.py" $sharedDir) "--environment" .Environment.Name) | fromJson }}
+{{- $prefix := ternary "forwardmeasure-" "" (eq $selection.namespaceLayout "standard") }}
 {{- $namespaces := dict
+      "platform" "forwardmeasure-platform"
       "istio" "istio-system"
       "openworkflow" "forwardmeasure-openworkflow"
       "keycloak" "keycloak"
@@ -42,19 +46,12 @@
       "kafka" "kafka"
       "openSearch" "opensearch-cluster"
       "valkey" "valkey"
-      "dataStreaming" "data-streaming"
-      "entityIntelligence" "entity-intelligence"
-      "decisionEngine" "decision-engine" }}
-{{- /* The one framework every product's services are deployed in - see platform.framework below. */}}
-{{- $framework := "quarkus" }}
-{{- if not (has $framework (list "quarkus" "spring" "micronaut")) }}
-{{-   fail (printf "platform framework must be quarkus, spring or micronaut, not %q" $framework) }}
-{{- end }}
-{{- /* The one workflow engine forwardmeasure-openworkflow runs - see platform.engine below. */}}
-{{- $engine := "kafka-streams" }}
-{{- if not (has $engine (list "kafka-streams" "pekko-postgresql" "pekko-cassandra")) }}
-{{-   fail (printf "platform engine must be kafka-streams, pekko-postgresql or pekko-cassandra, not %q" $engine) }}
-{{- end }}
+      "dataStreaming" (printf "%sdata-streaming" $prefix)
+      "entityIntelligence" (printf "%sentity-intelligence" $prefix)
+      "decisionEngine" (printf "%sdecision-engine" $prefix) }}
+{{- $framework := $selection.framework }}
+{{- $engine := $selection.engine }}
+{{- $enableFde := $selection.enableFde }}
 {{- /* The platform's Apicurio Registry (environments/base.yaml.gotmpl registry.name); the
 operator names its API Service <name>-app-service. */}}
 {{- $registryName := "platform-registry" }}
@@ -89,11 +86,10 @@ operator names its API Service <name>-app-service. */}}
 {{- range $path, $owner := $entityIntelligencePathOwners }}
 {{-   $httpEndpointRoutes = append $httpEndpointRoutes (printf "%s%s=%s%s" $entityIntelligenceApiUrl $path (index $entityIntelligenceBaseUrls $owner) $path) }}
 {{- end }}
-{{- $enableFde := env "FORWARDMEASURE_ENABLE_FDE" | default "false" }}
-{{- if not (has $enableFde (list "true" "false")) }}
-{{- fail "FORWARDMEASURE_ENABLE_FDE must be true or false" }}
-{{- end }}
 platform:
+  branding:
+    displayName: {{ $selection.displayName | quote }}
+  namespaceLayout: {{ $selection.namespaceLayout }}
   products:
     decisionEngine:
       enabled: {{ $enableFde }}
