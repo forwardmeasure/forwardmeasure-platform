@@ -331,3 +331,11 @@ The SQL definition seed and HTTP engine double limitations above still apply. Du
 is committed before dispatch: do not resurrect old assertions expecting its deletion after an
 engine/network error. Verify retained identity, stable retry, replayed permanent rejection and
 unchanged acknowledged state; distinguish retryable unknown outcomes from definite rejection.
+
+Organization-based authorization fixtures must use organization-role policies. Direct realm/user
+role grants can make tests pass while bypassing the membership boundary. This was reproduced in
+FOWF's former `KeycloakOrganizationFixture`: an actor's human-task grant in one organization
+incorrectly permitted the action in its other, ungranted organization. The fixture now delegates
+to shared AuthzenKeycloakFixture. Five real-PDP regressions pass, including the previously red
+isolation case; six framework consumer leaves compile. This direct PDP evidence complements,
+and does not replace, inbound JWT validation and authenticated framework HTTP tests.
