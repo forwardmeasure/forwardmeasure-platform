@@ -230,8 +230,10 @@ avoid concurrent edits/builds without coordination. Existing uncommitted changes
 
 1. Stabilize the shared build/cache and actual failing regressions; keep current evidence in the
    FEI ingestion handover. Fix production defects exposed by tests rather than weakening assertions.
-2. Complete the four FEI production-managed service contracts across all frameworks. Preserve their
-   meaningful assertions; independently review any proposed new service API for test-only motivation.
+2. The four FEI production-managed service contracts now pass across all three frameworks
+   (57 managed-service cases plus 18 existing HTTP cases). Preserve their meaningful assertions;
+   independently review any proposed new service API for test-only motivation. This does not
+   make the remaining domain inventory or public ingestion acceptance complete.
 3. Execute the real WorldCheck and simple/correlated/resolution API paths, current-image FOWF
    dispatch, lifecycle/recovery and Studio acceptance. Build only the required image closure.
 4. Triage the remaining scan candidates by the layers above. Retain legitimate storage/runtime/unit
