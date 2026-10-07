@@ -1,5 +1,22 @@
 # Platform version consolidation — 2026-10-07
 
+## FEI framework contracts and checkpoint backup — 2026-10-07 18:49 EDT
+
+Selected FEI resolution-service contracts pass on Quarkus, Spring and Micronaut: 25 each
+(57 managed-service cases and 18 HTTP cases total). Shared Micronaut JPA contracts pass seven
+cases. The final bounded run10 is `/tmp/fei-managed-services-framework-regressions-10-20261007.log`.
+It compiles production/test dependencies and completes successfully. The FEI handover records
+prior red runs and repairs for merge associations, missing SystemLock entity scanning, and absent
+transaction interception in the Micronaut portable-service factory.
+
+The shared JPA Micronaut transaction proxy is now publicly reusable; its behavior is unchanged.
+A targeted local install is required before resuming the wider build after the JPA reactor segment.
+All 17 writable repository recovery branches are pushed/verified; Livy lacks permission on its
+existing apache/livy remote. See `checkpoint-backup-2026-10-07.md`. User explicitly authorized
+checkpoint commits and pushes; image publication and production deployment remain unauthorized.
+
+Remaining full-stack/API/Studio/FDE acceptance is pending. No full-suite success is claimed.
+
 ## Testing policy, guide and focused repairs — 2026-10-07 18:06 EDT
 
 The user agreed to complementary direct and authenticated REST tests across Quarkus, Spring and
