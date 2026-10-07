@@ -32,3 +32,25 @@ Livy has a local checkpoint; its remote push failed because HTTPS credentials ar
 Restore by cloning each existing remote and checking out the backup branch. Use the commit table for the exact cross-repository snapshot. Worktree branches remain their original branches; subsequent repairs will be newer than this checkpoint.
 
 This manifest is committed separately in forwardmeasure-platform on the same backup branch; its row above identifies the production/test snapshot before adding this manifest.
+
+## Verified follow-up checkpoints — 18:50 EDT
+
+The same remote backup branch now includes these follow-up commits:
+
+| Repository | Commit | Evidence |
+|---|---|---|
+| forwardmeasure-jpa | `32b04332871e8ef4b3911150b6891aadc0896814` | Public reuse of the existing transaction adapter; seven Micronaut JPA contracts pass. |
+| forwardmeasure-entity-intelligence | `1be370b81ff7f43fb5477a146431172ed73fa1f4` | 25 selected cases pass on each of Quarkus, Spring and Micronaut (57 managed-service and 18 HTTP cases). |
+| forwardmeasure-platform | `8b6415a05c020289541de41a2ef9cd4a7e9bde02` | Updated evidence and testing guide; wider acceptance remains pending. |
+
+The targeted JPA install succeeded in 18.598 seconds (`/tmp/jpa-micronaut-transaction-adapter-install-20261007.log`). The wider bounded build resumed from `:openworkflow-execution-management-jpa` with tests and local images, no image pushes: `/tmp/forwardmeasure-takeover-57-jdk2503.log`. It was running when this update was written.
+
+## Wider verification — 19:12 EDT
+
+Run57 passed all 14 FOWF execution JPA tests, then exposed sparse engine HTTP coverage.
+The added 21 transport contracts pass (25 total), and run58 verifies 152/152 lines and
+35/38 branches. Run58 then stopped at missing local execution data for the portable event
+ingress server, which is exercised by later framework tests. Its aggregate ownership and
+shared PostgreSQL fixtures are being corrected and compiled/tested; that work is not yet
+passing evidence. Logs: `/tmp/forwardmeasure-takeover-58-jdk2503.log`,
+`/tmp/fowf-event-ingress-frameworks-01-20261007.log`.
