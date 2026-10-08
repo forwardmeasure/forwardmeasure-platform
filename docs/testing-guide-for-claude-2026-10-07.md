@@ -312,6 +312,13 @@ it with `<type>test-jar</type><scope>test</scope>` from each framework leaf. Thi
 coverage waiver. Declare fixture dependencies explicitly or deliberately preserve transitive
 fixture dependencies in the artifact POM; never let them enter deployment runtime dependencies.
 The shared Testcontainers implementation itself remains a real library requiring its own tests.
+Move fixture resources into `src/test/resources` at the same time: the attached test JAR must carry
+realm JSON and other classpath inputs alongside its classes. A move between Maven modules also
+requires moving resources to their actual consumer; an ordinary dependency does not expose another
+module's test resources. After relocating classes, clean only those fixture modules to remove stale
+`target/classes` entries, then compile their dependency closure and all framework consumers. Do not
+repeatedly clean upstream modules and discard their coverage evidence. Audit all sibling contract
+modules for the same layout instead of waiting for sequential build failures.
 
 The event-ingress contracts now use this packaging and the shared PostgreSQL container; all
 seven HTTP cases pass on each of the three frameworks after a clean build. Their scope is
