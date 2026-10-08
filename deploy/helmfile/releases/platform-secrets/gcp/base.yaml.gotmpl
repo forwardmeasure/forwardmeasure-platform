@@ -83,15 +83,24 @@ secrets:
     namespaces: [{{ .Values.namespaces.decisionEngine }}]
     remoteRefs:
       - {secretKey: DECISION_ENGINE_CLIENT_SECRET, remoteKey: {{ .Values.platform.identity.serviceClients.decisionEngine.secretRemoteKey | quote }}}
-  - name: openworkflow-decision-engine-credentials
+  {{- end }}
+  # Tenant-scoped service tokens for operation-adapter callbacks. Keep FEI available when
+  # decision-engine is disabled; these credentials never enter workflow input/history.
+  {{- $operationClients := printf "dict \"entity-intelligence-ingestion-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .ingestionWorkerSecret)" .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.clientId }}
+  {{- if .Values.platform.products.decisionEngine.enabled }}
+  {{- $operationClients = printf "%s \"decision-engine-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .evaluatorSecret)" $operationClients .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.decisionEngineEvaluator.clientId }}
+  {{- end }}
+  - name: openworkflow-service-client-credentials
     identityClientCredentials: true
     enabled: true
     namespaces: [{{ .Values.namespaces.openworkflow }}]
     templateData:
-      OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS: {{ printf "{{ dict \"decision-engine-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .evaluatorSecret) | toJson }}" .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.decisionEngineEvaluator.clientId | quote }}
+      OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS: {{ printf "{{ %s | toJson }}" $operationClients | quote }}
     remoteRefs:
+      - {secretKey: ingestionWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.secretRemoteKey | quote }}}
+      {{- if .Values.platform.products.decisionEngine.enabled }}
       - {secretKey: evaluatorSecret, remoteKey: {{ .Values.platform.identity.serviceClients.decisionEngineEvaluator.secretRemoteKey | quote }}}
-  {{- end }}
+      {{- end }}
   - name: data-streaming-launcher-credentials
     identityClientCredentials: true
     enabled: {{ .Values.platform.identity.serviceClients.dataStreaming.enabled }}
