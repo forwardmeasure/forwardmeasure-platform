@@ -3,6 +3,7 @@
 # This contract replaces the unused documentation-only schema. Raw source strings are
 # validated before mapping. Duplicate trailing headers require the reader's positional policy.
 contract_version: 1
+preserve_source_assertion: true
 source:
   format: csv
   has_header: true
@@ -19,16 +20,16 @@ source_schema:
   required: [ENTITYS_UNIQUE_ID, ENTITYS_FULL_NAME, ENTITYS_TYPE]
   properties:
     ENTITYS_UNIQUE_ID: { type: string, minLength: 1 }
-    BUSINESS_ENTITY_RECORD_ID: { type: string, description: Fixed-scheme identifier (mapped to a test_customer_master_business_entity_record_id assertion). }
-    GEMS_ID: { type: string, description: Fixed-scheme identifier (mapped to a test_customer_master_kyc_id assertion). }
+    BUSINESS_ENTITY_RECORD_ID: { type: string, description: Domain-scoped business_entity_record_id@STATE_STREET_CUSTOMER_MASTER identifier. }
+    GEMS_ID: { type: string, description: Domain-scoped kyc_id@STATE_STREET_CUSTOMER_MASTER identifier. }
     ENTITYS_FULL_NAME: { type: string, description: Mapped to display_name. }
-    ENTITY_PREFIX: { type: string, description: Not yet mapped. }
-    ENTITY_FIRST_NAME: { type: string, description: Not yet mapped - ENTITYS_FULL_NAME is used as-is. }
-    ENTITY_MIDDLE_NAME: { type: string, description: Not yet mapped. }
-    ENTITY_LAST_NAME: { type: string, description: Not yet mapped. }
-    ENTITY_SUFFIX: { type: string, description: Not yet mapped. }
-    TRADE_AS_NAME: { type: string, description: Not yet mapped - SourceOfTruthRecord has no alias-name target. }
-    FORMER_NAME: { type: string, description: Not yet mapped - same reason as TRADE_AS_NAME. }
+    ENTITY_PREFIX: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
+    ENTITY_FIRST_NAME: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
+    ENTITY_MIDDLE_NAME: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
+    ENTITY_LAST_NAME: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
+    ENTITY_SUFFIX: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
+    TRADE_AS_NAME: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
+    FORMER_NAME: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
     ENTITY_LOCATION_1_ADDRESS_LINE_1: { type: string }
     ENTITY_LOCATION_1_ADDRESS_LINE_2: { type: string }
     ENTITY_LOCATION_1_CITY: { type: string }
@@ -49,8 +50,8 @@ source_schema:
     DATE_OF_BIRTH_DATE_OF_INCORPORATION: { type: string }
     OCCUPATION: { type: string }
     JOB_TITLE: { type: string }
-    LAST_UPDATED_DATE: { type: string, description: Not yet mapped. }
-    ENTITY_TYPE_CODE: { type: string, description: Not yet mapped - ENTITYS_TYPE drives entity_kind instead. }
+    LAST_UPDATED_DATE: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
+    ENTITY_TYPE_CODE: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
     ENTITYS_TYPE: { type: string, description: "e.g. Individual/Mutual Fund/Trust (Corp & Ind) - drives entity_kind." }
     ENTITY_PUBLIC_IDENTIFIER: { type: string, description: "Semicolon-delimited {SCHEME}value pairs (variable scheme/count)." }
     PRIMARY_BUSINESS_UNIT: { type: string }
@@ -59,14 +60,14 @@ source_schema:
     BOOKING_ENTITIES_AND_LOCATIONS: { type: string }
     ADDITIONAL_BUSINESS_UNITS_AND_LOCATIONS: { type: string }
     ENTITY_CLASSIFICATION: { type: string }
-    PLACE_OF_BIRTH: { type: string, description: Not yet mapped. }
+    PLACE_OF_BIRTH: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
 output_schema:
   $schema: https://json-schema.org/draft/2020-12/schema
   type: object
   required: [uid, entity_kind, display_name]
   properties:
     uid: {type: string, minLength: 1}
-    entity_kind: {type: string, minLength: 1}
+    entity_kind: {type: string, enum: [person, organization]}
     display_name: {type: string, minLength: 1}
     primary_jurisdiction: {type: [string, 'null']}
     assertions:
@@ -76,4 +77,27 @@ output_schema:
         required: [key, value]
         properties:
           key: {type: string, minLength: 1}
-          value: {type: object}
+          value:
+            type: object
+            required: [valueType]
+            oneOf:
+              - required: [value_string]
+                properties:
+                  valueType: {const: string}
+                  value_string: {type: string, minLength: 1}
+              - required: [value_date]
+                properties:
+                  valueType: {const: date}
+                  value_date: {type: string, format: date}
+              - required: [value_identifier]
+                properties:
+                  valueType: {const: identifier}
+                  value_identifier: {type: object}
+              - required: [value_address]
+                properties:
+                  valueType: {const: address}
+                  value_address: {type: object}
+              - required: [value_json]
+                properties:
+                  valueType: {const: json}
+                  value_json: {type: object}

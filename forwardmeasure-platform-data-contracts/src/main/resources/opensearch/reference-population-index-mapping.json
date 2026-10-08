@@ -93,6 +93,18 @@
           "country_name": {
             "type": "text",
             "analyzer": "standard"
+          },
+          "country_code": {
+            "type": "keyword"
+          },
+          "location_type": {
+            "type": "keyword"
+          },
+          "city": {
+            "type": "text"
+          },
+          "state_or_province": {
+            "type": "text"
           }
         }
       },
@@ -116,6 +128,98 @@
       "source_data": {
         "type": "object",
         "dynamic": false
+      },
+      "title": {
+        "type": "text"
+      },
+      "position": {
+        "type": "text"
+      },
+      "place_of_birth": {
+        "type": "text"
+      },
+      "further_information": {
+        "type": "text"
+      },
+      "update_category": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "editor": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "pep_status": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "source_categories": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "source_subcategories": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "company_ids": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "linked_record_ids": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "keywords": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "external_sources": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "external_source_domains": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "pep_roles": {
+        "type": "text"
+      },
+      "special_interest_categories": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "categories": {
+        "type": "keyword",
+        "ignore_above": 2048
+      },
+      "age": {
+        "type": "integer"
+      },
+      "deceased": {
+        "type": "boolean"
+      },
+      "entered_date": {
+        "type": "date",
+        "format": "strict_date"
+      },
+      "updated_date": {
+        "type": "date",
+        "format": "strict_date"
+      },
+      "age_as_of_date": {
+        "type": "date",
+        "format": "strict_date"
+      },
+      "date_details": {
+        "type": "nested",
+        "properties": {
+          "value": {
+            "type": "keyword"
+          },
+          "precision": {
+            "type": "keyword"
+          }
+        }
       }
     }
   }

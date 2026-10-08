@@ -9,16 +9,23 @@
 # State Street customer master -> FEI SourceOfTruthRecord resolution assertions.
 # Source: state-street-customer-master-source-v1.yaml in this artifact.
 # Screening/OpenSearch mappings are a different destination contract; this is not one.
-# Mapping semantics are retained from the existing resolution integration fixture.
+# Explicit resolution semantics; source strings also survive in the source_data JSON assertion.
 target: schema://source-of-truth/1.0
 fields:
   - target: uid
     source: ENTITYS_UNIQUE_ID
   - target: entity_kind
     source: ENTITYS_TYPE
-    transform: classify_party_kind_test_customer_master
+    transform: customer_master_party_kind
   - target: display_name
-    source: ENTITYS_FULL_NAME
+    transform: customer_master_display_name
+    inputs:
+      full: ENTITYS_FULL_NAME
+      prefix: ENTITY_PREFIX
+      first: ENTITY_FIRST_NAME
+      middle: ENTITY_MIDDLE_NAME
+      last: ENTITY_LAST_NAME
+      suffix: ENTITY_SUFFIX
   - target: primary_jurisdiction
     source: ENTITY_LOCATION_1_COUNTRY
     transform: resolve_iso2_country
@@ -72,21 +79,20 @@ fields:
       Additional BU: ADDITIONAL_BUSINESS_UNITS_AND_LOCATIONS
     optional: true
 
-  # Fixed-scheme identifiers - one ordinary rule each, mirroring FDS's own
-  # build_test_customer_master_identifiers' fixed-scheme half (TEST_CUSTOMER_MASTER_*).
+  # Source-system identifiers carry explicit domains, so deterministic matching can use them.
   - target: assertions
     repeated: true
     metadata:
-      key: test_customer_master_business_entity_record_id
-    transform: as_identifier_assertion_value
+      key: business_entity_record_id@STATE_STREET_CUSTOMER_MASTER
+    transform: customer_master_record_id
     inputs:
       value: BUSINESS_ENTITY_RECORD_ID
     optional: true
   - target: assertions
     repeated: true
     metadata:
-      key: test_customer_master_kyc_id
-    transform: as_identifier_assertion_value
+      key: kyc_id@STATE_STREET_CUSTOMER_MASTER
+    transform: customer_master_kyc_id
     inputs:
       value: GEMS_ID
     optional: true
@@ -138,7 +144,187 @@ fields:
   # small merge step (see that class's own javadoc), since each entry's own key varies per row/
   # entry and can't use a fixed metadata.key the way every rule above does.
   - target: public_identifier_assertions
-    transform: build_customer_master_public_identifiers
+    transform: customer_master_identifiers_v2
     inputs:
       value: ENTITY_PUBLIC_IDENTIFIER
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: name
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITYS_FULL_NAME
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: name_prefix
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITY_PREFIX
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: given_name
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITY_FIRST_NAME
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: middle_name
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITY_MIDDLE_NAME
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: family_name
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITY_LAST_NAME
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: name_suffix
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITY_SUFFIX
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: trading_name
+    transform: as_semicolon_string_assertion_values
+    inputs:
+      value: TRADE_AS_NAME
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: former_name
+    transform: as_semicolon_string_assertion_values
+    inputs:
+      value: FORMER_NAME
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: place_of_birth
+    transform: as_string_assertion_value
+    inputs:
+      value: PLACE_OF_BIRTH
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: source_updated_date
+    transform: as_date_assertion_value
+    inputs:
+      value: LAST_UPDATED_DATE
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: source_entity_type_code
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITY_TYPE_CODE
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: source_entity_type
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITYS_TYPE
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: occupation
+    transform: as_string_assertion_value
+    inputs:
+      value: OCCUPATION
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: entity_classification
+    transform: as_string_assertion_value
+    inputs:
+      value: ENTITY_CLASSIFICATION
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: primary_business_unit
+    transform: as_string_assertion_value
+    inputs:
+      value: PRIMARY_BUSINESS_UNIT
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: contracting_entities_and_locations
+    transform: as_string_assertion_value
+    inputs:
+      value: CONTRACTING_ENTITIES_AND_LOCATIONS
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: servicing_entities_and_locations
+    transform: as_string_assertion_value
+    inputs:
+      value: SERVICING_ENTITIES_AND_LOCATIONS
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: booking_entities_and_locations
+    transform: as_string_assertion_value
+    inputs:
+      value: BOOKING_ENTITIES_AND_LOCATIONS
+    optional: true
+
+  - target: assertions
+    repeated: true
+    metadata:
+      key: additional_business_units_and_locations
+    transform: as_string_assertion_value
+    inputs:
+      value: ADDITIONAL_BUSINESS_UNITS_AND_LOCATIONS
+    optional: true
+
+  # Canonical keys consumed by resolution evidence extraction, alongside retained legacy facts.
+  - target: identity_assertions
+    transform: customer_master_identity_assertions
+    inputs:
+      kind: ENTITYS_TYPE
+      date: DATE_OF_BIRTH_DATE_OF_INCORPORATION
+      country: COUNTRY_OF_CITIZENSHIP_INCORPORATION
     optional: true

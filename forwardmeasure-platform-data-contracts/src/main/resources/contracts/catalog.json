@@ -7,14 +7,14 @@
       "mapping": "contracts/worldcheck-mapping-v1.json",
       "destination": "contracts/screening-document-v1.json",
       "index": "opensearch/reference-population-index-mapping.json",
-      "status": "semantic-repair-in-progress"
+      "status": "bounded-semantics-validated-runtime-matrix-pending"
     },
     {
       "id": "state-street-customer-master-resolution-v1",
       "source": "contracts/state-street-customer-master-source-v1.yaml",
       "mapping": "contracts/state-street-customer-master-resolution-mapping-v1.yaml",
       "destination": "contracts/state-street-customer-master-source-v1.yaml#/output_schema",
-      "status": "existing-resolution-mapping-validation-in-progress"
+      "status": "bounded-semantics-validated-runtime-matrix-pending"
     }
   ],
   "index_overrides": [

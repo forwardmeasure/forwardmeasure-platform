@@ -15,57 +15,14 @@
     },
     {
       "target": "names",
-      "template": "{LAST NAME}, {FIRST NAME}",
-      "repeated": true,
-      "metadata": {
-        "name_type": "PRIMARY"
-      },
-      "optional": true
-    },
-    {
-      "target": "names",
-      "source": "LAST NAME",
-      "repeated": true,
-      "metadata": {
-        "name_type": "PRIMARY"
+      "transform": "canonical_names",
+      "inputs": {
+        "last": "LAST NAME",
+        "first": "FIRST NAME",
+        "aliases": "ALIASES",
+        "low_quality": "LOW QUALITY ALIASES",
+        "alternative": "ALTERNATIVE SPELLING"
       }
-    },
-    {
-      "target": "names",
-      "source": "ALIASES",
-      "transform": "parse_semicolon_list",
-      "repeated": true,
-      "metadata": {
-        "name_type": "ALIAS"
-      },
-      "optional": true
-    },
-    {
-      "target": "dates",
-      "source": "DOB",
-      "transform": "parse_partial_date_ymd",
-      "repeated": true,
-      "optional": true
-    },
-    {
-      "target": "names",
-      "source": "LOW QUALITY ALIASES",
-      "transform": "parse_semicolon_list",
-      "repeated": true,
-      "metadata": {
-        "name_type": "LOW_QUALITY"
-      },
-      "optional": true
-    },
-    {
-      "target": "names",
-      "source": "ALTERNATIVE SPELLING",
-      "transform": "parse_semicolon_list",
-      "repeated": true,
-      "metadata": {
-        "name_type": "ALIAS"
-      },
-      "optional": true
     },
     {
       "target": "nationalities",
@@ -82,7 +39,7 @@
     {
       "target": "locations",
       "source": "LOCATIONS",
-      "transform": "screening_locations",
+      "transform": "screening_locations_v2",
       "optional": true
     },
     {
@@ -93,13 +50,156 @@
     },
     {
       "target": "identifiers",
-      "transform": "screening_identifiers",
+      "transform": "screening_identifiers_v2",
       "inputs": {
         "passports": "PASSPORTS",
         "identification_numbers": "IDENTIFICATION NUMBERS",
         "ssn": "SSN"
       },
       "optional": true
+    },
+    {
+      "target": "dates",
+      "transform": "exact_ymd_dates",
+      "inputs": {
+        "dob": "DOB",
+        "dobs": "DOBS"
+      },
+      "optional": true
+    },
+    {
+      "target": "date_details",
+      "transform": "precision_ymd_dates",
+      "inputs": {
+        "dob": "DOB",
+        "dobs": "DOBS"
+      },
+      "optional": true
+    },
+    {
+      "target": "title",
+      "source": "TITLE",
+      "optional": true
+    },
+    {
+      "target": "source_categories",
+      "source": "CATEGORY",
+      "optional": true,
+      "transform": "parse_semicolon_list"
+    },
+    {
+      "target": "source_subcategories",
+      "source": "SUB-CATEGORY",
+      "optional": true,
+      "transform": "parse_semicolon_list"
+    },
+    {
+      "target": "position",
+      "source": "POSITION",
+      "optional": true
+    },
+    {
+      "target": "age",
+      "source": "AGE",
+      "optional": true,
+      "transform": "optional_nonnegative_integer"
+    },
+    {
+      "target": "place_of_birth",
+      "source": "PLACE OF BIRTH",
+      "optional": true
+    },
+    {
+      "target": "deceased",
+      "source": "DECEASED",
+      "optional": true,
+      "transform": "optional_boolean"
+    },
+    {
+      "target": "company_ids",
+      "source": "COMPANIES",
+      "optional": true,
+      "transform": "parse_semicolon_list"
+    },
+    {
+      "target": "linked_record_ids",
+      "source": "LINKED TO",
+      "optional": true,
+      "transform": "parse_semicolon_list"
+    },
+    {
+      "target": "further_information",
+      "source": "FURTHER INFORMATION",
+      "optional": true
+    },
+    {
+      "target": "keywords",
+      "source": "KEYWORDS",
+      "optional": true,
+      "transform": "parse_tilde_list"
+    },
+    {
+      "target": "external_sources",
+      "source": "EXTERNAL SOURCES",
+      "optional": true,
+      "transform": "parse_url_list"
+    },
+    {
+      "target": "external_source_domains",
+      "source": "EXTERNAL SOURCES",
+      "optional": true,
+      "transform": "extract_url_domains"
+    },
+    {
+      "target": "update_category",
+      "source": "UPDATE CATEGORY",
+      "optional": true
+    },
+    {
+      "target": "entered_date",
+      "source": "ENTERED",
+      "optional": true,
+      "transform": "exact_ymd_date"
+    },
+    {
+      "target": "updated_date",
+      "source": "UPDATED",
+      "optional": true,
+      "transform": "exact_ymd_date"
+    },
+    {
+      "target": "editor",
+      "source": "EDITOR",
+      "optional": true
+    },
+    {
+      "target": "age_as_of_date",
+      "source": "AGE DATE (AS OF DATE)",
+      "optional": true,
+      "transform": "exact_ymd_date"
+    },
+    {
+      "target": "pep_roles",
+      "source": "PEP ROLES",
+      "optional": true,
+      "transform": "parse_tilde_list"
+    },
+    {
+      "target": "pep_status",
+      "source": "PEP STATUS",
+      "optional": true
+    },
+    {
+      "target": "special_interest_categories",
+      "source": "SPECIAL INTEREST CATEGORIES",
+      "optional": true,
+      "transform": "parse_semicolon_list"
+    },
+    {
+      "target": "categories",
+      "source": "SPECIAL INTEREST CATEGORIES",
+      "optional": true,
+      "transform": "classify_party_categories"
     }
   ]
 }

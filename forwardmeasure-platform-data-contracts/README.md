@@ -20,18 +20,17 @@ explicit capability, not the default and not a complete premium-feed index speci
 
 ## Current correctness limits
 
-Central ownership is not semantic acceptance. WorldCheck now declares all 35 header columns;
-its normalized mapping still has the field-disposition, partial-date, identifier and classification
-gaps listed in `../../forwardmeasure-entity-intelligence/docs/worldcheck-contract-fixture-discrepancy-test-handover-2026-10-08.md`.
-The small premium fixture cannot prove full-feed support. Full-file streaming and limits remain open.
+The WorldCheck and customer-master semantics are specified field by field in
+[the provider ledger](provider-field-semantics-2026-10-08.md). WorldCheck now maps all 35 columns,
+with explicit date precision, richer locations, classifications, identifiers and provenance. State
+Street maps all 42 logical named columns into resolution fields/assertions, including the canonical
+keys actually consumed by resolution matching. Raw source preservation is retained in both paths.
+The ledger records blank/invalid handling, duplicate headers, unknown entity types, identifier domains,
+matching limits and snapshot compatibility. Current execution evidence lives in the FEI repair handover.
 
-The State Street contract declares the 42 named source fields and the pipe/UTF-8 parser settings.
-It replaces the old unused source-schema description and is actually consumed by the resolution
-worker regression. Its existing assertion mapping is preserved, including documented unmapped
-columns. It is not a newly certified complete customer-master mapping or a screening mapping.
-The file reader's trailing duplicate-header handling needs separate validation against the external
-source. Do not invent a second State Street source schema for a future screening mapping; add that
-mapping as another explicit destination in the catalogue.
+Full-file streaming/size limits and the complete framework/engine matrix remain open. The current
+State Street destination is resolution, not a second screening schema. Future screening mappings
+must reuse this source contract and explicitly declare their different destination.
 
 FDS's `forwardmeasure-data-streaming-test-fixtures` retains historical flat-target engine fixtures.
 They exercise the generic FDS engine and are not selectable alternatives to FEI's shared screening
