@@ -1,0 +1,105 @@
+{
+  "target": "urn:fei:screening-document:1",
+  "fields": [
+    {
+      "target": "uid",
+      "source": "UID"
+    },
+    {
+      "target": "entity_kind",
+      "inputs": {
+        "value": "CATEGORY",
+        "entity_indicator": "E/I"
+      },
+      "transform": "screening_party_kind"
+    },
+    {
+      "target": "names",
+      "template": "{LAST NAME}, {FIRST NAME}",
+      "repeated": true,
+      "metadata": {
+        "name_type": "PRIMARY"
+      },
+      "optional": true
+    },
+    {
+      "target": "names",
+      "source": "LAST NAME",
+      "repeated": true,
+      "metadata": {
+        "name_type": "PRIMARY"
+      }
+    },
+    {
+      "target": "names",
+      "source": "ALIASES",
+      "transform": "parse_semicolon_list",
+      "repeated": true,
+      "metadata": {
+        "name_type": "ALIAS"
+      },
+      "optional": true
+    },
+    {
+      "target": "dates",
+      "source": "DOB",
+      "transform": "parse_partial_date_ymd",
+      "repeated": true,
+      "optional": true
+    },
+    {
+      "target": "names",
+      "source": "LOW QUALITY ALIASES",
+      "transform": "parse_semicolon_list",
+      "repeated": true,
+      "metadata": {
+        "name_type": "LOW_QUALITY"
+      },
+      "optional": true
+    },
+    {
+      "target": "names",
+      "source": "ALTERNATIVE SPELLING",
+      "transform": "parse_semicolon_list",
+      "repeated": true,
+      "metadata": {
+        "name_type": "ALIAS"
+      },
+      "optional": true
+    },
+    {
+      "target": "nationalities",
+      "source": "CITIZENSHIP",
+      "transform": "parse_semicolon_iso2_list",
+      "optional": true
+    },
+    {
+      "target": "countries",
+      "source": "COUNTRIES",
+      "transform": "parse_semicolon_iso2_list",
+      "optional": true
+    },
+    {
+      "target": "locations",
+      "source": "LOCATIONS",
+      "transform": "screening_locations",
+      "optional": true
+    },
+    {
+      "target": "location_country_codes",
+      "source": "LOCATIONS",
+      "transform": "screening_location_countries",
+      "optional": true
+    },
+    {
+      "target": "identifiers",
+      "transform": "screening_identifiers",
+      "inputs": {
+        "passports": "PASSPORTS",
+        "identification_numbers": "IDENTIFICATION NUMBERS",
+        "ssn": "SSN"
+      },
+      "optional": true
+    }
+  ]
+}

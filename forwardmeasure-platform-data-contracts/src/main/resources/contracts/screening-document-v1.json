@@ -1,0 +1,120 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "uid": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entity_kind": {
+      "type": "string",
+      "enum": [
+        "PERSON",
+        "ORGANIZATION",
+        "PHYSICAL_ASSET",
+        "UNKNOWN"
+      ]
+    },
+    "names": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "minItems": 1
+    },
+    "dates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "nationalities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "countries": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "location_country_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "country_name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "country_name"
+        ]
+      }
+    },
+    "identifiers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "normalized_value": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ]
+      }
+    },
+    "source_data": {
+      "type": "object",
+      "description": "Vendor/source-specific values preserved without canonical screening semantics. Searchable fields require explicit index mappings.",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "uid",
+    "entity_kind",
+    "names"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fei:screening-document:1"
+}

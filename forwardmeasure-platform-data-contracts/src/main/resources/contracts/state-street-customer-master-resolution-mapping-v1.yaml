@@ -1,0 +1,144 @@
+# Copyright (c) 2026 ForwardMeasure, Inc. All rights reserved.
+#
+# This file is part of ForwardMeasure Entity Intelligence and is
+# proprietary and confidential. Unauthorized copying, modification,
+# distribution or use of this file, via any medium, is strictly
+# prohibited without the prior written permission of
+# ForwardMeasure, Inc.
+
+# State Street customer master -> FEI SourceOfTruthRecord resolution assertions.
+# Source: state-street-customer-master-source-v1.yaml in this artifact.
+# Screening/OpenSearch mappings are a different destination contract; this is not one.
+# Mapping semantics are retained from the existing resolution integration fixture.
+target: schema://source-of-truth/1.0
+fields:
+  - target: uid
+    source: ENTITYS_UNIQUE_ID
+  - target: entity_kind
+    source: ENTITYS_TYPE
+    transform: classify_party_kind_test_customer_master
+  - target: display_name
+    source: ENTITYS_FULL_NAME
+  - target: primary_jurisdiction
+    source: ENTITY_LOCATION_1_COUNTRY
+    transform: resolve_iso2_country
+    optional: true
+
+  # Fixed-key, single-valued assertions - one ordinary repeated+metadata rule each.
+  - target: assertions
+    repeated: true
+    metadata:
+      key: position
+    transform: as_string_assertion_value
+    inputs:
+      value: JOB_TITLE
+    optional: true
+  - target: assertions
+    repeated: true
+    metadata:
+      key: date_of_birth_or_incorporation
+    transform: as_yyyymmdd_date_assertion_value
+    inputs:
+      value: DATE_OF_BIRTH_DATE_OF_INCORPORATION
+    optional: true
+  - target: assertions
+    repeated: true
+    metadata:
+      key: nationality
+    transform: as_country_code_assertion_value
+    inputs:
+      value: COUNTRY_OF_NATIONALITY
+    optional: true
+  - target: assertions
+    repeated: true
+    metadata:
+      key: citizenship_or_incorporation_country
+    transform: as_country_code_assertion_value
+    inputs:
+      value: COUNTRY_OF_CITIZENSHIP_INCORPORATION
+    optional: true
+  - target: assertions
+    repeated: true
+    metadata:
+      key: further_information
+    transform: as_joined_labeled_fields_assertion_value
+    inputs:
+      Occupation: OCCUPATION
+      Classification: ENTITY_CLASSIFICATION
+      Primary BU: PRIMARY_BUSINESS_UNIT
+      Contracting: CONTRACTING_ENTITIES_AND_LOCATIONS
+      Servicing: SERVICING_ENTITIES_AND_LOCATIONS
+      Booking: BOOKING_ENTITIES_AND_LOCATIONS
+      Additional BU: ADDITIONAL_BUSINESS_UNITS_AND_LOCATIONS
+    optional: true
+
+  # Fixed-scheme identifiers - one ordinary rule each, mirroring FDS's own
+  # build_test_customer_master_identifiers' fixed-scheme half (TEST_CUSTOMER_MASTER_*).
+  - target: assertions
+    repeated: true
+    metadata:
+      key: test_customer_master_business_entity_record_id
+    transform: as_identifier_assertion_value
+    inputs:
+      value: BUSINESS_ENTITY_RECORD_ID
+    optional: true
+  - target: assertions
+    repeated: true
+    metadata:
+      key: test_customer_master_kyc_id
+    transform: as_identifier_assertion_value
+    inputs:
+      value: GEMS_ID
+    optional: true
+
+  # 3 structured location blocks, fixed key per position (registered/mailing/other), mirroring
+  # FDS's own build_test_customer_master_locations' own REGISTERED/MAILING/OTHER position mapping -
+  # each block's own transform resolves its own country name to ISO2 before wrapping
+  # (as_address_assertion_value expects an ISO2 country_code, matching Address's own real field).
+  - target: assertions
+    repeated: true
+    metadata:
+      key: registered_address
+    transform: as_customer_master_registered_address_assertion_value
+    inputs:
+      street_address_1: ENTITY_LOCATION_1_ADDRESS_LINE_1
+      street_address_2: ENTITY_LOCATION_1_ADDRESS_LINE_2
+      city: ENTITY_LOCATION_1_CITY
+      state_or_province: ENTITY_LOCATION_1_STATE_PROVINCE
+      country: ENTITY_LOCATION_1_COUNTRY
+    optional: true
+  - target: assertions
+    repeated: true
+    metadata:
+      key: mailing_address
+    transform: as_customer_master_mailing_address_assertion_value
+    inputs:
+      street_address_1: ENTITY_LOCATION_2_ADDRESS_LINE_1
+      street_address_2: ENTITY_LOCATION_2_ADDRESS_LINE_2
+      city: ENTITY_LOCATION_2_CITY
+      state_or_province: ENTITY_LOCATION_2_STATE_PROVINCE
+      country: ENTITY_LOCATION_2_COUNTRY
+    optional: true
+  - target: assertions
+    repeated: true
+    metadata:
+      key: other_address
+    transform: as_customer_master_other_address_assertion_value
+    inputs:
+      street_address_1: ENTITY_LOCATION_3_ADDRESS_LINE_1
+      street_address_2: ENTITY_LOCATION_3_ADDRESS_LINE_2
+      city: ENTITY_LOCATION_3_CITY
+      state_or_province: ENTITY_LOCATION_3_STATE_PROVINCE
+      country: ENTITY_LOCATION_3_COUNTRY
+    optional: true
+
+  # Variable-scheme identifiers (ENTITY_PUBLIC_IDENTIFIER's own {SCHEME}value pairs, parsed via
+  # FDS's shared parse_identifier_pairs) - a non-repeated rule producing the whole assertion-entry
+  # list in one call, merged into the real 'assertions' list by SimpleSourceIngestionWorker's own
+  # small merge step (see that class's own javadoc), since each entry's own key varies per row/
+  # entry and can't use a fixed metadata.key the way every rule above does.
+  - target: public_identifier_assertions
+    transform: build_customer_master_public_identifiers
+    inputs:
+      value: ENTITY_PUBLIC_IDENTIFIER
+    optional: true

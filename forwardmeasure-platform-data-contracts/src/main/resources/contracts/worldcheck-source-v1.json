@@ -1,0 +1,134 @@
+{
+  "contract_version": 1,
+  "source": {
+    "format": "csv",
+    "has_header": true,
+    "delimiter": "\t",
+    "encoding": "ISO-8859-1"
+  },
+  "identity": {
+    "version": 1,
+    "document_field": "uid",
+    "source_fields": [
+      "UID"
+    ],
+    "strategy": "provider-stable"
+  },
+  "source_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [
+      "UID",
+      "CATEGORY"
+    ],
+    "properties": {
+      "UID": {
+        "type": "string",
+        "minLength": 1
+      },
+      "LAST NAME": {
+        "type": "string"
+      },
+      "FIRST NAME": {
+        "type": "string"
+      },
+      "ALIASES": {
+        "type": "string"
+      },
+      "LOW QUALITY ALIASES": {
+        "type": "string"
+      },
+      "ALTERNATIVE SPELLING": {
+        "type": "string"
+      },
+      "CATEGORY": {
+        "type": "string",
+        "minLength": 1
+      },
+      "TITLE": {
+        "type": "string"
+      },
+      "SUB-CATEGORY": {
+        "type": "string"
+      },
+      "POSITION": {
+        "type": "string"
+      },
+      "AGE": {
+        "type": "string"
+      },
+      "DOB": {
+        "type": "string"
+      },
+      "DOBS": {
+        "type": "string"
+      },
+      "PLACE OF BIRTH": {
+        "type": "string"
+      },
+      "DECEASED": {
+        "type": "string"
+      },
+      "PASSPORTS": {
+        "type": "string"
+      },
+      "SSN": {
+        "type": "string"
+      },
+      "IDENTIFICATION NUMBERS": {
+        "type": "string"
+      },
+      "LOCATIONS": {
+        "type": "string"
+      },
+      "COUNTRIES": {
+        "type": "string"
+      },
+      "CITIZENSHIP": {
+        "type": "string"
+      },
+      "COMPANIES": {
+        "type": "string"
+      },
+      "E/I": {
+        "type": "string"
+      },
+      "LINKED TO": {
+        "type": "string"
+      },
+      "FURTHER INFORMATION": {
+        "type": "string"
+      },
+      "KEYWORDS": {
+        "type": "string"
+      },
+      "EXTERNAL SOURCES": {
+        "type": "string"
+      },
+      "UPDATE CATEGORY": {
+        "type": "string"
+      },
+      "ENTERED": {
+        "type": "string"
+      },
+      "UPDATED": {
+        "type": "string"
+      },
+      "EDITOR": {
+        "type": "string"
+      },
+      "AGE DATE (AS OF DATE)": {
+        "type": "string"
+      },
+      "PEP ROLES": {
+        "type": "string"
+      },
+      "PEP STATUS": {
+        "type": "string"
+      },
+      "SPECIAL INTEREST CATEGORIES": {
+        "type": "string"
+      }
+    }
+  }
+}

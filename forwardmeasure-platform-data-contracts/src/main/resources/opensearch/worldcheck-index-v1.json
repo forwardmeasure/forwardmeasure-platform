@@ -1,0 +1,127 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "name_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        },
+        "name_phonetic_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "name_double_metaphone"
+          ]
+        }
+      },
+      "filter": {
+        "name_double_metaphone": {
+          "type": "phonetic",
+          "encoder": "double_metaphone",
+          "replace": false
+        }
+      },
+      "normalizer": {
+        "lowercase": {
+          "type": "custom",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "entity_kind": {
+        "type": "keyword"
+      },
+      "names": {
+        "type": "nested",
+        "properties": {
+          "value": {
+            "type": "text",
+            "analyzer": "name_analyzer",
+            "fields": {
+              "standard": {
+                "type": "text",
+                "analyzer": "name_analyzer"
+              },
+              "keyword": {
+                "type": "keyword",
+                "normalizer": "lowercase",
+                "ignore_above": 512
+              },
+              "phonetic": {
+                "type": "text",
+                "analyzer": "name_phonetic_analyzer",
+                "search_analyzer": "name_phonetic_analyzer"
+              }
+            }
+          },
+          "name_type": {
+            "type": "keyword"
+          }
+        }
+      },
+      "dates": {
+        "type": "date",
+        "format": "yyyy-MM-dd||strict_date_optional_time"
+      },
+      "nationalities": {
+        "type": "keyword"
+      },
+      "countries": {
+        "type": "keyword"
+      },
+      "location_country_codes": {
+        "type": "keyword"
+      },
+      "locations": {
+        "type": "nested",
+        "properties": {
+          "country_name": {
+            "type": "text",
+            "analyzer": "standard"
+          }
+        }
+      },
+      "identifiers": {
+        "type": "nested",
+        "properties": {
+          "type": {
+            "type": "keyword"
+          },
+          "value": {
+            "type": "keyword"
+          },
+          "normalized_value": {
+            "type": "keyword"
+          }
+        }
+      },
+      "uid": {
+        "type": "keyword"
+      },
+      "source_data": {
+        "type": "object",
+        "dynamic": false,
+        "properties": {
+          "UPDATE CATEGORY": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}

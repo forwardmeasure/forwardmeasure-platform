@@ -1,0 +1,101 @@
+{
+  "scope": "Handwritten main-source schema, mapping, OpenAPI, AsyncAPI, merge-policy and protobuf paths in platform/FEI/FDS/FOWF; excludes generated code, fixtures without matching paths, credentials and runtime configuration. Equal filenames need semantic review; hashes detect exact copies only.",
+  "files": [
+    {
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/asyncapi/ingestion-deployment.yaml",
+      "sha256": "48abcdf954b0177765b40ca0fbc1c4a04e9ef71cc64047c527fb8eff3a8c9050"
+    },
+    {
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/asyncapi/ingestion-job.yaml",
+      "sha256": "28b675297643a4d88358aafed183477bc0544f2faf414a9828a69fd24aaa6f30"
+    },
+    {
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/merge-policies/entity-v1.yaml",
+      "sha256": "a70a9269254a405ee64d3728281661b5125d8f1c3ae41d7c76e673377e4c2d4a"
+    },
+    {
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/openapi/ingestion-spec.yaml",
+      "sha256": "321e9a6b519236ed8eab573ad2f3fec9a1f42eb4d7a816926d12b6656bfbfb2b"
+    },
+    {
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/openapi/launcher.yaml",
+      "sha256": "093684a3a009e1827e948faaf3140d5d8bb39e2ec13a776559c3f81a49da19cb"
+    },
+    {
+      "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-test-fixtures/src/main/resources/fixtures/legacy/schema-worldcheck-reference-population.yaml",
+      "sha256": "35c18e25d7c226b3158a67391ccae216fcc9b8b0685a27af47fc4fd427325504"
+    },
+    {
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml",
+      "sha256": "21e50ac0985f292645dcebbf72d2edd7a2ef521a25071dacc1b3b7a1c6a8e0d9"
+    },
+    {
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/META-INF/openapi/entity-intelligence-api.yaml",
+      "sha256": "c38ea9de25edb4071b8df5e7cfeb8df31f87314718fd5cab7aaf46a484f36d17"
+    },
+    {
+      "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/asyncapi/ingestion-worker-kubernetes-job.yaml",
+      "sha256": "5318e732bdc7ddbab9d63ecaf43d2bf3974d2f00283e71a6ae345cd004f120cf"
+    },
+    {
+      "path": "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml",
+      "sha256": "862fd70abde4f8d851290e162fe5538d57df484ade651cd5612110a9f8975f4e"
+    },
+    {
+      "path": "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/definition-management.openapi.yaml",
+      "sha256": "43b34c4ffddec38806488f1c6bf586e654da4a8ce619b3770512b5e1a88bdf71"
+    },
+    {
+      "path": "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/engine.openapi.yaml",
+      "sha256": "b215c259c34988fb5d4fba374019fd94055f06f798d2bb639e5e15386dd1531f"
+    },
+    {
+      "path": "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/execution-management.openapi.yaml",
+      "sha256": "68930d2bb860256ef8b484f17caaf46f15b2cd2dd0d483e71dcd6eb0c772aff4"
+    },
+    {
+      "path": "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/human-task-management.openapi.yaml",
+      "sha256": "53df51afc903b38df6163e5bd0d8862bdc505a3d30201bded4496bc7dafe0547"
+    },
+    {
+      "path": "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/tenant-administration.openapi.yaml",
+      "sha256": "41bd1dcc1d5d7336e0b39821e0921746ddb19d231cd3353899aac46e04fe5d0f"
+    },
+    {
+      "path": "forwardmeasure-openworkflow/openworkflow-studio/webapp/src/main/webapp/src/canvas/workflow-schema.json",
+      "sha256": "07550b5f5170bcc39b6299a6863e87f207e0e060f53c9754b3f00e44a2822ad8"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/catalog.json",
+      "sha256": "05cd5500f32fa48985ea495e8a8b76e5c3692b893a36eee525b316e65ab4e3d6"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/screening-document-v1.json",
+      "sha256": "58fc736ece3df09ee08dbbd3c03dfc147a97a7a8e407a1f20ef3b34d4530408a"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/state-street-customer-master-resolution-mapping-v1.yaml",
+      "sha256": "ee8c77db217c85b6fc0984b51d07e008c49b033c7c0fb034cd4b2ec339259d0a"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/state-street-customer-master-source-v1.yaml",
+      "sha256": "0a6be632b6a9cbb4086ad878a7c03711afdfb54161c4e1881e037fe479d109d1"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/worldcheck-mapping-v1.json",
+      "sha256": "c498cb9cc76fdf3588e7d88d36f17012248a298fd0958981adf10930faa873b8"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/worldcheck-source-v1.json",
+      "sha256": "2f4b3630ae1f5e4e9021949fea3ec3720e96a3fe667ce3d8a3bfeb2d051807ca"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/opensearch/reference-population-index-mapping.json",
+      "sha256": "bb919d3557acb2218fb8c8f06d0b091d98075ea989a6b2da93b26d3f77567aac"
+    },
+    {
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/opensearch/worldcheck-index-v1.json",
+      "sha256": "982dec17dac7f67dd666dcdbfd7fe6f6968e7cce0f7c5d85ca9a3d5541bd9b8a"
+    }
+  ]
+}

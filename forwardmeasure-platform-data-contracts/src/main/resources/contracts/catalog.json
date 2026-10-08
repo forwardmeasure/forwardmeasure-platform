@@ -1,0 +1,28 @@
+{
+  "catalog_version": 1,
+  "contracts": [
+    {
+      "id": "worldcheck-screening-v1",
+      "source": "contracts/worldcheck-source-v1.json",
+      "mapping": "contracts/worldcheck-mapping-v1.json",
+      "destination": "contracts/screening-document-v1.json",
+      "index": "opensearch/reference-population-index-mapping.json",
+      "status": "semantic-repair-in-progress"
+    },
+    {
+      "id": "state-street-customer-master-resolution-v1",
+      "source": "contracts/state-street-customer-master-source-v1.yaml",
+      "mapping": "contracts/state-street-customer-master-resolution-mapping-v1.yaml",
+      "destination": "contracts/state-street-customer-master-source-v1.yaml#/output_schema",
+      "status": "existing-resolution-mapping-validation-in-progress"
+    }
+  ],
+  "index_overrides": [
+    {
+      "id": "worldcheck-update-category-keyword-v1",
+      "path": "opensearch/worldcheck-index-v1.json",
+      "extends": "opensearch/reference-population-index-mapping.json",
+      "purpose": "Explicitly index source_data.UPDATE CATEGORY; other raw fields remain stored only."
+    }
+  ]
+}

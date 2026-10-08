@@ -1,0 +1,79 @@
+# Copyright (c) 2026 ForwardMeasure, Inc. All rights reserved.
+# State Street customer master -> FEI resolution assertions. JSON Schema 2020-12 in YAML.
+# This contract replaces the unused documentation-only schema. Raw source strings are
+# validated before mapping. Duplicate trailing headers require the reader's positional policy.
+contract_version: 1
+source:
+  format: csv
+  has_header: true
+  delimiter: "|"
+  encoding: UTF-8
+identity:
+  version: 1
+  document_field: uid
+  source_fields: [ENTITYS_UNIQUE_ID]
+  strategy: provider-stable
+source_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  required: [ENTITYS_UNIQUE_ID, ENTITYS_FULL_NAME, ENTITYS_TYPE]
+  properties:
+    ENTITYS_UNIQUE_ID: { type: string, minLength: 1 }
+    BUSINESS_ENTITY_RECORD_ID: { type: string, description: Fixed-scheme identifier (mapped to a test_customer_master_business_entity_record_id assertion). }
+    GEMS_ID: { type: string, description: Fixed-scheme identifier (mapped to a test_customer_master_kyc_id assertion). }
+    ENTITYS_FULL_NAME: { type: string, description: Mapped to display_name. }
+    ENTITY_PREFIX: { type: string, description: Not yet mapped. }
+    ENTITY_FIRST_NAME: { type: string, description: Not yet mapped - ENTITYS_FULL_NAME is used as-is. }
+    ENTITY_MIDDLE_NAME: { type: string, description: Not yet mapped. }
+    ENTITY_LAST_NAME: { type: string, description: Not yet mapped. }
+    ENTITY_SUFFIX: { type: string, description: Not yet mapped. }
+    TRADE_AS_NAME: { type: string, description: Not yet mapped - SourceOfTruthRecord has no alias-name target. }
+    FORMER_NAME: { type: string, description: Not yet mapped - same reason as TRADE_AS_NAME. }
+    ENTITY_LOCATION_1_ADDRESS_LINE_1: { type: string }
+    ENTITY_LOCATION_1_ADDRESS_LINE_2: { type: string }
+    ENTITY_LOCATION_1_CITY: { type: string }
+    ENTITY_LOCATION_1_STATE_PROVINCE: { type: string }
+    ENTITY_LOCATION_1_COUNTRY: { type: string, description: Also resolved into primary_jurisdiction. }
+    ENTITY_LOCATION_2_ADDRESS_LINE_1: { type: string }
+    ENTITY_LOCATION_2_ADDRESS_LINE_2: { type: string }
+    ENTITY_LOCATION_2_CITY: { type: string }
+    ENTITY_LOCATION_2_STATE_PROVINCE: { type: string }
+    ENTITY_LOCATION_2_COUNTRY: { type: string }
+    ENTITY_LOCATION_3_ADDRESS_LINE_1: { type: string }
+    ENTITY_LOCATION_3_ADDRESS_LINE_2: { type: string }
+    ENTITY_LOCATION_3_CITY: { type: string }
+    ENTITY_LOCATION_3_STATE_PROVINCE: { type: string }
+    ENTITY_LOCATION_3_COUNTRY: { type: string }
+    COUNTRY_OF_CITIZENSHIP_INCORPORATION: { type: string }
+    COUNTRY_OF_NATIONALITY: { type: string }
+    DATE_OF_BIRTH_DATE_OF_INCORPORATION: { type: string }
+    OCCUPATION: { type: string }
+    JOB_TITLE: { type: string }
+    LAST_UPDATED_DATE: { type: string, description: Not yet mapped. }
+    ENTITY_TYPE_CODE: { type: string, description: Not yet mapped - ENTITYS_TYPE drives entity_kind instead. }
+    ENTITYS_TYPE: { type: string, description: "e.g. Individual/Mutual Fund/Trust (Corp & Ind) - drives entity_kind." }
+    ENTITY_PUBLIC_IDENTIFIER: { type: string, description: "Semicolon-delimited {SCHEME}value pairs (variable scheme/count)." }
+    PRIMARY_BUSINESS_UNIT: { type: string }
+    CONTRACTING_ENTITIES_AND_LOCATIONS: { type: string }
+    SERVICING_ENTITIES_AND_LOCATIONS: { type: string }
+    BOOKING_ENTITIES_AND_LOCATIONS: { type: string }
+    ADDITIONAL_BUSINESS_UNITS_AND_LOCATIONS: { type: string }
+    ENTITY_CLASSIFICATION: { type: string }
+    PLACE_OF_BIRTH: { type: string, description: Not yet mapped. }
+output_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  type: object
+  required: [uid, entity_kind, display_name]
+  properties:
+    uid: {type: string, minLength: 1}
+    entity_kind: {type: string, minLength: 1}
+    display_name: {type: string, minLength: 1}
+    primary_jurisdiction: {type: [string, 'null']}
+    assertions:
+      type: array
+      items:
+        type: object
+        required: [key, value]
+        properties:
+          key: {type: string, minLength: 1}
+          value: {type: object}

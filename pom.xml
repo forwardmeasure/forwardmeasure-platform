@@ -348,6 +348,7 @@
   -->
   <modules>
     <module>forwardmeasure-platform-core-bom</module>
+    <module>forwardmeasure-platform-data-contracts</module>
     <module>forwardmeasure-platform-quarkus-bom</module>
     <module>forwardmeasure-platform-spring-bom</module>
     <module>forwardmeasure-platform-micronaut-bom</module>
@@ -363,6 +364,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-data-contracts</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
       <!--
       This repo's own product-neutral server libraries (2026-10-01, moved here from
       forwardmeasure-openworkflow). Managed here rather than only in forwardmeasure-platform-bom:
