@@ -89,3 +89,21 @@ Run64 (`/tmp/forwardmeasure-takeover-64-jdk2503.log`) confirms the corrected own
 running downstream provisioning tests. This is an in-progress build, not a whole-stack pass.
 Livy remains local; the user has been asked for a writable destination because Apache's origin
 rejects pushes. All other checkpoint destinations remain the existing recovery branch.
+
+## Verified repairs and resumed validation — 23:05 EDT
+
+FOWF `5894b8c7d331994df8ef47f78143f69a0f280dbd` and FEI `1be147ad9a3bd72cc0f266285fa657b48da7028f` are pushed to the same backup branch.
+The tenant-administration resource/assertion repair passes five real-container cases. Five more
+reusable contract modules now package classes and resources in attached test JARs, with eleven
+consumers selecting test scope. All 189 FOWF modules compile production and test sources
+(`/tmp/fowf-contract-consumers-full-compile-20261007.log`, 1m31s; tests skipped).
+
+Run66 passed nine Quarkus authorization smoke cases and 116 definition API cases, then exposed
+publisher fixture drift. Declared capability-pack membership and the persisted public UUID lookup
+are now repaired: all 33 publisher cases pass across Quarkus/Spring/Micronaut
+(`/tmp/fowf-publisher-framework-regressions-20261007.log`, 3m11s). Production membership checks,
+migration history and coverage thresholds remain unchanged.
+
+Run65 and run66 both stopped; neither is still running. Run67 was launched at 23:05 EDT from
+`:openworkflow-workflow-publisher-contract-tests` and is being monitored:
+`/tmp/forwardmeasure-takeover-67-jdk2503.log`. No complete-stack or final coverage pass is claimed.
