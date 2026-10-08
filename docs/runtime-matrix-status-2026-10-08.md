@@ -9,12 +9,14 @@ are distinguished below; absence of a local report does not prove a test has nev
 ## Subsequent full-file repair (separate from the matrix)
 
 See [full-file implementation and live evidence](../../forwardmeasure-entity-intelligence/docs/full-file-ingestion-repair-2026-10-08.md).
-October 8 run 03 admitted the entire **5,611,953,182-byte / 5,818,856-record** external WorldCheck
-export through the Quarkus API, real Pekko/PostgreSQL FOWF and actual worker. READY, zero rejected,
-exact OpenSearch count and finalized index metadata passed; worker working set peaked around 729 MiB.
-The test then failed an incorrect name-order query expectation (fixed); run 04 was interrupted at 3,616,305 accepted / zero rejected by the editor crash.
-  Its disposable stack was removed; run 05 will use an editor-independent systemd service. This is
-full-file progress evidence, not a completed nine-runtime or activation/screening matrix scenario.
+October 8 run 05 **PASSED** at 19:01 EDT: the entire **5,611,953,182-byte / 5,818,856-record**
+external WorldCheck export went through the Quarkus API, real Pekko/PostgreSQL FOWF and actual worker.
+READY, zero rejected, exact OpenSearch count, finalized index metadata, raw samples and canonical
+indexed queries all passed. Source SHA-256 matches the independent full-file scan. Admission to READY
+was **14m08s**; sampled worker working set peaked at **~555 MiB**, kernel process VmHWM at **~614 MiB**
+under a 1 GiB heap / 2 GiB Job memory. This is a separate full-file scale acceptance, not completion
+of the activation/screening scenario or nine-runtime matrix below. Run 03's bad name-order assertion
+and run 04's editor-crash interruption remain recorded and are not counted as passes.
 Parsing overrides have since been added to both population APIs, configured pipeline triggers and
 Studio. All three API/worker frameworks and Studio compiled; new override execution is deliberately
 left to the operator's Studio testing, per their instruction. The inventory below remains historical
