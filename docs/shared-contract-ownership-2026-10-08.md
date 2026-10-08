@@ -36,6 +36,10 @@ BOM before a standalone FEI build; the normal platform reactor already includes 
 
 The adjacent JSON inventory records exact paths and SHA-256 for the main-source schema/API/mapping
 search. No exact byte duplicates were found in that scope. This is not proof of semantic uniqueness.
+The inventory separately records classpath resource-name collisions: FEI and FOWF both package
+`META-INF/openapi/common-definitions.yaml` with different contents. Resolve shared components and
+namespace product-specific remainders, verifying registry publication and client generation.
+A resource-name collision is an audit finding, not a claimed reproduced runtime failure.
 In particular RFC 9457 `Problem`/`Violation` components remain declared in multiple products;
 centralizing their generation is separate work requiring generated-client and HTTP parity checks.
 Do not move whole product-specific common-definitions files into the data-contract module: FEI's
@@ -48,8 +52,10 @@ preserving independently specified expected outputs.
 
 WorldCheck semantics are still incomplete; shared ownership does not resolve partial dates,
 classification/PEP/location/identifier normalization or large-file ingestion. State Street's
-resolution mapping also retains its documented gaps. The public FEI status polling test currently
-fails with lazy initialization outside a persistence session. These remain repair blockers.
+resolution mapping also retains its documented gaps. The public FEI status polling session defect
+was fixed subsequently; the three-record Quarkus/Pekko PostgreSQL public ingestion-to-screening test
+passed (`fei-worldcheck-public-k3s-05.log`). That limited pass does not close the semantic, large-file,
+shared API-component or remaining framework/engine matrix work.
 
 ## Verification
 

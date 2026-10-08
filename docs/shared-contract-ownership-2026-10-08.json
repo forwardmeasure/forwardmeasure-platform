@@ -97,5 +97,14 @@
       "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/opensearch/worldcheck-index-v1.json",
       "sha256": "982dec17dac7f67dd666dcdbfd7fe6f6968e7cce0f7c5d85ca9a3d5541bd9b8a"
     }
+  ],
+  "resource_path_collisions": [
+    {
+      "resource": "META-INF/openapi/common-definitions.yaml",
+      "owners": [
+        "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml",
+        "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml"
+      ]
+    }
   ]
 }
