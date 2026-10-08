@@ -504,3 +504,16 @@ with HTTP 404. Execution HTTP tests posting empty event data missed this path. S
 contracts must post the real durable-start definition metadata (coordinates and all digests), then
 verify completion and replay through HTTP with intentionally different catalogue/document names.
 A renamed catalogue entry must not invalidate its immutable published document identity.
+
+### October 8 callback body regression
+
+The real FEI correlated Job test exposed another engine discrepancy: Pekko's
+`HttpOperationMaterializer` sent `parameters.body` as `{"body": {...}}`, while Kafka's
+`OpenApiCallAdapter` unwraps `body`/`requestBody`. Both worker Jobs succeeded, but FEI's final
+HTTP callback deserialized no root tenant ID and returned 500. Do not infer protocol parity
+from compilation or a passing Kafka adapter test. Test the actual wire payload through each
+engine's production request construction, including declared path/header parameters and
+explicit body aliases. A transparent fixture observer may record synthetic request bodies;
+it must forward to the real authenticated business endpoint and never log bearer credentials.
+The focused regression is `HttpOperationMaterializerTest.explicitOpenApiRequestBodiesAreNotWrappedInTheParameterName`;
+the end-to-end component assertion remains actual terminal completion and OpenSearch persistence.
