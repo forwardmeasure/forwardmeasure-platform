@@ -16,6 +16,8 @@
 import copy
 import importlib.util
 import json
+import itertools
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -28,6 +30,7 @@ fixture = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fixture)
 
 EXPECTED_KEYS = {
+    "openworkflow-service-client-credentials": {"OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS"},
     "openworkflow-platform-clients": {
         "OPENWORKFLOW_PLATFORM_OPERATOR_CLIENT_ID", "OPENWORKFLOW_PLATFORM_OPERATOR_CLIENT_SECRET",
         "OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_ID", "OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_SECRET",
@@ -72,6 +75,71 @@ class ManifestTest(unittest.TestCase):
                 self.assertEqual(EXPECTED_KEYS[name], set(manifest["spec"]["target"]["template"]["data"]))
         self.assertEqual(set(EXPECTED_KEYS), found)
 
+    def test_operation_callback_tokens_render_with_and_without_decision_engine(self):
+        for fde in (True, False):
+            with self.subTest(decision_engine=fde):
+                values, _, manifests = fixture.render(decision_engine_enabled=fde)
+                secret = next(item for item in manifests if item and item["kind"] == "ExternalSecret"
+                              and item["metadata"]["name"] == "openworkflow-service-client-credentials")
+                self.assertEqual(values["namespaces"]["openworkflow"], secret["metadata"]["namespace"])
+                data = secret["spec"]["target"]["template"]["data"]
+                # Evaluate the actual ESO Go template with synthetic remote-secret values. This
+                # catches invalid nesting/escaping and verifies the JSON the adapter will receive.
+                with tempfile.TemporaryDirectory(prefix="operation-clients-render-") as directory:
+                    chart = Path(directory)
+                    (chart / "templates").mkdir()
+                    (chart / "Chart.yaml").write_text("apiVersion: v2\nname: fixture\nversion: 1.0.0\n")
+                    (chart / "values.yaml").write_text(yaml.safe_dump({"credentialTemplate":
+                        data["OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS"]}))
+                    (chart / "templates/clients.yaml").write_text(
+                        'apiVersion: v1\nkind: ConfigMap\nmetadata: {name: fixture}\ndata:\n'
+                        '  clients: {{ tpl .Values.credentialTemplate (merge (dict '
+                        '"ingestionWorkerSecret" "fixture-ingestion-secret" '
+                        '"evaluatorSecret" "fixture-evaluator-secret") .) | quote }}\n')
+                    rendered = yaml.safe_load(fixture.run("helm", "template", "fixture", str(chart)))
+                clients = json.loads(rendered["data"]["clients"])
+                expected = {"entity-intelligence-ingestion-token"}
+                if fde:
+                    expected.add("decision-engine-token")
+                self.assertEqual(expected, set(clients))
+                ingestion = clients["entity-intelligence-ingestion-token"]
+                self.assertEqual("entity-intelligence-ingestion-worker", ingestion["clientId"])
+                self.assertEqual("fixture-ingestion-secret", ingestion["clientSecret"])
+                self.assertEqual(values["platform"]["endpoints"]["keycloak"]["tokenUrl"], ingestion["tokenUrl"])
+                refs = {item["secretKey"]: item["remoteRef"]["key"] for item in secret["spec"]["data"]}
+                self.assertEqual(values["platform"]["identity"]["serviceClients"]
+                                 ["entityIntelligenceIngestionWorker"]["secretRemoteKey"], refs["ingestionWorkerSecret"])
+                self.assertEqual(fde, "evaluatorSecret" in refs)
+
+    def test_all_operation_adapter_variants_consume_the_composed_service_credentials(self):
+        for framework, engine, fde in itertools.product(
+                ("quarkus", "spring", "micronaut"),
+                ("kafka-streams", "pekko-postgresql", "pekko-cassandra"), (True, False)):
+            with self.subTest(framework=framework, engine=engine, decision_engine=fde):
+                env = dict(os.environ)
+                env.pop("FORWARDMEASURE_RESOLVED_SELECTION", None)
+                env.update(FORWARDMEASURE_FRAMEWORK=framework, FORWARDMEASURE_ENGINE=engine,
+                           FORWARDMEASURE_ENABLE_FDE=str(fde).lower())
+                result = subprocess.run(
+                    ["helmfile", "-f", "deploy/helmfile/helmfile.yaml.gotmpl", "-e", "local",
+                     "build", "--embed-values"], cwd=fixture.WORKSPACE / "forwardmeasure-openworkflow",
+                    env=env, capture_output=True, text=True, timeout=60)
+                self.assertEqual(0, result.returncode, result.stderr)
+                releases = [release for doc in yaml.safe_load_all(result.stdout) if doc
+                            for release in doc.get("releases", [])
+                            if release["name"] == "openworkflow-operation-adapter"]
+                self.assertEqual(1, len(releases))
+                service = next(value["services"]["openworkflow-operation-adapter"]
+                               for value in releases[0]["values"] if isinstance(value, dict)
+                               and "services" in value)
+                self.assertEqual(framework, service["framework"])
+                self.assertEqual(fde, "OPENWORKFLOW_PLATFORM_GRPC_ENDPOINTS" in service["env"])
+                credentials = [item for item in service["secrets"]
+                               if item["envVar"] == "OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS"]
+                self.assertEqual([{"envVar": "OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS",
+                                   "existingSecretName": "openworkflow-service-client-credentials",
+                                   "secretKey": "OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS"}], credentials)
+
     def test_all_central_clients_are_delivered_to_keycloak(self):
         secret = next(value for value in self.secret_values["secrets"] if value["name"] == "keycloak-realm-client-secrets")
         keys = {value["secretKey"] for value in secret["remoteRefs"]}
@@ -92,9 +160,12 @@ class ManifestTest(unittest.TestCase):
         # Exercise the real composition template with an offline fetch substitute. No operator
         # credentials or cloud secrets are read; all files used by readFile are synthetic.
         template = (fixture.ROOT / "deploy/helmfile/releases/platform-secrets/gcp/with-client-secrets.yaml.gotmpl").read_text()
+        # Helmfile also expands ref+ URLs after rendering. Replacing only the fetch function
+        # still contacts the provider; synthetic output must contain no resolvable reference.
+        template = template.replace("ref+gcpsecrets://", "synthetic-gcp://")
         template = template.replace("fetchSecretValue", 'printf "fixture:%s"')
         values = copy.deepcopy(self.values)
-        values["platform"]["cloud"]["gcp"].update(projectId="fixture-project", clusterName="fixture-cluster")
+        values["platform"]["cloud"].setdefault("gcp", {}).update(projectId="fixture-project", clusterName="fixture-cluster")
         review_key = values["secretStore"]["remoteKeys"]["openworkflowHumanTaskReviewSecret"]
         settings = {"clusterSecretStore": {"provider": {"fake": {"data": [
             {"key": review_key, "value": "stale"}, {"key": "unrelated", "value": "preserved"}]}}}}
@@ -114,5 +185,5 @@ class ManifestTest(unittest.TestCase):
                 settings = rendered["releases"][0]["values"][0]
                 data = settings["clusterSecretStore"]["provider"]["fake"]["data"]
                 matches = [entry["value"] for entry in data if entry["key"] == review_key]
-                self.assertEqual(["fixture:ref+gcpsecrets://fixture-project/fixture-cluster-" + review_key], matches)
+                self.assertEqual(["fixture:synthetic-gcp://fixture-project/fixture-cluster-" + review_key], matches)
                 self.assertIn({"key": "unrelated", "value": "preserved"}, data)

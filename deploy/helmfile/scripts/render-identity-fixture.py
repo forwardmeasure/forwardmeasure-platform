@@ -17,10 +17,12 @@ def run(*args):
     return result.stdout
 
 
-def render():
+def render(decision_engine_enabled=None):
     base = list(yaml.safe_load_all(run("helmfile", "--file", str(ROOT / "deploy/helmfile/helmfile.yaml.gotmpl"),
                                        "--environment", "base", "build", "--embed-values")))
     values = base[0]["renderedvalues"]
+    if decision_engine_enabled is not None:
+        values["platform"]["products"]["decisionEngine"]["enabled"] = decision_engine_enabled
     values["secretStore"]["remoteKeys"].update({
         "openworkflowRuntimeDatabasePassword": "fixture-fowf-runtime",
         "openworkflowAdministratorDatabasePassword": "fixture-admin",
