@@ -115,3 +115,26 @@ Run65 and run66 both stopped; neither is still running. Run67 was launched at 23
 - `forwardmeasure-entity-intelligence`: `9266e0eb13fdcd340007653edd2915c96202501f`; backup remote SHA verified.
 
 FOWF full 189-module production/test compile passed. Focused Kafka overflow/integrity: 18 passed; PostgreSQL/Cassandra journal overflow: four passed; shared Cassandra fixture: two passed. These are component/persistence results, not the outstanding nine deployed API cells. The interrupted Kafka restoration suite is not passing evidence. Workspace automatic POM re-import is temporarily disabled after compiled classes disappeared during tests; restore/reassess it when builds are idle. No image pushes or deployments.
+## Additional verified source backups — 2026-10-08
+
+The existing backup branch `backup/ingestion-repair-20261007-181917` now also contains:
+
+- AuthZEN `03505b02ee7f0a89d391673725c59361e6b02fd5`: audience-mapper support and matching
+  production authorization strategy; all six real-Keycloak fixture cases passed after reproducing
+  the overlapping-role denial defect.
+- FDE `894e5e405e14dd984330b01a46a9af0b2c4f492c`: Micronaut control-plane readiness repair and
+  authenticated packaged conformance. All 26 production/test modules compiled; all three actual
+  Quarkus/Spring/Micronaut packaged gRPC cases passed. Four initial local images built; only
+  Micronaut needed rebuilding for the production fix. The subsequent shared-Valkey consolidation
+  also passed all three packaged cases without rebuilding service images.
+- Testcontainers `ab5f0f5efaef92bf2d9307941bf7b76d9e5fba65`: shared authenticated Valkey fixture;
+  production/test sources compiled and three lifecycle/authentication cases passed.
+- FOWF `52919321d2051bc2a9cd66934fe75fd1fdcf5ee3`: restoration/rebalance use shared Kafka and
+  bounded metadata readiness. Two focused restoration cases pass; remaining 24 plus rebalance
+  are running. This checkpoint does not claim completion of that rerun.
+- FEI `ccf5ffc6790d46c62f11fc4d62095adfed428e05`: current handover with verified results and
+  explicit outstanding acceptance matrix.
+
+These pushes were verified by matching `git ls-remote` to the local commit. These are source
+backup branches; no deployment or image push was performed. The 23 remaining FOWF Kafka
+restoration cases have now passed, completing 26/26 across two focused runs.

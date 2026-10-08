@@ -188,6 +188,20 @@ nine times is not required. Record written, compiled and executed results separa
 
 ### FDS ingestion execution
 
+Audit detail, 2026-10-08: FDS's `WorkflowBoundedMatrix{Quarkus,Spring,Micronaut}*SmokeTest`
+classes do invoke launcher HTTP and real workers. However, their reused `RealFowfWorkflowFixture`
+hardcodes Quarkus FOWF definition/execution/engine/adapter images, and its Pekko setup uses
+PostgreSQL. A Spring launcher label therefore does not establish a Spring FOWF runtime cell,
+and the existing two engine labels do not establish Cassandra. Extend the actual fixture/runtime
+selection and image prerequisites; do not count renamed tests as additional deployed cells.
+Preserve the existing direct-launcher contracts alongside the public launcher cases.
+
+That older fixture also sets `QUARKUS_OIDC_TOKEN_ISSUER=any` to bridge host/container addresses.
+New acceptance fixtures should pin a real issuer using the shared Keycloak network fixture and
+configure host-reachable JWKS separately for framework test hosts. Keep signature, issuer and
+audience validation enabled; prove rejected identities through the actual public endpoint.
+Do not change production authorization to accommodate a test-network hostname mismatch.
+
 Start through the launcher HTTP API; inspect the admitted run/Jobs and terminal result. Use current
 image versions and declared build dependencies. Cover direct and FOWF-managed execution, supported
 bounded/continuous modes, and Pekko/Kafka/Spark paths. For Spark staging plus delivery, require both
@@ -325,6 +339,21 @@ Existing `VerifiedJwtTenantResolverTest` is a useful direct signature/claims con
 prove packaged-server wiring, real authorization or transaction commit before RPC success. Its
 fixture must also satisfy the production audience contract. No FDE full-framework pass is claimed
 by this analysis.
+
+Implementation update, 2026-10-08: the packaged conformance fixture now uses real Keycloak tokens,
+audience mappers, scoped grants and shared PostgreSQL, and `full-suite` enables it. It runs each
+framework independently and checks evaluation-only callers cannot replace rules or clear caches.
+The audience helper passed six real-Keycloak fixture cases; all 26 FDE modules compiled production
+and test sources. The first packaged run exposed the fixture's wrong resource-server decision
+strategy and Micronaut readiness using a transaction-bound datasource without a transaction.
+An overlapping-role regression reproduced the fixture failure; aligning it with production's
+AFFIRMATIVE strategy restored all six fixture cases. Unwrapping the physical control-plane pool
+repaired Micronaut readiness. All three packaged gRPC cases subsequently passed in
+`/tmp/fde-authenticated-conformance-03-20261008.log`, including cross-tenant Valkey-window isolation.
+Valkey now uses the shared authenticated fixture too; its three component tests and the subsequent
+three-framework packaged rerun passed (`/tmp/fde-authenticated-shared-fixtures-conformance-20261008.log`).
+Embedded/external deployment-shape proof and actual FOWF adapter acceptance remain open.
+These passing cases do not establish those other acceptance layers.
 
 ## 10. Reusable test contracts and newly confirmed fixture gap
 

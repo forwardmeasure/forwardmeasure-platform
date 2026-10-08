@@ -1118,6 +1118,11 @@
       </dependency>
       <dependency>
         <groupId>com.forwardmeasure.testcontainers</groupId>
+        <artifactId>forwardmeasure-testcontainers-valkey</artifactId>
+        <version>${forwardmeasure.testcontainers.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.testcontainers</groupId>
         <artifactId>forwardmeasure-testcontainers-minio</artifactId>
         <version>${forwardmeasure.testcontainers.version}</version>
       </dependency>
