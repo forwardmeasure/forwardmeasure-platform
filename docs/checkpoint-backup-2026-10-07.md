@@ -129,12 +129,14 @@ The existing backup branch `backup/ingestion-repair-20261007-181917` now also co
   also passed all three packaged cases without rebuilding service images.
 - Testcontainers `ab5f0f5efaef92bf2d9307941bf7b76d9e5fba65`: shared authenticated Valkey fixture;
   production/test sources compiled and three lifecycle/authentication cases passed.
-- FOWF `52919321d2051bc2a9cd66934fe75fd1fdcf5ee3`: restoration/rebalance use shared Kafka and
-  bounded metadata readiness. Two focused restoration cases pass; remaining 24 plus rebalance
-  are running. This checkpoint does not claim completion of that rerun.
+- FOWF `eabcf132e69d98d6a3bb8c7a7cfe8e5917f87967`: restoration/rebalance use shared Kafka and
+  bounded metadata readiness. Two focused cases passed, followed by 24/25 passing in the remaining
+  run (one intermittent retry-deadline failure). The strengthened retry test compiled and passed
+  separately, preserving the same timer identity/deadline across restart. All 26 restoration
+  cases and rebalance now have passing evidence across these runs; a clean combined run remains.
 - FEI `ccf5ffc6790d46c62f11fc4d62095adfed428e05`: current handover with verified results and
   explicit outstanding acceptance matrix.
 
 These pushes were verified by matching `git ls-remote` to the local commit. These are source
-backup branches; no deployment or image push was performed. The 23 remaining FOWF Kafka
-restoration cases have now passed, completing 26/26 across two focused runs.
+backup branches; no deployment or image push was performed. Earlier 26/26 restoration evidence
+used the old broker fixture and is not interchangeable with the shared-Kafka results above.

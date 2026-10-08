@@ -160,6 +160,14 @@ pause/resume/cancel, persisted query/history/error responses, human-task claim/c
 authorization denial and cross-tenant access. Recovery cases need durable pre-failure admission,
 process/actor restart, original command identity and observable single logical effect.
 
+For real-time recovery tests, timestamp the command when it is dispatched, after fixture startup
+and definition admission. Observe the pending durable deadline before stopping the original
+process, then verify the same identity and deadline after restoration before asserting expiration.
+Do not let slow container startup consume the entire timeout or silently reset a deadline on
+restart. The Kafka retry-deadline regression now checks these invariants explicitly; its focused
+repair passed in `/tmp/fowf-kafka-retry-deadline-repair-20261008.log` after an intermittent failure
+in the combined suite. This focused pass is not a substitute for a clean combined suite.
+
 The operation adapter is reached by the real workflow. Test actor/tenant propagation and a live
 PDP denial that prevents the external operation. Keep deterministic adapter authorization unit tests
 for exact request construction and fail-closed ordering.
