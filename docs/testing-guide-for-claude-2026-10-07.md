@@ -165,11 +165,14 @@ process/actor restart, original command identity and observable single logical e
 
 For real-time recovery tests, timestamp the command when it is dispatched, after fixture startup
 and definition admission. Observe the pending durable deadline before stopping the original
-process, then verify the same identity and deadline after restoration before asserting expiration.
-Do not let slow container startup consume the entire timeout or silently reset a deadline on
-restart. The Kafka retry-deadline regression now checks these invariants explicitly; its focused
-repair passed in `/tmp/fowf-kafka-retry-deadline-repair-20261008.log` after an intermittent failure
-in the combined suite. This focused pass is not a substitute for a clean combined suite.
+process and require that shutdown finishes before it can fire. After restart, a due timer may
+already have fired and been atomically removed from the live store. Verify the original timer
+identity/deadline in committed firing history and the resulting terminal state, rather than
+requiring observation of that transient store entry. Never silently reset a deadline on restart.
+The earlier store-based assertion passed alone but failed in the 94-case combined run. The revised
+history-based case compiled and passed in `/tmp/fowf-kafka-retry-history-repair-20261008.log`;
+the second combined run is `/tmp/fowf-kafka-engine-combined-02-20261008.log` (interrupted at the
+user's request so they can rebuild and deploy; no final suite result).
 
 The operation adapter is reached by the real workflow. Test actor/tenant propagation and a live
 PDP denial that prevents the external operation. Keep deterministic adapter authorization unit tests
@@ -218,6 +221,33 @@ New acceptance fixtures can pin a real issuer using the shared Keycloak network 
 configure host-reachable JWKS separately for framework test hosts. Keep signature, issuer and
 audience validation enabled; prove rejected identities through the actual public endpoint.
 Do not change production authorization to accommodate a test-network hostname mismatch.
+
+The October 8 packaged three-framework extension found a real Micronaut deployment defect: its
+JWT config selected trusted JWKS but omitted the issuer claims validator. A token signed by the
+same real Keycloak key with a different `iss` was accepted. This is why a malformed-signature
+negative case alone is insufficient. Require a real same-key wrong-issuer token to return 401,
+and require a valid token to work again afterward. The shared `KeycloakTestContainer` now has
+an alternate-loopback-issuer helper for local unpinned fixtures; pinned/network fixtures must
+reject that helper rather than silently minting a token with the original issuer.
+
+Keep the expected issuer distinct from internal JWKS/PDP routing. Micronaut's placeholder parser
+does not implement Spring-style nested `${ENV:${property}}` fallback: the attempted repair left
+a literal trailing brace in the expected issuer, and live tests caught rejection of valid tokens.
+The verified FOWF setting is `${OPENWORKFLOW_KEYCLOAK_ISSUER:openworkflow.authorization.issuer:}`.
+Do not install a test-only issuer validator: the test must exercise the production configuration.
+The corrected actual Quarkus/Spring/Micronaut execution images pass six cases in
+`/tmp/fds-fowf-three-framework-issuer-repair-03-20261008.log`. Three FDS launcher issuer cases
+and nine FEI ingestion authorization cases subsequently passed across the three frameworks in
+`/tmp/fei-fds-three-framework-issuer-regressions{,-02}-20261008.log` (see the handover for each
+module's result; neither combined log is wholly green). FEI screening/resolution checks remain
+pending. These are HTTP authentication results, not completed worker dispatch.
+
+The screening run also exposed stale test-only SQL that omitted newly required population
+contracts. The correct response is to create valid fixture metadata through managed services and
+retain the production constraint. Do not relax the constraint, edit deployed migrations, or label
+an application that failed during fixture setup as passing an HTTP negative case. Screening tests
+may explicitly seed canonical OpenSearch documents to isolate recall/scoring; ingestion acceptance
+must separately verify that actual workers create those documents from the supplied source files.
 
 Start through the launcher HTTP API; inspect the admitted run/Jobs and terminal result. Use current
 image versions and declared build dependencies. Cover direct and FOWF-managed execution, supported

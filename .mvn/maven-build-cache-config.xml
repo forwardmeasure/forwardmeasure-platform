@@ -60,6 +60,9 @@ limitations under the License.
              alone cannot register them. Its unpack/copy inputs must also be materialized. -->
         <plugin artifactId="openapi-generator-maven-plugin"/>
         <plugin artifactId="maven-dependency-plugin"/>
+        <!-- Regeneration overwrites corrected frontend packages/models. Reapply overlays and
+             copy the corrected resources even when compilation artifacts came from cache. -->
+        <plugin artifactId="maven-resources-plugin"/>
         <plugin artifactId="maven-surefire-plugin"/>
         <plugin artifactId="maven-failsafe-plugin"/>
         <plugin artifactId="maven-install-plugin"/>

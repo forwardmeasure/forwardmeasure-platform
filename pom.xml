@@ -414,11 +414,25 @@
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-core_${scala.binary.version}</artifactId>
         <version>${spark.version}</version>
+        <exclusions>
+          <!-- Jersey 4's servlet artifact owns these classes. Spark still requests the separate
+               Jersey 3 servlet-core artifact, which otherwise creates a mixed-version runtime. -->
+          <exclusion>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-sql_${scala.binary.version}</artifactId>
         <version>${spark.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <!-- Spark's own native kafka DataFrame format
@@ -428,6 +442,12 @@
         <groupId>org.apache.spark</groupId>
         <artifactId>spark-sql-kafka-0-10_${scala.binary.version}</artifactId>
         <version>${spark.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.hdrhistogram</groupId>
