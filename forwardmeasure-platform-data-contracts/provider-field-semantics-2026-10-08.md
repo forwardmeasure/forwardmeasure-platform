@@ -179,3 +179,13 @@ customer populations requires a separate update/backfill operation, not a hidden
 These semantic fixes do not remove the full-export streaming and 1 GiB acquisition-limit blockers.
 Dev tests should begin with the bounded external sample and representative customer rows. Matrix,
 large-file, failure/recovery and shared API component work remain separately tracked.
+
+## Full-export parsing evidence — October 8, 2026
+
+The real full-export API run exposed literal quote characters at row 333 that generic CSV
+encapsulation rejected. A streaming physical-line scan verified all 5,818,856 data lines have
+35 tab-separated fields. The WorldCheck source contract now declares `source.quote: null` so
+quotes remain source data, including leading/unmatched alias quotes. FDS and FEI/Spark propagate
+this explicit dialect; absence of the property retains standard CSV quoting in older admitted
+snapshots and other providers. Full-file execution evidence is recorded in FEI's
+`docs/full-file-ingestion-repair-2026-10-08.md`; small-fixture passes do not close that acceptance.
