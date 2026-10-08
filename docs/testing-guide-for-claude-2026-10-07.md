@@ -57,9 +57,12 @@ were inspected; the scan itself did not execute any tests.
 | `IngestionPipelineFowfK3sVerificationTest` | A manually seeded revision plus permit-all direct launcher bypasses FEI admission even if Kubernetes and FOWF are real. | Retain only accurately scoped component evidence during migration. Add/execute FEI trigger API acceptance with actual credentials, workflow completion and persisted results. |
 | `ScreeningMatchServiceIntegrationTest`, `CanonicalScreeningIngestionIntegrationTest`, `HashingTextEmbeddingServiceTest` | Computational and real-OpenSearch component tests. | Keep. They cover distinct matching/mapping failures; they do not replace API acceptance. |
 
-The four managed-service contracts are currently being refactored; their presence in source is not
-proof that all three framework runs have passed. Do not delete the original business assertions
-before their replacements are compiled and verified.
+The selected FEI managed-service and HTTP replacements have since compiled and passed on all
+three frameworks: 25 cases per framework, 75 total (57 managed-service and 18 HTTP cases).
+The run sequence and repaired wiring/transaction defects are recorded in the FEI handover under
+“Three-framework service contracts pass; backup verified”. These results do not establish complete
+ingestion acceptance or close every audit row above. Do not delete original business assertions
+before their corresponding replacements are compiled and verified.
 
 ### FDS findings and required treatment
 
@@ -204,8 +207,14 @@ and the existing two engine labels do not establish Cassandra. Extend the actual
 selection and image prerequisites; do not count renamed tests as additional deployed cells.
 Preserve the existing direct-launcher contracts alongside the public launcher cases.
 
-That older fixture also sets `QUARKUS_OIDC_TOKEN_ISSUER=any` to bridge host/container addresses.
-New acceptance fixtures should pin a real issuer using the shared Keycloak network fixture and
+That older fixture set `QUARKUS_OIDC_TOKEN_ISSUER=any` to bridge host/container addresses.
+A real HTTP regression reproduced acceptance of a same-key token from an unexpected issuer
+(`/tmp/fds-fowf-issuer-baseline-20261008.log`). The repair pins the expected token issuer separately
+from the container-reachable discovery/JWKS URL. Production/test compilation and both real HTTP
+cases passed in `/tmp/fds-fowf-issuer-repair-20261008.log` (two cases, no failures/errors/skips).
+The expected issuer works before and after rejection; the unknown-execution 404 contract also
+passes. This is fixture authentication evidence, not engine-dispatch or ingestion acceptance.
+New acceptance fixtures can pin a real issuer using the shared Keycloak network fixture and
 configure host-reachable JWKS separately for framework test hosts. Keep signature, issuer and
 audience validation enabled; prove rejected identities through the actual public endpoint.
 Do not change production authorization to accommodate a test-network hostname mismatch.

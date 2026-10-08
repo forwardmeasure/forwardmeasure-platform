@@ -136,6 +136,10 @@ The existing backup branch `backup/ingestion-repair-20261007-181917` now also co
   cases and rebalance now have passing evidence across these runs; a clean combined run remains.
 - FEI `ccf5ffc6790d46c62f11fc4d62095adfed428e05`: current handover with verified results and
   explicit outstanding acceptance matrix.
+- FDS `ce8078e047dea7a0ed9965348dd7869696d0bd7c`: strict expected JWT issuer in the real FOWF
+  fixture. The new HTTP regression failed against the old `any` setting; both fixture HTTP cases
+  compiled and passed after repair. Remote backup SHA verified. This does not establish the
+  outstanding ingestion/engine/framework matrix.
 
 These pushes were verified by matching `git ls-remote` to the local commit. These are source
 backup branches; no deployment or image push was performed. Earlier 26/26 restoration evidence
