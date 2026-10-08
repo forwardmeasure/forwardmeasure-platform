@@ -107,3 +107,11 @@ migration history and coverage thresholds remain unchanged.
 Run65 and run66 both stopped; neither is still running. Run67 was launched at 23:05 EDT from
 `:openworkflow-workflow-publisher-contract-tests` and is being monitored:
 `/tmp/forwardmeasure-takeover-67-jdk2503.log`. No complete-stack or final coverage pass is claimed.
+
+## Overflow checkpoint — 2026-10-08
+
+- `forwardmeasure-testcontainers`: `8b7a5dd23f89f0b8f79ad071efa06fbdae23f086`; backup remote SHA verified.
+- `forwardmeasure-openworkflow`: `1ad93a0003c501fba565cade800385c67952a94f`; backup remote SHA verified.
+- `forwardmeasure-entity-intelligence`: `9266e0eb13fdcd340007653edd2915c96202501f`; backup remote SHA verified.
+
+FOWF full 189-module production/test compile passed. Focused Kafka overflow/integrity: 18 passed; PostgreSQL/Cassandra journal overflow: four passed; shared Cassandra fixture: two passed. These are component/persistence results, not the outstanding nine deployed API cells. The interrupted Kafka restoration suite is not passing evidence. Workspace automatic POM re-import is temporarily disabled after compiled classes disappeared during tests; restore/reassess it when builds are idle. No image pushes or deployments.

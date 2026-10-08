@@ -164,6 +164,28 @@ The operation adapter is reached by the real workflow. Test actor/tenant propaga
 PDP denial that prevents the external operation. Keep deterministic adapter authorization unit tests
 for exact request construction and fail-closed ordering.
 
+### Overflow acceptance matrix
+
+Shared-library HTTP/MinIO tests establish bounded reads, offload and digest behavior only. They
+cannot stand in for Kafka, Pekko/PostgreSQL or Pekko/Cassandra runtime acceptance. For each of
+those engines, exercise the production worker/actor transport with shared real object storage and
+the real durable backend. A handwritten `StorageClient` fake is useful only as a focused component
+fixture and must be labelled accordingly.
+
+For each Quarkus/Spring/Micronaut deployment, submit an authenticated workflow through its real
+API and prove that the selected engine actually ran it. Cover all nine framework/engine cells;
+changing a parameter label while invoking one shared fake runtime does not create a matrix.
+Require observable artifact storage and downstream materialization, correct terminal history and
+persisted query state, tenant isolation, oversized input rejection and object-storage failure.
+Exercise fresh-process recovery on each durable backend, with the original artifact and execution
+identity retained. Include a modified-object digest failure so a URI-only happy path cannot pass.
+
+Use actual producer/consumer serializers in the transition-integrity regression: hashing an
+in-memory JSON tree and reading the same tree back misses changes introduced on the wire, such
+as sorted nested properties. Keep meaningful exhaustive boundary cases at the shared layer, and
+representative end-to-end cases in every deployment cell; duplicating every pure algorithm input
+nine times is not required. Record written, compiled and executed results separately per cell.
+
 ### FDS ingestion execution
 
 Start through the launcher HTTP API; inspect the admitted run/Jobs and terminal result. Use current
