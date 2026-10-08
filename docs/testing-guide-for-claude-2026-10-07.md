@@ -468,3 +468,39 @@ Micronaut human-task retry applied `-XX:TieredStopAtLevel=1` through `JAVA_TOOL_
 preserve crash evidence. Do not weaken assertions or count the aborted run's zero cases as a pass.
 Full FOWF production/test compilation then passed; test execution and coverage checks were not
 part of that compile-only invocation.
+
+### Packaged ingestion tests must prove dispatch, not just admission
+
+The FEI Kubernetes component fixture exposed a concrete counterexample: both starts returned a
+real execution ID and `RUNNING`, but the fixture deployed no operation adapter. No worker Job
+could be dispatched. Preserve separate assertions for admission identity, terminal execution state,
+actual Job outcome and persisted/indexed business output. `RUNNING` is a START acknowledgement,
+not evidence of ingestion. Match the current API contract instead of retaining a stale `NEW`
+assertion or accepting any returned state.
+
+An engine plus its Pekko operation adapter must join the same cluster. Static discovery targets
+and each node's advertised identity must agree; a fixture using service-name targets and pod-IP
+identities stalled before admission with `Self contact point ... not found in targets`. A listening
+HTTP port alone does not establish cluster membership. Use the shared Kubernetes container,
+checked image imports and immutable image references accepted by the real tenant policy. Provision
+scoped RBAC and real OPERATION_EXECUTE permission; do not bypass either to make Jobs launch.
+
+Keep token endpoints reachable for the full test lifecycle, including token renewal while polling.
+Capture scoped cluster/service/worker diagnostics before teardown. Do not dump credential-bearing
+pod environment descriptions. Use persistent logs outside `/tmp` when the host is unstable, and
+label deliberately interrupted diagnosis separately from completed test runs.
+
+The same inspection found missing explicit authentication on FEI's final OpenAPI callbacks.
+FOWF compiles a null authentication plan when `with.authentication` is absent; a security scheme
+in the referenced OpenAPI document alone does not supply a token. Compiler/admission acceptance
+therefore cannot establish a protected callback succeeded. Test the callback against the real
+protected FEI API and verify its state transition, including denied/wrong-tenant cases.
+
+A second production counterexample is durable event identity: FEI's publisher uses the catalogue
+name `fei-correlated-sources-ingestion`, while the DSL document is named
+`correlated-sources-ingestion`. Revision-UUID admission succeeds, but the old pinned-publication
+lookup compares DSL coordinates with the catalogue name and rejects actual engine STARTED facts
+with HTTP 404. Execution HTTP tests posting empty event data missed this path. Shared framework
+contracts must post the real durable-start definition metadata (coordinates and all digests), then
+verify completion and replay through HTTP with intentionally different catalogue/document names.
+A renamed catalogue entry must not invalidate its immutable published document identity.
