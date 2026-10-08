@@ -240,7 +240,9 @@ The corrected actual Quarkus/Spring/Micronaut execution images pass six cases in
 and nine FEI ingestion authorization cases subsequently passed across the three frameworks in
 `/tmp/fei-fds-three-framework-issuer-regressions{,-02}-20261008.log` (see the handover for each
 module's result; neither combined log is wholly green). FEI screening/resolution checks remain
-pending. These are HTTP authentication results, not completed worker dispatch.
+pending at that checkpoint. The later persistent recovery run passed 15 screening HTTP cases
+and three resolution issuer cases across all three frameworks. These are HTTP results, not
+completed worker dispatch.
 
 The screening run also exposed stale test-only SQL that omitted newly required population
 contracts. The correct response is to create valid fixture metadata through managed services and
@@ -444,3 +446,25 @@ incorrectly permitted the action in its other, ungranted organization. The fixtu
 to shared AuthzenKeycloakFixture. Five real-PDP regressions pass, including the previously red
 isolation case; six framework consumer leaves compile. This direct PDP evidence complements,
 and does not replace, inbound JWT validation and authenticated framework HTTP tests.
+
+## October 8 recovery verification supplement
+
+The original `/tmp` logs were lost when the laptop rebooted. Surviving Surefire reports confirm
+94 Kafka engine cases and ten Quarkus/Spring screening cases passed before reboot. FEI's
+`docs/regression-evidence-recovered-2026-10-08.json` preserves case names, counts and report hashes;
+its additional post-reboot section records 276 selected cases (268 FOWF and eight FEI).
+Persistent new logs are under `/home/pn/.local/state/forwardmeasure/validation/20261008-recovery/`.
+
+FOWF human-task HTTP fixtures now use shared PostgreSQL/Kafka containers on all three frameworks,
+with six cases passing per framework. This infrastructure repair does not remove the separately
+identified repository-based setup boundary. Micronaut definition-management required an explicit
+test-scoped Commons Logging dependency for Rest Assured's HttpClient transport; after repair,
+116 API, nine authorization and eleven publisher cases passed. The dependency uses the platform
+version and is not added to production packaging. Micronaut execution HTTP contracts passed 114.
+
+A Spring test JVM separately aborted inside the native C2 compiler. The successful Spring and
+Micronaut human-task retry applied `-XX:TieredStopAtLevel=1` through `JAVA_TOOL_OPTIONS` as well as
+`MAVEN_OPTS`; Maven-only flags do not reach Surefire JVMs. Report this execution condition and
+preserve crash evidence. Do not weaken assertions or count the aborted run's zero cases as a pass.
+Full FOWF production/test compilation then passed; test execution and coverage checks were not
+part of that compile-only invocation.
