@@ -1,5 +1,42 @@
 # Runtime matrix accounting — October 8, 2026
 
+## Fixture-first checkpoint — October 8 evening
+
+The user reaffirmed the required order: finish **all fixture implementation first**, then execute
+remaining matrix runs. Do not restart scenario runs simply because an individual fixture becomes
+ready. Compilation is separate and may continue. The tables below retain historical accounting;
+they are not a claim that all their fixtures are written.
+
+| Work | Written | Compiled | Executed |
+| --- | --- | --- | --- |
+| FEI configured pipeline parsing, replay/conflict, owned status/index | Yes | Yes | Passed 1/1 at 23:06 EDT, before the fixture-first correction |
+| FEI State Street central-contract person/organization ingestion, exact raw/typed assertions | Yes; shared matrix plus disposable two-tenant entrypoint | Yes, `fixture-writing-fei-compile-03.log` | No |
+| FEI two-tenant lifecycle provisioning | Written for disposable Quarkus/Pekko/PostgreSQL | Yes, `fixture-writing-fei-compile-03.log` | No |
+| FEI all nine self-provisioned runtime deployments | Incomplete | No complete harness | No complete matrix |
+| FEI correlated resolution configuration and real delivery fixture | Written: test-only pipeline configuration, REST source-profile creation, real Spark/Kafka/resolution delivery, two-tenant assertions | Yes, `fixture-writing-fei-compile-03.log` | No |
+| FDS twelve direct fixtures requiring real current workers, curl fallback removed | Yes, all three frameworks | Yes, bounded compile logs 01–03 | Not rerun |
+| FDS full-framework selection, optional Cassandra, six continuous real-data fixtures | Written; backend selector and real worker image prerequisites explicit | Yes, all three leaves plus shared fixture (`fixture-writing-fds-compile-03.log`) | Not rerun; no matrix pass claimed |
+| FOWF nine-runtime public API, HTTP adapter effect and restart recovery | Written; includes real tenant provisioning and isolation checks | Yes, including tenancy extension, `fixture-writing-fds-compile-05.log` | No |
+| FOWF deployed overflow/fault matrix | Incomplete: packaged GCS storage lacks an emulator endpoint configuration | No complete harness | Existing component evidence only |
+| FDE adapter-to-gRPC and embedded/external Valkey deployment fixtures | Incomplete | No complete harness | Existing framework evidence only |
+
+State Street adds a fourth parameterized FEI scenario; do not continue quoting the old 27-case
+inventory as the final scope. Its checked-in 42-column person/organization inputs are synthetic,
+and it consumes the central State Street source/mapping contracts. No customer export is copied.
+FDS direct fixtures now require `fds.acceptance.pekko.image` / `fds.acceptance.kafka-streams.image`
+and import the selected local image through the shared Kubernetes fixture with a real digest.
+They no longer switch to writing a fabricated OpenSearch document when registry credentials are
+missing. This removes false acceptance, but does not itself establish passing runtime evidence.
+The FDS continuous fixtures now dispatch an actual executor and produce two waves only after
+Deployment readiness, checking transformed fields, a later update and exactly two stable document
+IDs. The shared runtime selects the framework for all four FOWF services and uses real Cassandra
+through the shared container plus the production migration image when
+`-Dfds.acceptance.pekko.persistence=CASSANDRA` is selected. PostgreSQL remains the default.
+These additions have compile evidence only. The all-combination execution inventory still needs
+to be reconciled with these selectors; writing a selector is not executing a matrix cell.
+
+Persistent logs: `~/.local/state/forwardmeasure/validation/20261008-post-rollout/`.
+
 This audit corrects the statement “27 runs plus outstanding FOWF/FDS/FDE matrices.” That
 statement combined scenario invocations, test classes, deployment configurations and unfinished
 test infrastructure. They are different units and must not be summed into a remaining-run total.
@@ -49,7 +86,7 @@ matrix still need execution, so this is partial coverage of that cell, not a sec
 Attempt 02 exposed a production delta-status HTTP 500 (lazy relationship read after session closure).
 The fix and the same correction in configured-pipeline status compiled across all three frameworks.
 Attempt 03 passed using local `entity-intelligence-ingestion-service-quarkus:delta-status-repair-20261008-1`.
-Configured-pipeline status itself is not newly HTTP-verified. Only the selected ingestion API needs
+Configured-pipeline status subsequently passed its public-API regression at 23:06 EDT (see checkpoint above). Only the selected ingestion API needs
 an additional published image; no user deployment or image push was performed by these tests.
 [Source/image/log evidence](../../forwardmeasure-entity-intelligence/docs/delta-lifecycle-regression-evidence-2026-10-08.json).
 
@@ -118,9 +155,9 @@ The following ten class patterns each exist for `Quarkus`, `Spring` and `Microna
 This is 12 direct + 12 bounded workflow + 6 continuous-lifecycle classes, not 30 test methods:
 some classes contain additional authorization tests. It is an inventory, not a verified unrun count.
 
-Concrete gaps:
+Historical gaps identified by the initial audit (current repairs are in the checkpoint above):
 
-1. All 12 direct classes contain a curl-container fallback. A stand-in can write a constant document
+1. All 12 direct classes contained a curl-container fallback. A stand-in can write a constant document
    without running the ingestion parser/mapping. Acceptance must require the real current worker.
 2. The bounded workflow tests use `RealFowfWorkflowFixture`, whose engine/definition/adapter images
    are Quarkus and whose Pekko setup uses PostgreSQL. A Spring/Micronaut launcher does not prove

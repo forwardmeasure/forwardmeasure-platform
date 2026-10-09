@@ -125,6 +125,20 @@ support in `forwardmeasure-testcontainers` rather than duplicating lifecycle cod
 10. Reuse domain assertions where the observable contract is identical, but make each framework
     instantiate its real application. One Quarkus result does not establish Spring or Micronaut parity.
 
+### No substitute worker in ingestion acceptance
+
+A shell HTTP client is acceptable for an actual API request or a readiness probe. It must never
+replace the ingestion worker or write the expected result directly into the destination. Twelve
+FDS direct matrix fixtures previously selected a curl image when registry credentials were absent
+and wrote a constant OpenSearch document. That proves dispatch/connectivity only; it cannot prove
+parsing, mapping or ingestion. The fallback has been removed across Quarkus, Spring and Micronaut.
+
+Require an explicitly selected current local executor image, import it through the shared
+Kubernetes fixture and pin its digest. Missing prerequisites must fail clearly before infrastructure
+startup; they must not silently select a stand-in or report a skipped case as passing. Seed source
+rows/files/topics only. Observe actual completion, transformed fields, stable IDs, updates and
+rejected records through the destination/API. A successful Job alone is insufficient.
+
 ## 4. Required acceptance scenarios
 
 ### FEI ingestion and screening
