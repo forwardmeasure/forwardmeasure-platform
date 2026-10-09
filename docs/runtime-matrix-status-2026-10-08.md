@@ -1,5 +1,26 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 12:44 EDT: correlated REST verification passed; State Street date conversion repaired
+
+Attempt 11 passed four of five FEI families, including simple/correlated resolution and cross-tenant
+checks. The REST response now retains the lower-trust source's description, verifying the Spark
+assertion-union repair through real persistence. State Street then failed with a precise worker
+error: its mapper could not deserialize `DateValue.value_date` into `LocalDate`. This was missed by
+older direct fixtures that configured Java time support while assuming every worker did likewise.
+The Quarkus simple worker and all three correlated delivery workers actually supplied bare mappers.
+
+`RestResolutionSink` now configures a private mapper copy with Java time and ISO date serialization,
+covering every framework without mutating the caller's mapper. The explicit Jackson datatype
+dependency remains version-managed by the platform. Two wire regressions, using the generated API
+client over HTTP, fail before the repair for ISO text and Java LocalDate inputs
+(`fei-resolution-date-before-fix.log/.xml`). Both pass after it; the progress callback regression
+also passes (3 tests, zero failures/errors/skips, `fei-resolution-date-after-fix.log`, 5.921s).
+These are protocol tests, not a substitute for authorized REST persistence. The full State Street
+acceptance remains required. Six simple/resolution-delivery worker images built locally as `resolution-dates-20261009-1`,
+including production/test compilation (`fei-resolution-date-worker-images.log`, 49.531s).
+The dependency reactor also rebuilt the unchanged migrations image. Attempt 12 is running with
+these worker images. No registry publication or operator-cluster deployment was performed.
+
 ## October 9, 12:33 EDT: correlated assertion loss reproduced and repaired
 
 FEI attempt 10 passed WorldCheck/screening, configured pipelines, two-tenant full/delta and
