@@ -1,5 +1,19 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 12:52 EDT: first complete FEI runtime cell passed
+
+**Quarkus / Kafka Streams / PostgreSQL passed all five families**: WorldCheck ingestion/screening,
+configured parsing overrides, two-tenant full/delta lifecycle, simple/correlated resolution and
+State Street customer master. The complete test executed once with zero failures, errors or skips
+in 437.1s (`fei-complete-matrix-12/quarkus-kafka-streams-postgresql.log/.xml`). This includes real
+persisted assertion union, typed dates/identifiers/addresses and all 42 State Street provider fields.
+The date repair is verified through the real API, beyond its focused HTTP protocol regression.
+
+FEI is **1/9 complete cells passed**. The runner advanced automatically to Quarkus/Pekko/PostgreSQL.
+FOWF basic and overflow remain 9/9 each on recorded images; FDE/FDS execution follows FEI. Machine
+readable report/log hashes are recorded in the platform `fei-complete-runtime-evidence-2026-10-09.json`.
+Earlier failed attempts below explain the repairs; they are not additional passing cells.
+
 ## October 9, 12:44 EDT: correlated REST verification passed; State Street date conversion repaired
 
 Attempt 11 passed four of five FEI families, including simple/correlated resolution and cross-tenant

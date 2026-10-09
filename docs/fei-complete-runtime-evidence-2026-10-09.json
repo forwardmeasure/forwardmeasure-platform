@@ -1,0 +1,62 @@
+{
+  "suite": "FEI complete public API runtime matrix",
+  "recorded_at": "2026-10-09T12:52:00-04:00",
+  "passed_cells": [
+    {
+      "framework": "quarkus",
+      "engine": "kafka-streams",
+      "persistence": "postgresql",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 437.051,
+      "families": [
+        "WorldCheck ingestion and screening",
+        "configured pipeline overrides",
+        "two-tenant full/delta lifecycle",
+        "simple/correlated resolution",
+        "State Street customer master"
+      ],
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-complete-matrix-12/quarkus-kafka-streams-postgresql.log",
+      "log_sha256": "a3b7ed53fc1cf52e75b7fdb18c5ebebdc473bd994d13b176320b0e3c2c537aaa",
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-complete-matrix-12/quarkus-kafka-streams-postgresql.xml",
+      "report_sha256": "27e7ada56cb22826137387f04f2b255cb4bd1b9ce342ac717617b89a8d021dee",
+      "runner": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/run-fei-matrix-12.sh",
+      "image_properties": {
+        "openworkflow.acceptance.operation-adapter-pekko.micronaut.image": "forwardmeasure/openworkflow-operation-adapter-pekko-micronaut:pekko-recovery-20261009-1",
+        "openworkflow.acceptance.operation-adapter-kafka-streams.micronaut.image": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-micronaut:control-envelope-20261009-1",
+        "fei.acceptance.ingestion-worker.spring.image": "forwardmeasure/entity-intelligence-ingestion-worker-spring:resolution-dates-20261009-1",
+        "fds.delivery.image": "forwardmeasure/data-streaming-executor-kafka-streams:runtime-validation-20261009-1",
+        "fei.acceptance.ingestion-worker.quarkus.image": "forwardmeasure/entity-intelligence-ingestion-worker-quarkus:resolution-dates-20261009-1",
+        "openworkflow.acceptance.engine-kafka-streams.spring.image": "forwardmeasure/openworkflow-engine-kafka-streams-spring:decimal-transition-20261009-1",
+        "openworkflow.acceptance.engine-pekko.spring.image": "forwardmeasure/openworkflow-engine-pekko-spring:pekko-read-recovery-20261009-1",
+        "openworkflow.acceptance.engine-pekko.micronaut.image": "forwardmeasure/openworkflow-engine-pekko-micronaut:pekko-read-recovery-20261009-1",
+        "fei.acceptance.ingestion-worker.micronaut.image": "forwardmeasure/entity-intelligence-ingestion-worker-micronaut:resolution-dates-20261009-1",
+        "fei.acceptance.resolution-delivery-worker.spring.image": "forwardmeasure/entity-intelligence-resolution-delivery-worker-spring:resolution-dates-20261009-1",
+        "openworkflow.acceptance.operation-adapter-pekko.spring.image": "forwardmeasure/openworkflow-operation-adapter-pekko-spring:pekko-recovery-20261009-1",
+        "openworkflow.acceptance.definition-management.micronaut.image": "forwardmeasure/openworkflow-definition-management-micronaut:issuer-repair-20261008-1",
+        "fei.acceptance.ingestion-service.spring.image": "forwardmeasure/entity-intelligence-ingestion-service-spring:revision-response-20261009-1",
+        "openworkflow.acceptance.engine-kafka-streams.micronaut.image": "forwardmeasure/openworkflow-engine-kafka-streams-micronaut:decimal-transition-20261009-1",
+        "openworkflow.acceptance.operation-adapter-pekko.quarkus.image": "forwardmeasure/openworkflow-operation-adapter-pekko-quarkus:pekko-recovery-20261009-1",
+        "openworkflow.acceptance.engine-kafka-streams.quarkus.image": "forwardmeasure/openworkflow-engine-kafka-streams-quarkus:decimal-transition-20261009-1",
+        "openworkflow.acceptance.execution-management.micronaut.image": "forwardmeasure/openworkflow-execution-management-micronaut:observed-failure-20261009-1",
+        "openworkflow.image.tag": "1.1.0",
+        "fei.acceptance.resolution-delivery-worker.micronaut.image": "forwardmeasure/entity-intelligence-resolution-delivery-worker-micronaut:resolution-dates-20261009-1",
+        "fei.image.tag": "runtime-validation-20261009-1",
+        "openworkflow.acceptance.operation-adapter-kafka-streams.spring.image": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-spring:control-envelope-20261009-1",
+        "fds.image.tag": "1.1.0",
+        "fei.spark.worker.image": "forwardmeasure/entity-intelligence-ingestion-worker-spark:assertion-union-20261009-1",
+        "openworkflow.acceptance.engine-pekko.quarkus.image": "forwardmeasure/openworkflow-engine-pekko-quarkus:pekko-read-recovery-20261009-1",
+        "openworkflow.acceptance.execution-management.quarkus.image": "forwardmeasure/openworkflow-execution-management-quarkus:observed-failure-20261009-1",
+        "openworkflow.acceptance.execution-management.spring.image": "forwardmeasure/openworkflow-execution-management-spring:observed-failure-20261009-1",
+        "fei.acceptance.resolution-delivery-worker.quarkus.image": "forwardmeasure/entity-intelligence-resolution-delivery-worker-quarkus:resolution-dates-20261009-1",
+        "openworkflow.acceptance.operation-adapter-kafka-streams.quarkus.image": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-quarkus:control-envelope-20261009-1",
+        "fei.acceptance.ingestion-service.micronaut.image": "forwardmeasure/entity-intelligence-ingestion-service-micronaut:revision-response-20261009-1",
+        "fei.acceptance.ingestion-service.quarkus.image": "forwardmeasure/entity-intelligence-ingestion-service-quarkus:revision-response-20261009-1"
+      }
+    }
+  ],
+  "remaining_cells": 8,
+  "notes": "Only this complete cell is counted. Runtime image overrides are retained in the runner; logs/XML retain actual selected image properties."
+}
