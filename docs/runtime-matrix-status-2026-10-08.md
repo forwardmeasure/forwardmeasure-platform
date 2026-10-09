@@ -14,8 +14,13 @@
   deployment cells verify authenticated Valkey and retained facts after FDE pod replacement.
   A fixture namespace omission was repaired before the six successful deployment runs; its
   failed attempt remains archived. Evidence: `fde-runtime-evidence-2026-10-09.json`.
-- FDS: **0/39 passed; execution running**, beginning with Quarkus direct Kafka ingestion.
-  Written/compiled is not execution evidence.
+- FDS: **4/39 passed** — Quarkus direct Kafka/Pekko with WorldCheck and customer master.
+  The first workflow cell exposed a fixture identity error: the PDP service account was being
+  used as the launcher-to-FOWF caller without organization membership (HTTP 503). All 18 workflow
+  fixture classes now use a distinct tenant-member machine identity. Shared fixture install and
+  all three launcher production/test compilations passed (3.226s and 5.285s). The failed cell is
+  running again; the four direct passes are retained. Failure archived with `-identity-failure`;
+  passing reports: `fds-runtime-evidence-2026-10-09.json`.
 - New FOWF activity repair: **23 component/framework REST tests passed**, plus all nine complete
   packaged FDE workflow cells above. Full production/test compilation passed (2m09s); nine engine/API images
   built locally as `activity-projection-20261009-1`. Source checkpoint: `ec7a9867`.

@@ -679,3 +679,18 @@ separate from streaming aggregation and do not turn arbitrary protocol progress 
 Fixture egress allowlists must use the production parser's host separator (`|`) and scoped tenant
 identity. A test that gets past a denial by making authorization or network policy permissive
 invalidates its acceptance evidence. Correct the exact configured host list and retain denial tests.
+
+### Tenant-member callers and deployment namespaces
+
+An OAuth client used to evaluate AuthZEN policy is not automatically an application caller with
+organization membership. FDS workflow acceptance exposed this distinction through the actual
+HTTP admission path: its PDP credentials could obtain a token, but tenant-aware FOWF calls failed
+because that token had no organizations. Give the launcher its own service-account client,
+organization membership and scoped role. Keep the PDP identity separate; do not bypass tenant
+selection or change production authorization to make a fixture pass.
+
+When applying rendered Helmfile output in a disposable cluster, use the intended namespace on
+the apply command. A Helm release namespace does not guarantee every rendered resource contains
+`metadata.namespace`. Verify the deployed service and its real backing pods in that namespace.
+For Docker restarts, refresh container inspection before recreating host clients: published host
+ports may change, and cached Testcontainers port mappings can target a dead socket.
