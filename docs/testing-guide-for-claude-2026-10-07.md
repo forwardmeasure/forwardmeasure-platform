@@ -12,6 +12,25 @@ FOWF overflow and FDE adapter/Valkey deployment fixtures were written and compil
 containers are the reusable fixture implementations; do not copy their infrastructure into new tests.
 The fixtures must execute before their assertions can be reported as verified.
 
+### October 9: defects caught only by packaged framework runs
+
+The basic FOWF API/recovery matrix now passes all nine combinations; see the ledger and its JSON
+evidence for the exact scope. Its first runs exposed three concrete framework wiring gaps:
+
+- Spring/Kafka loaded unused JPA configuration and failed startup because a repository bean was
+  absent. The Kafka-only deployment now excludes database auto-configuration and supplies tenant scope.
+- Spring/Pekko/Cassandra eagerly created a relational tenant registry from the Cassandra journal
+  endpoint. All three bindings now use the separate relational tenant settings.
+- Micronaut/Kafka returned HTTP health as ready while its lazy engine factory had never run. An
+  independently started adapter failed because the engine-owned checkpoint topic did not exist.
+  The engine now starts eagerly and readiness checks the actual runtime.
+
+Calling a binding's factory method directly can prove its method body calls `start()`, but cannot
+prove that the framework ever invokes it during startup. Keep focused tests as component evidence;
+require the real application to become ready and execute a public request before declaring the
+framework operational. Do not create production-owned topics in a fixture to hide this kind of
+startup defect. These failures and their repaired-image reruns are preserved in the matrix ledger.
+
 ## 1. The settled policy
 
 The user explicitly agreed to **both direct tests and REST tests**, after discussing the limits
