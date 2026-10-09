@@ -1,26 +1,30 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 15:48 EDT
+## Current execution summary — October 9, 16:15 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
   two-tenant full/delta, simple/correlated resolution and State Street persistence, with no
   failures/errors/skips. Evidence: `fei-complete-runtime-evidence-2026-10-09.json`.
-- FDE: **2/15 passed** — Quarkus/Kafka/PostgreSQL (81.48s) and Quarkus/Pekko/PostgreSQL (80.66s).
-  Both passed actual timer/effect API projection, correct evaluation results, service-restart
-  recovery, denied identity and tenant isolation. Quarkus/Pekko/Cassandra is running next.
-  Nine workflow cells plus six Valkey deployment cells are the unchanged scope.
+- FDE: **11/15 passed** — all nine workflow runtime combinations across Quarkus, Spring and
+  Micronaut, Kafka/PostgreSQL, Pekko/PostgreSQL and Pekko/Cassandra. Each passed real timer/effect
+  projection, business output, restart recovery, denied identity and tenant isolation.
+  Both Quarkus Valkey deployment cells also passed; Spring/embedded is running next.
+  The first deployment attempt exposed a fixture apply command
+  missing `--namespace fde-acceptance`; rendered chart resources therefore landed in default.
+  That command is corrected, compiled, and verified by both Quarkus deployment modes without
+  rerunning the nine successful workflow cells. Failure retained: `fde-deployment-quarkus-embedded-namespace-failure.*`.
   Evidence: `fde-runtime-evidence-2026-10-09.json`.
 - FDS: **39 cells queued** after FDE. Written/compiled is not execution evidence.
-- New FOWF activity repair: **23 component/framework REST tests passed**, plus the two complete
-  packaged FDE cells above. Full production/test compilation passed (2m09s); nine engine/API images
+- New FOWF activity repair: **23 component/framework REST tests passed**, plus all nine complete
+  packaged FDE workflow cells above. Full production/test compilation passed (2m09s); nine engine/API images
   built locally as `activity-projection-20261009-1`. Source checkpoint: `ec7a9867`.
 - FDE exposed a separate Kafka adapter defect: a successful unary gRPC call lost its response at
   the null terminal marker. Two new cases failed before the fix; **all seven adapter tests passed**
   afterward, including failure precedence and retaining external references without reading them.
   Full compile passed (2m06s); three Kafka adapter images built as `grpc-unary-result-20261009-1`.
-  Fix `d363520a` is pushed and verified in the complete Quarkus/Kafka cell.
+  Fix `d363520a` is pushed and verified in all three complete Kafka workflow cells.
   Exact image IDs and focused reports: `fowf-activity-projection-evidence-2026-10-09.json`.
 
 FDE's initial attempts also exposed fixture mistakes: proto source served as YAML, comma-separated

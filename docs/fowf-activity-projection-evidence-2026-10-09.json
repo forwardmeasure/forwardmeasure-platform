@@ -88,7 +88,7 @@
       "sha256": "b6133887fcf0f54e6c830b6733cd0a73f5b552f9860f1ac129689d2321d87f95"
     }
   ],
-  "packaged_engine_status": "Quarkus/Kafka/PostgreSQL complete FDE workflow cell passed; real timer, completed gRPC effects, business result, restart, denial and tenant isolation verified. Remaining combinations running; see fde-runtime-evidence-2026-10-09.json.",
+  "packaged_engine_status": "All nine FDE workflow runtime cells passed across all three frameworks and all supported engine/backend combinations. Includes real timer/effects, correct gRPC output, service restart, denied identity and tenant isolation. Exact reports and selected image properties: fde-runtime-evidence-2026-10-09.json.",
   "production_commit": "ec7a9867",
   "full_compile": {
     "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-full-compile-02.log",
