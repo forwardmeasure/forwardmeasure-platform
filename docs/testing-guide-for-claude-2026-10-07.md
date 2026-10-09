@@ -613,3 +613,21 @@ for each tenant. The second-tenant fixture initially provisioned its caller and 
 but omitted the worker, which was correctly denied. Add the real organization membership and
 scoped grant; never replace authorization with a permit-all service or reuse the first tenant's
 asserted identity to bypass the denial.
+
+
+### October 9: preserve evidence across correlation and exercise typed worker boundaries
+
+Successful Spark and delivery Jobs did not prove correct correlation: FEI's default scalar TRUST
+rule discarded the lower-trust source's whole assertion list. The public entity API assertion
+caught the missing enrichment. The focused Spark/Kafka regression must read the raw handoff JSON,
+not a readback mapping that drops assertion fields itself. Verify both input orders, retention of
+distinct lower-trust assertions, removal of exact duplicates and unchanged scalar trust precedence.
+
+State Street's public API scenario then found a production LocalDate conversion failure that older
+direct tests concealed by installing JavaTimeModule in their own mapper. Never assume framework
+mapper defaults when a deployment supplies a custom producer: inspect the actual producer and
+worker bootstrap. The shared resolution sink now owns a configured copy; the wire regression uses
+both ISO strings and LocalDate values with an otherwise bare mapper and the real generated HTTP
+client. It asserts the emitted date string and that the caller's mapper is unchanged. This HTTP
+protocol fixture does not claim authorization or persistence; the complete State Street API test
+must also verify stored typed dates, identifiers, addresses and all provider fields across frameworks.
