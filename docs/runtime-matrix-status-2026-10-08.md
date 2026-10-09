@@ -1,22 +1,21 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 16:15 EDT
+## Current execution summary — October 9, 16:19 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
   two-tenant full/delta, simple/correlated resolution and State Street persistence, with no
   failures/errors/skips. Evidence: `fei-complete-runtime-evidence-2026-10-09.json`.
-- FDE: **11/15 passed** — all nine workflow runtime combinations across Quarkus, Spring and
-  Micronaut, Kafka/PostgreSQL, Pekko/PostgreSQL and Pekko/Cassandra. Each passed real timer/effect
-  projection, business output, restart recovery, denied identity and tenant isolation.
-  Both Quarkus Valkey deployment cells also passed; Spring/embedded is running next.
-  The first deployment attempt exposed a fixture apply command
-  missing `--namespace fde-acceptance`; rendered chart resources therefore landed in default.
-  That command is corrected, compiled, and verified by both Quarkus deployment modes without
-  rerunning the nine successful workflow cells. Failure retained: `fde-deployment-quarkus-embedded-namespace-failure.*`.
-  Evidence: `fde-runtime-evidence-2026-10-09.json`.
-- FDS: **39 cells queued** after FDE. Written/compiled is not execution evidence.
+- FDE: **15/15 passed** — nine workflow runtime combinations across Quarkus, Spring and
+  Micronaut, Kafka/PostgreSQL, Pekko/PostgreSQL and Pekko/Cassandra, plus six real Helmfile
+  deployments using embedded/external Valkey across all frameworks. The workflow cells verify
+  timer/effect projection, business output, service restart, denied identity and tenant isolation;
+  deployment cells verify authenticated Valkey and retained facts after FDE pod replacement.
+  A fixture namespace omission was repaired before the six successful deployment runs; its
+  failed attempt remains archived. Evidence: `fde-runtime-evidence-2026-10-09.json`.
+- FDS: **0/39 passed; execution running**, beginning with Quarkus direct Kafka ingestion.
+  Written/compiled is not execution evidence.
 - New FOWF activity repair: **23 component/framework REST tests passed**, plus all nine complete
   packaged FDE workflow cells above. Full production/test compilation passed (2m09s); nine engine/API images
   built locally as `activity-projection-20261009-1`. Source checkpoint: `ec7a9867`.
@@ -38,7 +37,7 @@ Temurin C2 startup SIGSEGV. This is not production-default JIT/performance evide
 
 No matrix axes were added. No registry publication or operator-cluster deployment was performed.
 Earlier FOWF basic/overflow and FEI passes certify their recorded images; new activity-image
-verification is the running FDE matrix. Shared API-component ownership cleanup remains separate;
+verification passed in all nine FDE workflow cells. Shared API-component ownership cleanup remains separate;
 see `shared-contract-ownership-2026-10-08.md` for the exact resource collision and duplicated schemas.
 <!-- current-runtime-summary:end -->
 
