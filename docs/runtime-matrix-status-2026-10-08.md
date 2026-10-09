@@ -1,5 +1,14 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 13:00 EDT: FEI complete matrix now 2/9
+
+Quarkus/Pekko/PostgreSQL passed all five families in 452.9s, one executed test and no failures,
+errors or skips (`fei-complete-matrix-12/quarkus-pekko-postgresql.log/.xml`). Together with the
+Quarkus/Kafka/PostgreSQL pass, FEI now has **2/9 complete passing cells**. Quarkus/Pekko/Cassandra
+is running. Report/log hashes and selected image properties are retained in
+`fei-complete-runtime-evidence-2026-10-09.json`. No additional production change was needed for
+this second cell. The runner continues through FEI, then FDE and FDS, with failure checks.
+
 ## October 9, 12:52 EDT: first complete FEI runtime cell passed
 
 **Quarkus / Kafka Streams / PostgreSQL passed all five families**: WorldCheck ingestion/screening,
