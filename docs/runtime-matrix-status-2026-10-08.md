@@ -1,5 +1,23 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 10:45 EDT: both FOWF runtime matrices complete
+
+**FOWF basic API/recovery: 9/9 passed. FOWF overflow: 9/9 passed, all 54 scenarios.**
+The final Micronaut passes were Kafka Streams (345.9s), Pekko/PostgreSQL (97.3s), and
+Pekko/Cassandra (218.7s), each with zero failures/errors/skips. The
+[complete overflow evidence](fowf-overflow-runtime-evidence-2026-10-09.json) records actual images,
+scenario names and SHA-256 hashes for each retained log/XML report. The basic matrix has its
+[separate evidence](fowf-basic-runtime-evidence-2026-10-09.json). Earlier failed attempts remain
+historical diagnosis, not unfinished matrix cells.
+
+The sequential continuation has advanced automatically. Current FDS Pekko/Kafka executor images
+built locally in 12s (`fds-current-executor-images.log`, tag `runtime-validation-20261009-1`).
+The selected FEI API/worker images are building for the nine complete public-API cells; the
+standalone FDS Spark image is not rebuilt because these cells use FEI's own Spark worker.
+No FEI complete-cell execution pass is claimed by this image build. The continuation then runs
+FEI, FDE and FDS matrices, stopping for diagnosis on failure. Logs/stage are retained under
+`~/.local/state/forwardmeasure/validation/20261008-post-rollout/`.
+
 ## October 9, 10:34 EDT: Quarkus and Spring overflow matrices complete
 
 Overflow is **6/9 complete combinations passed**, all six scenarios in every Quarkus and Spring

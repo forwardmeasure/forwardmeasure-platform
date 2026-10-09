@@ -1,8 +1,8 @@
 {
   "suite": "FOWF public API overflow",
   "required_runtime_combinations": 9,
-  "passed_runtime_combinations": 6,
-  "matrix_complete": false,
+  "passed_runtime_combinations": 9,
+  "matrix_complete": true,
   "results": [
     {
       "runtime": "quarkus/kafka-streams/postgresql",
@@ -146,6 +146,78 @@
         "forwardmeasure/openworkflow-execution-management-spring:observed-failure-20261009-1",
         "forwardmeasure/openworkflow-migrations:1.1.0",
         "forwardmeasure/openworkflow-operation-adapter-pekko-spring:pekko-recovery-20261009-1"
+      ]
+    },
+    {
+      "runtime": "micronaut/kafka-streams/postgresql",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 345.863,
+      "log": "fowf-overflow-micronaut-kafka-streams-postgresql-06.log",
+      "log_sha256": "35715ef9e2c854244ec6f53d559eb98eb6bc88c36484ce5aae5d50f8556ba141",
+      "report": "fowf-overflow-micronaut-kafka-streams-postgresql-06.xml",
+      "report_sha256": "1dee61fcfbacc6a8edbcbba6e1f7df103fb84751673880cb2c027d71c059493f",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-micronaut:issuer-repair-20261008-1",
+        "forwardmeasure/openworkflow-engine-kafka-streams-micronaut:micronaut-kafka-startup-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-micronaut:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-kafka-streams-micronaut:overflow-endpoint-20261009-1"
+      ]
+    },
+    {
+      "runtime": "micronaut/pekko/postgresql",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 97.285,
+      "log": "fowf-overflow-micronaut-pekko-postgresql-06.log",
+      "log_sha256": "bb8e0b5475c54209e78947870c968647de8a8b85c4865ed33f2b3c8acfb1c3c2",
+      "report": "fowf-overflow-micronaut-pekko-postgresql-06.xml",
+      "report_sha256": "b53797f2a9d81a340b3fa2b3fb4fc95b654ceb75b824ddfd0a3fb6240412ae4b",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-micronaut:issuer-repair-20261008-1",
+        "forwardmeasure/openworkflow-engine-pekko-micronaut:pekko-read-recovery-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-micronaut:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-pekko-micronaut:pekko-recovery-20261009-1"
+      ]
+    },
+    {
+      "runtime": "micronaut/pekko/cassandra",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 218.688,
+      "log": "fowf-overflow-micronaut-pekko-cassandra-06.log",
+      "log_sha256": "8b1d4b19c840c854b7b13ab36801aba2c7e68516bb367dfd9f3457ab5579681f",
+      "report": "fowf-overflow-micronaut-pekko-cassandra-06.xml",
+      "report_sha256": "2ea9bf7126c1bdf2657e72b44ff20762a457ec09f93c313b726ad46bff40e71c",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-micronaut:issuer-repair-20261008-1",
+        "forwardmeasure/openworkflow-engine-pekko-micronaut:pekko-read-recovery-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-micronaut:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-pekko-micronaut:pekko-recovery-20261009-1"
       ]
     }
   ],
