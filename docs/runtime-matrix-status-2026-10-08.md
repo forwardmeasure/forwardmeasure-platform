@@ -1,7 +1,7 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 17:21 EDT
+## Current execution summary — October 9, 17:27 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
@@ -14,9 +14,10 @@
   deployment cells verify authenticated Valkey and retained facts after FDE pod replacement.
   A fixture namespace omission was repaired before the six successful deployment runs; its
   failed attempt remains archived. Evidence: `fde-runtime-evidence-2026-10-09.json`.
-- FDS: **26/39 passed**. Quarkus and Spring each passed all thirteen cells: direct Kafka/Pekko,
+- FDS: **31/39 passed**. Quarkus and Spring each passed all thirteen cells: direct Kafka/Pekko,
   bounded Kafka/Pekko with both Pekko backends, and continuous Kafka/Pekko with both backends.
-  Micronaut is running the final thirteen cells. Exact reports, hashes and selected image/JVM
+  All four Micronaut direct cells and its bounded Kafka WorldCheck cell passed; the remaining
+  Micronaut workflow cells are running. Exact reports, hashes and selected image/JVM
   properties are recorded in `fds-runtime-evidence-2026-10-09.json`.
   Fixture repairs verified in these runs: tenant-member launcher machine identity; explicit
   shared Cassandra dependency in all framework test classpaths; bounded retry of the specific
