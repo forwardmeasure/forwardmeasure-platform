@@ -88,5 +88,98 @@
       "sha256": "b6133887fcf0f54e6c830b6733cd0a73f5b552f9860f1ac129689d2321d87f95"
     }
   ],
-  "packaged_engine_status": "pending existing FDE workflow runtime cells with activity-projection-20261009-1 images"
+  "packaged_engine_status": "Quarkus/Kafka/PostgreSQL complete FDE workflow cell passed; real timer, completed gRPC effects, business result, restart, denial and tenant isolation verified. Remaining combinations running; see fde-runtime-evidence-2026-10-09.json.",
+  "production_commit": "ec7a9867",
+  "full_compile": {
+    "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-full-compile-02.log",
+    "result": "BUILD SUCCESS",
+    "seconds": 129,
+    "production_and_test_sources": true,
+    "tests_executed": false
+  },
+  "image_build": {
+    "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-images-01.log",
+    "result": "BUILD SUCCESS",
+    "seconds": 85,
+    "published": false,
+    "images": [
+      {
+        "tag": "forwardmeasure/openworkflow-execution-management-quarkus:activity-projection-20261009-1",
+        "id": "sha256:e15581513bea7e7006648e23427d23bd6544492290d2bcf26f37c4f36efa46c1"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-execution-management-spring:activity-projection-20261009-1",
+        "id": "sha256:5ac7884129c7e883b12e01094c1966a68f49f1d87fe516d61fcc24ec30c1d2ab"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-execution-management-micronaut:activity-projection-20261009-1",
+        "id": "sha256:a15a047b2a3026aa68e3866466e20bb80b4d710493ee007b97f7386da1c2a25b"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-engine-kafka-streams-quarkus:activity-projection-20261009-1",
+        "id": "sha256:293ec251971a91f2ee89fe42a46dadce6bbbb3372841f4f84502d85b4e895df5"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-engine-kafka-streams-spring:activity-projection-20261009-1",
+        "id": "sha256:d918fc186d5ba0331818fe44047aa8cbae6b6f90ec5e05ce67226723073e24a9"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-engine-kafka-streams-micronaut:activity-projection-20261009-1",
+        "id": "sha256:b995004e7808977ca8d13df4ad8044fd0db367b2dc20ff4f58d78f0a2c6fa008"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-engine-pekko-quarkus:activity-projection-20261009-1",
+        "id": "sha256:ffac5e218bdb5a5e1af74f53e3d2c80494d3eb5666e886e7378ecd4797cf6974"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-engine-pekko-spring:activity-projection-20261009-1",
+        "id": "sha256:dc838a64bee181c6edfc366de06774f2f9d61dcae79d127ed29b1f7217d25ae4"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-engine-pekko-micronaut:activity-projection-20261009-1",
+        "id": "sha256:4531daad0f972d2554d46a0176d2167d5c19ebfc16897c67888d69f4ad8feeef"
+      }
+    ]
+  },
+  "unary_grpc_repair": {
+    "commit": "d363520a",
+    "before": {
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-grpc-unary-before-fix.xml",
+      "tests": 3,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "2c872a58e27fb6de5fd8b88990abf427ba614067da76785ffbe6788413dca89d"
+    },
+    "after": {
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-grpc-unary-after-fix-02.xml",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "sha256": "7f5628a56a198b7e7cae3c605cab8f1ddd7a0c4a2966487713b97b3ff78bfc72"
+    },
+    "full_compile": {
+      "result": "BUILD SUCCESS",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-grpc-unary-full-compile.log",
+      "seconds": 126,
+      "production_and_test_sources": true,
+      "tests_executed": false
+    },
+    "image_build_log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-grpc-unary-images.log",
+    "images": [
+      {
+        "tag": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-quarkus:grpc-unary-result-20261009-1",
+        "id": "sha256:595b1996fc23a73efff2f4d8f87cb543cdc4e0efb5169c25ffec795665c58012"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-spring:grpc-unary-result-20261009-1",
+        "id": "sha256:1af82ee2a7f44e901db9b467d334b83739b778c0a78373eaa82eebf13719c570"
+      },
+      {
+        "tag": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-micronaut:grpc-unary-result-20261009-1",
+        "id": "sha256:c788b05e9832308f416b96762d216a347cdfe836ae05f6a55031ba7e4c0ff1d1"
+      }
+    ]
+  }
 }

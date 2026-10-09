@@ -647,3 +647,35 @@ establish that real engines emit those events. The packaged workflow tests must 
 actual wait and external operation, then poll public execution details for the timer/effect outcome.
 Reuse the existing runtime combinations; keep earlier image evidence separate from new image tags.
 Do not backfill a passing matrix result from component tests or source compilation.
+
+
+### October 9: contract HTTP fixtures must serve the declared media type
+
+Do not reuse a YAML/AsyncAPI fixture server for proto source without changing Content-Type.
+The FDE production-workflow test was rejected at publication because its helper served
+`evaluation.proto` as `application/yaml`; that incorrectly admitted proto source to the JSON Schema
+registry. Serve proto as `text/x-protobuf`, keep YAML contracts as YAML, and exercise the real
+publication API. The production resource classification was already correct; do not weaken it
+because a fixture mislabeled the bytes.
+
+Docker services do not inherit the test JVM's JAVA_TOOL_OPTIONS. The acceptance fixture supports
+an explicit `forwardmeasure.acceptance.java-tool-options` setting while retaining framework-specific
+issuer options. The current laptop validation uses `-Xmx1g -XX:TieredStopAtLevel=1` after a captured
+Temurin C2 SIGSEGV. Record that option with runtime evidence; it is not production-default JIT or
+performance evidence. Keep the failed startup report rather than overwriting it on retry.
+
+
+### October 9: protocol completion markers are not response payloads
+
+The first actual FOWF-to-FDE invocation completed successfully but returned null: the Kafka
+adapter forwarded gRPC's response message only as progress and then treated its null stream-end
+marker as the result. Assert the business result as well as workflow state and activity state.
+A focused transport-boundary test must reproduce response-before-terminal ordering, use both an
+inline and an external data reference, and verify that completion retains the reference without
+fetching a large payload again. Also test that a terminal failure overrides an earlier response.
+This regression failed before the production repair and passed afterward. Keep unary behavior
+separate from streaming aggregation and do not turn arbitrary protocol progress into a result.
+
+Fixture egress allowlists must use the production parser's host separator (`|`) and scoped tenant
+identity. A test that gets past a denial by making authorization or network policy permissive
+invalidates its acceptance evidence. Correct the exact configured host list and retain denial tests.

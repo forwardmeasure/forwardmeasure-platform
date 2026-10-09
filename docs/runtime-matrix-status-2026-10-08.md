@@ -1,27 +1,41 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 15:15 EDT
+## Current execution summary — October 9, 15:48 EDT
 
-- FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on recorded images.
-- FEI complete cells: **9/9 passed**, all framework/engine/persistence combinations.
-  The final Micronaut/Pekko/Cassandra cell passed all five families in 635.9s, with no failures,
-  errors or skips. Evidence: `fei-complete-runtime-evidence-2026-10-09.json`.
-- FDE/FDS complete matrices: written and compiled; execution follows FEI. New FDE assertions
-  checking real-engine timer/effect projection are written and awaiting compilation.
-- FOWF timer/effect API repair now passed **20 engine/reducer/date cases and three REST cases**,
-  one on each framework (`fowf-activity-tests-04.log`, 2m15s). The REST cases cover populated
-  persistence, replay, completion/cancellation and exact timestamps. An RFC 3339 parser repair
-  fixes SimpleDateFormat's incorrect nanosecond parsing. Initial full production/test compilation
-  passed; the final full compile is running. Packaged engine verification
-  will use the existing nine FDE workflow runtime cells with locally rebuilt affected FOWF images.
-  Older basic/overflow passes do not certify these new images. No new matrix axes were added.
+- FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
+- FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
+  two-tenant full/delta, simple/correlated resolution and State Street persistence, with no
+  failures/errors/skips. Evidence: `fei-complete-runtime-evidence-2026-10-09.json`.
+- FDE: **2/15 passed** — Quarkus/Kafka/PostgreSQL (81.48s) and Quarkus/Pekko/PostgreSQL (80.66s).
+  Both passed actual timer/effect API projection, correct evaluation results, service-restart
+  recovery, denied identity and tenant isolation. Quarkus/Pekko/Cassandra is running next.
+  Nine workflow cells plus six Valkey deployment cells are the unchanged scope.
+  Evidence: `fde-runtime-evidence-2026-10-09.json`.
+- FDS: **39 cells queued** after FDE. Written/compiled is not execution evidence.
+- New FOWF activity repair: **23 component/framework REST tests passed**, plus the two complete
+  packaged FDE cells above. Full production/test compilation passed (2m09s); nine engine/API images
+  built locally as `activity-projection-20261009-1`. Source checkpoint: `ec7a9867`.
+- FDE exposed a separate Kafka adapter defect: a successful unary gRPC call lost its response at
+  the null terminal marker. Two new cases failed before the fix; **all seven adapter tests passed**
+  afterward, including failure precedence and retaining external references without reading them.
+  Full compile passed (2m06s); three Kafka adapter images built as `grpc-unary-result-20261009-1`.
+  Fix `d363520a` is pushed and verified in the complete Quarkus/Kafka cell.
+  Exact image IDs and focused reports: `fowf-activity-projection-evidence-2026-10-09.json`.
 
-Micronaut's entity-read 500 was fixed by shipped `PT5S` authorization durations; 27 focused tests passed.
-The separate State Street persistence failure was a bare Jackson mapper lacking Java-time support.
-A private mapper copy repairs it; the persisted date regression passed (1/0/0/0), closure installed,
-and the Micronaut ingestion API image `resolution-persistence-dates-20261009-1` built locally.
-Its complete Kafka and Pekko/PostgreSQL cells now passed through the real API. FEI checkpoint: `b35f7ed`.
+FDE's initial attempts also exposed fixture mistakes: proto source served as YAML, comma-separated
+host policy instead of `|`, and restart polling against cached Docker host-port information.
+The correct proto media type, scoped policy and refreshed mapping now pass. Docker reassigned
+33690 to 33697 during the confirmed restart. Failed reports remain archived under the external
+validation directory with `*-jvm-failure`, `*-media-type-failure`, `*-egress-fixture-failure`,
+`*-unary-result-failure`, `*-restart-probe-failure` and `*-restart-port-failure` suffixes.
+Current FDE/FDS fixture JVM options are explicitly `-Xmx1g -XX:TieredStopAtLevel=1` after a captured
+Temurin C2 startup SIGSEGV. This is not production-default JIT/performance evidence.
+
+No matrix axes were added. No registry publication or operator-cluster deployment was performed.
+Earlier FOWF basic/overflow and FEI passes certify their recorded images; new activity-image
+verification is the running FDE matrix. Shared API-component ownership cleanup remains separate;
+see `shared-contract-ownership-2026-10-08.md` for the exact resource collision and duplicated schemas.
 <!-- current-runtime-summary:end -->
 
 ## October 9, 13:28 EDT: Spring/Pekko fixture capacity corrected; resume retains four passes
