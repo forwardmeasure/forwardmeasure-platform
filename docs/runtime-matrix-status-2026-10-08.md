@@ -19,8 +19,13 @@ Typescript fields. Studio now renders unavailable counts as an em dash and prese
 zero. Full FEI production/test compilation, including Studio, passed in
 `fei-revision-response-full-compile-02.log` (1m28s); four Studio component tests passed in
 `fei-revision-response-studio-test.log` (including the null-versus-zero regression).
-The three ingestion-service images are rebuilding for attempt 08. Operator rollout also needs
-Studio and republication of the FEI workflow bundle API document. Complete FEI cells remain 0/9. FOWF basic/overflow remain
+The three ingestion-service images built locally in 51s (`fei-revision-response-images.log`),
+tagged `revision-response-20261009-1`; the dependency reactor also rebuilt the migrations image,
+which this fix does not require for rollout. The local contract install first stopped on the new
+test's abbreviated license header; the full project header is restored and the retry passed in
+`fei-revision-response-contract-install-02.log` (10.68s). Attempt 08 is running with the corrected
+local API resource and service images. Operator rollout also needs Studio and republication of
+the FEI workflow bundle API document. Source repair checkpoint: `c816871`. Complete FEI cells remain 0/9. FOWF basic/overflow remain
 9/9 each on their recorded images; FDE/FDS complete matrices have not started.
 
 ## October 9, 11:39 EDT: FEI/Kafka WorldCheck and configured pipelines passed
