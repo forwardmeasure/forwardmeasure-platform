@@ -1,5 +1,49 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 10:05 EDT: interrupted-read defect reproduced and repaired
+
+The new focused regression failed against the previous engine with the recovered execution stuck
+in WAITING (`pekko-interrupted-read-before-fix.log`: one failure, one fail-fast skip). FOWF
+`b755aac2` reissues pending object-storage reads from the journaled reference and resolution ID
+when recovery completes. It uses the existing digest-checking transport and completion path.
+
+Full FOWF production/test compilation passed (`pekko-interrupted-read-fixed-full-compile.log`,
+2m06s). All **eight** real PostgreSQL/Cassandra journal/storage regressions then passed, with zero
+failures/errors/skips (`pekko-interrupted-read-after-fix.log`, 50.2s test time). The three local
+Pekko engine images built successfully in 49.6s with tag `pekko-read-recovery-20261009-1`.
+Adapters retain `pekko-recovery-20261009-1`; no image was published. The source checkpoint is
+committed and pushed to the existing backup branch.
+
+FDS `d13dffd` contains the revised public-API read barrier and twelve explicit-image bounded
+fixtures. Production/test compilation passed for the shared fixture and all three launcher leaves
+(`fds-overflow-read-barrier-compile.log`, 12.7s). Attempt 05 started at 10:06 EDT, selecting the eight
+outstanding cells and retaining the completed Quarkus/Kafka pass. Public-API proof of the
+new Pekko recovery hook is still required; the focused eight-case pass is not a matrix pass.
+
+## October 9, 09:55 EDT: first overflow cell passed; Pekko read boundary corrected
+
+Quarkus/Kafka Streams passed all six overflow scenarios in 357.5 seconds, with one test,
+zero failures/errors/skips (`fowf-overflow-quarkus-kafka-streams-postgresql-04.log` and retained XML).
+Overflow is **1/9 complete cells passed**; the basic FOWF matrix remains **9/9 passed**.
+
+Quarkus/Pekko/PostgreSQL attempt 04 passed inline and restart recovery, then failed the corruption
+assertion because the workflow completed. Source inspection explains the fixture error: Pekko
+resolves and journals the response before a subsequent wait task, so mutating that old artifact
+at the timer does not exercise integrity validation. The revised fixture gates actual GCS media
+reads before stopping the engine, then mutates/deletes the real object before restarting it.
+The actual capture, download, digest check and downstream HTTP effect remain production behavior.
+
+That boundary also exposes a missing recovery hook: a journaled `DataResolutionStarted` has no
+in-flight future after restart, and recovery currently resumes captures/running workflows but not
+pending reads. Focused PostgreSQL and Cassandra regressions are written; full production/test
+compilation is running. No repaired Pekko overflow result is claimed yet. This is work within the
+existing restart/integrity acceptance requirement, not an additional matrix axis.
+
+Twelve FDS bounded workflow fixtures also now require the explicit current Pekko executor image
+instead of silently using the old `1.1.0` tag. Those edits are written and await compilation; the
+running FOWF compilation owns the bounded-build lock. Direct/continuous fixtures already accept
+the explicit image selection. No FDS matrix pass is inferred from this fixture correction.
+
 ## October 9, 09:41 EDT: overflow run resumed after a fixture-name rejection
 
 Attempt 03 ended at **02:10 EDT**. No tests were still running when checked at 09:39 EDT.
