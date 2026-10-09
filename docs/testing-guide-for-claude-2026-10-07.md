@@ -631,3 +631,19 @@ both ISO strings and LocalDate values with an otherwise bare mapper and the real
 client. It asserts the emitted date string and that the caller's mapper is unchanged. This HTTP
 protocol fixture does not claim authorization or persistence; the complete State Street API test
 must also verify stored typed dates, identifiers, addresses and all provider fields across frameworks.
+
+
+### October 9: populate response collections and verify engine producers separately
+
+An execution-detail API can pass empty-array tests while every populated response is broken.
+Timer/effect tests must persist real activity facts and read the resulting typed collections over
+HTTP on all three frameworks. Check native activity identity, duplicate/replayed facts, fork
+coordinates, completion/cancellation and exact timestamps. Include fractional RFC 3339 engine
+timestamps: SimpleDateFormat can silently parse nine fraction digits as milliseconds instead of
+fractional seconds. An HTTP 200 or a nonempty array alone will not catch that corruption.
+
+Posting authenticated canonical engine events tests the API projection contract. It does not
+establish that real engines emit those events. The packaged workflow tests must also exercise an
+actual wait and external operation, then poll public execution details for the timer/effect outcome.
+Reuse the existing runtime combinations; keep earlier image evidence separate from new image tags.
+Do not backfill a passing matrix result from component tests or source compilation.

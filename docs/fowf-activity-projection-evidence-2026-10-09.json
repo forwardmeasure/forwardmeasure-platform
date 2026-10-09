@@ -1,0 +1,92 @@
+{
+  "scope": "FOWF activity projection component and framework REST checks",
+  "executed_tests": 23,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04.log",
+  "log_sha256": "2905eae84004ee9845a57f625af20daa12a4f99828e64603f1b3205900c23fda",
+  "reports": [
+    {
+      "class": "com.forwardmeasure.openworkflow.deployment.execution.quarkus.WorkflowExecutionManagementQuarkusApiParityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 27.59,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.deployment.execution.quarkus.WorkflowExecutionManagementQuarkusApiParityTest.xml",
+      "sha256": "0742dcd12e80793672f43bf52b51ca12783d16eeeaa86399cf7476e28ff08c75"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.deployment.execution.spring.WorkflowExecutionManagementSpringApiParityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 30.662,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.deployment.execution.spring.WorkflowExecutionManagementSpringApiParityTest.xml",
+      "sha256": "c3a07eb8fecb5237066d6ccf4ad24f5b4dc36a2095b8ff865399892ca294e993"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.deployment.execution.micronaut.WorkflowExecutionManagementMicronautApiParityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 29.133,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.deployment.execution.micronaut.WorkflowExecutionManagementMicronautApiParityTest.xml",
+      "sha256": "52c204d16de0458e8ead35771335089a71c2df9f73eceec7153f6043ad2afde4"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.execution.query.persistence.ExecutionActivityProjectionTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.236,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.execution.query.persistence.ExecutionActivityProjectionTest.xml",
+      "sha256": "b312333b28f759c80597cfe7c1a9051a64be7b8de8c79ce5673eecab25acf109"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.execution.jaxrs.ApiDateFormatTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.194,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.execution.jaxrs.ApiDateFormatTest.xml",
+      "sha256": "1a63042cee468747f1b82344ee950a08b114087ac641074adafbc4e64d0fd5db"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.workflow.runtime.core.WorkflowExecutionEngineTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.452,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.workflow.runtime.core.WorkflowExecutionEngineTest.xml",
+      "sha256": "7a416dad98c8d1efa60c0e794eafb6f6857fddedeaf3ce189675f385ba33b108"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.workflow.runtime.kafka.OksKafkaRuntimeProjectionTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.48,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.workflow.runtime.kafka.OksKafkaRuntimeProjectionTest.xml",
+      "sha256": "8180bc79b3c7ccc1bd21fbeb379f3126a4282130277d7a63f4478760dd961dd0"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.WorkflowLifecycleProjectionHandlerTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.378,
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-activity-tests-04-reports/TEST-com.forwardmeasure.openworkflow.eventing.WorkflowLifecycleProjectionHandlerTest.xml",
+      "sha256": "b6133887fcf0f54e6c830b6733cd0a73f5b552f9860f1ac129689d2321d87f95"
+    }
+  ],
+  "packaged_engine_status": "pending existing FDE workflow runtime cells with activity-projection-20261009-1 images"
+}
