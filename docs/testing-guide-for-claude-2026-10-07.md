@@ -560,3 +560,31 @@ explicit body aliases. A transparent fixture observer may record synthetic reque
 it must forward to the real authenticated business endpoint and never log bearer credentials.
 The focused regression is `HttpOperationMaterializerTest.explicitOpenApiRequestBodiesAreNotWrappedInTheParameterName`;
 the end-to-end component assertion remains actual terminal completion and OpenSearch persistence.
+
+### October 9: inject storage faults before the payload is consumed
+
+A downstream wait is not a portable overflow recovery barrier. Kafka retained an artifact reference
+through the wait, but Pekko resolved and journaled the payload before entering it. Corrupting the
+old object at that point did not exercise a storage read: completion was legitimate, and demanding
+failure was a fixture error. Observe the actual boundary being tested.
+
+The public overflow fixture now forwards real GCS protocol requests and holds media reads until
+the engine process is stopped. It verifies the durable ARTIFACT state through public history,
+then mutates/deletes the actual emulator object and restarts the engine. The proxy supplies no
+business result, synthetic checksum verdict or replacement worker. Untampered reads must complete;
+corruption/missing data must fail before the downstream effect. Count a deployment pass only after
+all six overflow scenarios complete, rather than counting its successful first scenarios as a pass.
+
+This exposed a real recovery defect: a persisted DataResolutionStarted outlived its process's
+read future, leaving the recovered workflow WAITING forever. FOWF `b755aac2` resumes that read
+through the normal storage transport using its persisted resolution identity. The focused test
+failed before the fix; all eight PostgreSQL/Cassandra journal/storage cases passed afterward.
+The focused test deliberately delays a read, while the packaged acceptance gates actual storage
+HTTP. These are complementary proofs with explicitly different boundaries.
+
+The packaged test then exposed incomplete public failure reporting. A STATE_OBSERVED terminal
+snapshot can precede the FAILED journal fact; the projection published FAILED without its error.
+FOWF `e90a5536` saves the snapshot's structured failure details. A new shared REST contract passed
+on Quarkus, Spring and Micronaut, checking the first terminal response, later fact delivery and
+idempotent observation replay. Do not poll only for a terminal enum and silently ignore a missing
+result/error. Assert the externally usable outcome as part of the same acceptance requirement.

@@ -1,0 +1,85 @@
+{
+  "suite": "FOWF public API overflow",
+  "required_runtime_combinations": 9,
+  "passed_runtime_combinations": 3,
+  "matrix_complete": false,
+  "results": [
+    {
+      "runtime": "quarkus/kafka-streams/postgresql",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 357.465,
+      "log": "fowf-overflow-quarkus-kafka-streams-postgresql-04.log",
+      "log_sha256": "9833c861f40ec46d4d1d7de17045e414adeaa95459735e283e5a40818620607e",
+      "report": "fowf-overflow-quarkus-kafka-streams-postgresql-04.xml",
+      "report_sha256": "5bd527f32f18352da0c59a0266bf7a5b07be073efcf1f98dd0be509ac238d3e3",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-quarkus:1.1.0",
+        "forwardmeasure/openworkflow-engine-kafka-streams-quarkus:overflow-endpoint-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-quarkus:document-identity-repair-20261008-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-kafka-streams-quarkus:overflow-endpoint-20261009-1"
+      ]
+    },
+    {
+      "runtime": "quarkus/pekko/postgresql",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 101.913,
+      "log": "fowf-overflow-quarkus-pekko-postgresql-06.log",
+      "log_sha256": "7824bc2ba910da91d92abeb76eea726a5e92ad97db6124e3059836fb9e1f9263",
+      "report": "fowf-overflow-quarkus-pekko-postgresql-06.xml",
+      "report_sha256": "9d71852d6d4bc51f51714cb109d34d3690427f936eafcc7010d82fbb79486ef6",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-quarkus:1.1.0",
+        "forwardmeasure/openworkflow-engine-pekko-quarkus:pekko-read-recovery-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-quarkus:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-pekko-quarkus:pekko-recovery-20261009-1"
+      ]
+    },
+    {
+      "runtime": "quarkus/pekko/cassandra",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 240.312,
+      "log": "fowf-overflow-quarkus-pekko-cassandra-06.log",
+      "log_sha256": "f9638d7ffa04b46db8b7905515610448c57aae528d27575674a27527bbe25df8",
+      "report": "fowf-overflow-quarkus-pekko-cassandra-06.xml",
+      "report_sha256": "a42658030ae980a3d11b1371a6be30f62bb4dea73cfb695dd8ae47d4298c3290",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-quarkus:1.1.0",
+        "forwardmeasure/openworkflow-engine-pekko-quarkus:pekko-read-recovery-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-quarkus:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-pekko-quarkus:pekko-recovery-20261009-1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Only listed combinations are recorded as passed.",
+    "GCS emulator exercises real storage HTTP; it does not establish Google IAM behavior.",
+    "Focused journal/storage and REST projection tests are separate evidence."
+  ]
+}

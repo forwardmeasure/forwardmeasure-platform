@@ -1,5 +1,14 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 10:22 EDT: all three Quarkus overflow combinations passed
+
+Overflow is **3/9 complete combinations passed**: Quarkus/Kafka Streams (357.5s),
+Quarkus/Pekko/PostgreSQL (101.9s), and Quarkus/Pekko/Cassandra (240.3s). Each passed all six
+scenarios and has one executed test with zero failures/errors/skips. The remaining Spring and
+Micronaut combinations continue in the same sequential runner, beginning with Spring/Kafka.
+[Per-combination evidence](fowf-overflow-runtime-evidence-2026-10-09.json) records actual image tags,
+scenario names and log/report hashes. The earlier failed attempts remain in the local result history.
+
 ## October 9, 10:16 EDT: recovered failure details verified across all three REST hosts
 
 Pekko public attempt 05 passed INLINE and RECOVER. CORRUPT then correctly reached FAILED without
