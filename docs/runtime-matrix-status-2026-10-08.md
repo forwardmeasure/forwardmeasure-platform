@@ -1,6 +1,45 @@
 # Runtime matrix accounting — October 8, 2026
 
-## Fixture-first checkpoint — October 8 evening
+## October 9 fixture completion and runtime preparation
+
+The previously missing matrix fixtures are now written and compile. **No new matrix execution
+passes are claimed by this checkpoint.** Historical results below remain separate evidence.
+The old 27-case count is superseded: count deployment cells and scenario families separately.
+
+| Suite | Current written scope | Compilation | Runtime evidence still needed |
+| --- | --- | --- | --- |
+| FEI public API | Nine disposable deployments: three frameworks × Kafka Streams, Pekko/PostgreSQL, Pekko/Cassandra. Each complete-cell entrypoint runs WorldCheck ingestion/screening, configured pipelines, two-tenant full/delta lifecycle, simple/correlated resolution, and State Street central-contract ingestion | `fixture-writing-fei-runtime-compile-02.log`, October 9 00:34 EDT | All nine **complete** cells; historical partial Quarkus/Pekko/PostgreSQL passes are retained below |
+| FOWF API/recovery | Nine real framework/engine/backend deployments; publication, admission, HTTP effect, authorization/tenancy, idempotency and restart | Shared fixture and three FDS leaves compiled | Nine cells |
+| FOWF overflow | Nine deployments, each with six scenarios: inline, stored response recovery, same-length corruption, missing object, maximum response rejection, real storage write failure | `fixture-writing-fds-overflow-compile-03.log`; FOWF full production/test reactor `fixture-writing-fowf-endpoint-full-compile-02.log` | Nine invocations / 54 scenario executions; neither number is a build count |
+| FDS direct | Twelve real-worker classes across all three frameworks, two providers and two executors; no curl substitute | Three launcher leaves compiled | Current worker execution for each class |
+| FDS bounded/continuous | Twelve bounded classes and six continuous classes; continuous cases assert actual two-wave OpenSearch data. Six Pekko bounded and three Pekko continuous classes also run with Cassandra selected | Three launcher leaves and shared fixture compiled | These configurations remain unverified; class counts are not method counts |
+| FDE workflow adapter | Nine real FOWF deployments invoking the production FDE gRPC workflow; allowed, denied and cross-tenant requests; state retained after FDE restart | `fixture-writing-fde-deployment-compile-03.log`, October 9 00:38 EDT | Nine cases |
+| FDE deployment | Six actual product Helmfile deployments: three frameworks × embedded/external Valkey; authenticated evaluation and retained facts after pod replacement | Same FDE compile log | Six cases |
+
+Shared infrastructure now includes a caller-owned GCS emulator container in
+`forwardmeasure-testcontainers-gcs` and Docker-network attachment for the shared Kubernetes fixture.
+The emulator exercises actual storage HTTP operations; it does not establish Google IAM behavior.
+FDE and FOWF acceptance reuse `PublicWorkflowAcceptanceClient` and `RealFowfWorkflowFixture`;
+no duplicated in-process resource/service implementation stands in for their public APIs.
+
+FOWF adds optional `openworkflow.operations.protocol.storage.endpoint` configuration. Absent the
+setting, provider endpoint behavior is unchanged. This allows deployed engines/adapters to use the
+real storage emulator. New local images are required for engine-kafka-streams, engine-pekko and
+operation-adapter-kafka-streams, each across Quarkus/Spring/Micronaut: nine affected images.
+The selected-module bounded package/image build passed at October 9 00:41 EDT with tag
+`overflow-endpoint-20261009-1` (`overflow-runtime-local-images-02.log`, 1m38s). All nine images
+exist locally. Attempt 01 failed on an empty-registry image name; corrected to `docker.io`.
+No images were published and no operator deployment was changed. The final shared-fixture and
+all-three-launcher compilation passed at 00:42 EDT (`fixture-writing-fds-final-compile.log`).
+
+FEI runner: `scripts/run-public-ingestion-matrix.sh`, with `FEI_IMAGE_TAG` and `FOWF_IMAGE_TAG` set
+to current local images. It provisions one isolated cell at a time, stops at failure and writes
+per-cell logs plus CSV. Compilation and shell syntax validation passed; the script has not run.
+FOWF shared fixtures accept per-component/framework image overrides such as
+`-Dopenworkflow.acceptance.execution-management.quarkus.image=forwardmeasure/openworkflow-execution-management-quarkus:<tag>`
+to use current fixes without rebuilding unaffected images. Runtime logs record actual selected images.
+
+## Historical fixture-first checkpoint — October 8 evening
 
 The user reaffirmed the required order: finish **all fixture implementation first**, then execute
 remaining matrix runs. Do not restart scenario runs simply because an individual fixture becomes
