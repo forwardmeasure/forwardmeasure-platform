@@ -62,6 +62,42 @@ recorded packaged matrices, not a rerun of those image cells.
 The 85% handwritten line/branch coverage gate remains unverified. Component-suite collection is
 running separately; partial existing JaCoCo files and external-container acceptance are not being
 counted as a complete aggregate gate pass.
+
+### Component-suite follow-up (in progress)
+
+The broader component run is separate from the recorded image matrices. Initial FEI component
+results were 312 tests, two failures and eight errors; initial FDE results were 18 tests and three
+errors. A real FEI classification-merge defect is corrected in source, with a new regression
+inherited by all three managed-service framework fixtures. Constructor/schema test fixtures and
+one narrowly documented Micronaut transaction-binding architecture exception are corrected.
+These changes await their queued reruns; they are not covered by the earlier image evidence.
+
+The FOWF component pass exposed eight Pekko fixture failures. Snapshot-seeded state was ignored
+by the deliberate journal-only recovery policy; three manually stepped tests raced automatic
+actor advancement; a tenant alias exceeded the validated database-name limit; eight new wire
+types lacked golden payloads. Corrections seed journal events, use deterministic manual steps,
+shorten the fixture alias, and append new golden payloads without modifying older bytes. The
+rerun is queued. Kafka restoration then executed 26 cases: 25 passed, while one retry-deadline
+assertion still expected the old `purpose` payload. Its correction asserts the original stable
+timer ID, safe activity metadata, unchanged due timestamp and terminal timeout failure. Only that
+case is queued for rerun. The rest of the component reactor continues with failure-at-end enabled.
+
+The FDS component run inadvertently selected packaged FOWF matrix tests with default image tags.
+It was interrupted after an old engine image failed storage initialization. This is not another
+matrix result. The remaining component selection explicitly excludes packaged acceptance classes;
+the earlier passing matrix reports retain their exact image selections.
+
+An interim source-matched diagnostic for FDS reports 93.63% handwritten lines and 86.39% branches
+with zero class-ID mismatches. This is not the configured per-module Maven gate. FDE's next
+three-framework gRPC run optionally dumps JaCoCo data from the actual service JVMs, avoiding the
+false inference that coverage of a client process measures its remote server. Production image
+content is unchanged by the opt-in agent.
+
+Logs and scripts: `~/.local/state/forwardmeasure/validation/20261008-post-rollout/`, including
+`component-coverage-stage.txt`, `component-corrections-stage.txt`, and
+`verify-component-corrections-01.sh`. Failed reports are preserved under
+`component-before-corrections/`. No new registry publication or operator-cluster rollout occurred.
+
 <!-- current-runtime-summary:end -->
 
 ## October 9, 13:28 EDT: Spring/Pekko fixture capacity corrected; resume retains four passes
