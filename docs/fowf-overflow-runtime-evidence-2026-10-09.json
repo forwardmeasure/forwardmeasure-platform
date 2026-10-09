@@ -1,7 +1,7 @@
 {
   "suite": "FOWF public API overflow",
   "required_runtime_combinations": 9,
-  "passed_runtime_combinations": 3,
+  "passed_runtime_combinations": 6,
   "matrix_complete": false,
   "results": [
     {
@@ -74,6 +74,78 @@
         "forwardmeasure/openworkflow-execution-management-quarkus:observed-failure-20261009-1",
         "forwardmeasure/openworkflow-migrations:1.1.0",
         "forwardmeasure/openworkflow-operation-adapter-pekko-quarkus:pekko-recovery-20261009-1"
+      ]
+    },
+    {
+      "runtime": "spring/kafka-streams/postgresql",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 348.572,
+      "log": "fowf-overflow-spring-kafka-streams-postgresql-06.log",
+      "log_sha256": "ee7666c94433a5bbe48885c20726362be0fafaeaafcdb391d268da7a483a81e1",
+      "report": "fowf-overflow-spring-kafka-streams-postgresql-06.xml",
+      "report_sha256": "e72220c3efc400810434702d887196c5d5c3db8acf1088bd303afea89eff0972",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-spring:1.1.0",
+        "forwardmeasure/openworkflow-engine-kafka-streams-spring:spring-kafka-bootstrap-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-spring:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-kafka-streams-spring:overflow-endpoint-20261009-1"
+      ]
+    },
+    {
+      "runtime": "spring/pekko/postgresql",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 120.827,
+      "log": "fowf-overflow-spring-pekko-postgresql-06.log",
+      "log_sha256": "65d42796d0b8810d4b41a7960de612417f159f8e8ca5152c38997f6cdbbd991e",
+      "report": "fowf-overflow-spring-pekko-postgresql-06.xml",
+      "report_sha256": "938bf27f100740de46aa352b30ad6007cb1035c3e0ba6ea3bccbd0e32d80a7ba",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-spring:1.1.0",
+        "forwardmeasure/openworkflow-engine-pekko-spring:pekko-read-recovery-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-spring:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-pekko-spring:pekko-recovery-20261009-1"
+      ]
+    },
+    {
+      "runtime": "spring/pekko/cassandra",
+      "status": "PASSED",
+      "scenarios": [
+        "INLINE",
+        "RECOVER",
+        "CORRUPT",
+        "MISSING",
+        "MAXIMUM",
+        "STORAGE_WRITE_FAILURE"
+      ],
+      "test_duration_seconds": 241.483,
+      "log": "fowf-overflow-spring-pekko-cassandra-06.log",
+      "log_sha256": "1c70af8d8569b45696908ea8122f8cd026e9ec4e92663ca3b85c9316390763ef",
+      "report": "fowf-overflow-spring-pekko-cassandra-06.xml",
+      "report_sha256": "eecbe5ee49628252d492bd60337c0028f4e9266524d57c341d74f9593df273df",
+      "images": [
+        "forwardmeasure/openworkflow-definition-management-spring:1.1.0",
+        "forwardmeasure/openworkflow-engine-pekko-spring:pekko-read-recovery-20261009-1",
+        "forwardmeasure/openworkflow-execution-management-spring:observed-failure-20261009-1",
+        "forwardmeasure/openworkflow-migrations:1.1.0",
+        "forwardmeasure/openworkflow-operation-adapter-pekko-spring:pekko-recovery-20261009-1"
       ]
     }
   ],

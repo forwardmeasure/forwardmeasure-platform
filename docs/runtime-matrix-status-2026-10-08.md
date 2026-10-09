@@ -1,5 +1,13 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 10:34 EDT: Quarkus and Spring overflow matrices complete
+
+Overflow is **6/9 complete combinations passed**, all six scenarios in every Quarkus and Spring
+runtime. The new Spring passes are Kafka Streams (348.6s), Pekko/PostgreSQL (120.8s), and
+Pekko/Cassandra (241.5s), each with zero failures/errors/skips. The three Micronaut combinations
+are running next. The [evidence JSON](fowf-overflow-runtime-evidence-2026-10-09.json) now contains
+six verified reports and 36 successful scenarios. The basic FOWF matrix remains 9/9 passed.
+
 ## October 9, 10:22 EDT: all three Quarkus overflow combinations passed
 
 Overflow is **3/9 complete combinations passed**: Quarkus/Kafka Streams (357.5s),

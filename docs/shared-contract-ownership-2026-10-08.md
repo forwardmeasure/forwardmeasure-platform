@@ -50,12 +50,15 @@ must not become newly published FEI canonical mappings. Where several transport 
 the same field rules, a later fixture composition change should remove that repetition while
 preserving independently specified expected outputs.
 
-WorldCheck semantics are still incomplete; shared ownership does not resolve partial dates,
-classification/PEP/location/identifier normalization or large-file ingestion. State Street's
-resolution mapping also retains its documented gaps. The public FEI status polling session defect
-was fixed subsequently; the three-record Quarkus/Pekko PostgreSQL public ingestion-to-screening test
-passed (`fei-worldcheck-public-k3s-05.log`). That limited pass does not close the semantic, large-file,
-shared API-component or remaining framework/engine matrix work.
+At this initial ownership audit, WorldCheck and State Street semantics and large-file ingestion
+were incomplete. Subsequent repairs centralized the 35-field WorldCheck and 42-field State Street
+dispositions and mappings; see FEI's repair handover for their exact semantic evidence. The later
+full WorldCheck export acceptance processed 5,611,953,182 bytes and 5,818,856 records through the
+real API and worker into OpenSearch. That full-file result supersedes the old acquisition and
+whole-file-materialization blocker. It does not establish hundreds-of-GB execution or complete
+framework/engine parity. Shared API-component deduplication remains separate from the completed
+provider-contract centralization. Current runtime evidence is maintained in
+[runtime-matrix-status-2026-10-08.md](runtime-matrix-status-2026-10-08.md).
 
 ## Verification
 
