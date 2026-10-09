@@ -694,3 +694,13 @@ the apply command. A Helm release namespace does not guarantee every rendered re
 `metadata.namespace`. Verify the deployed service and its real backing pods in that namespace.
 For Docker restarts, refresh container inspection before recreating host clients: published host
 ports may change, and cached Testcontainers port mappings can target a dead socket.
+
+### JVM options must reach the process under test
+
+Host `JAVA_TOOL_OPTIONS` does not automatically configure containers. OpenSearch also explicitly
+unsets that variable in its launcher. Use the shared OpenSearch fixture's opt-in
+`forwardmeasure.testcontainers.opensearch.jvm-options`, which maps to `OPENSEARCH_JAVA_OPTS`.
+Its regression queries the real node's JVM input arguments; merely seeing an environment entry
+in Docker configuration would miss this failure. The October 9 continuation uses C1-only JIT
+because a captured Temurin 25 C2 `PhaseIdealLoop` crash occurred on this host. Record the option
+in evidence and do not describe those runs as production-default JVM/performance verification.
