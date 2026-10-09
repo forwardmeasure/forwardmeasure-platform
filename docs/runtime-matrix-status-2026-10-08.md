@@ -1,5 +1,34 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 11:16 EDT: FEI/Kafka control-envelope defect reproduced
+
+Attempt 04 passed fixture startup with real overflow storage but failed before worker dispatch:
+`Workflow computation reached another data cutpoint`. Individually small contract/operation
+payload fields totaled 49,639 bytes in an inline-only control envelope. The blocking computation
+path still used the same 32,768-byte envelope constructor. The default response offload threshold
+(1 MB) did not reduce those fields. A focused real-MinIO regression reproduced the failure with
+48,158 bytes (`fowf-control-envelope-before-fix.log/.xml`: one executed error, no skips).
+
+The production repair preserves inline routing/security metadata and stores the largest eligible
+payload fields until the control envelope fits. Storage maximums, tenant-scoped keys and digest
+validation remain enforced. Kafka's protocol adapter now accepts/resolves `protocolOperationReference`
+as well as the existing inline field. Full FOWF production/test compilation passed in
+`fowf-control-envelope-full-compile.log` (2m12s). All **15** focused tests passed with zero failures/errors/skips in
+`fowf-control-envelope-after-fix-02.log`: six real-MinIO storage cases, five computation/storage
+cases (including both combined-small and individually-large control payloads), and four adapter
+cases. Separate XML reports are retained with `fowf-control-envelope-*-passed.xml` names. The first after-fix
+attempt stopped before tests because the formatter selection needed a regex, not a glob.
+
+This is a correction within the existing FEI Kafka cell, not a new matrix axis. The completed FOWF
+basic/overflow reports remain evidence for their recorded images. FOWF source commit `75eb3a4a` is pushed to the backup branch. Six Kafka engine/adapter
+images built locally in 1m11s (`fowf-control-envelope-local-images.log`), tagged
+`control-envelope-20261009-1`. FEI attempt 05 is running with those images; its integrated result
+is still pending. Subsequent FDE/FDS runners select the same new Kafka images. For operator rollout, deploy
+new Kafka adapters before new engines: new adapters accept old inline envelopes, while old adapters
+do not understand the new referenced protocol field. No image has been published or operator
+cluster modified by this repair.
+
+
 ## October 9, 11:01 EDT: FEI execution resumed with required overflow storage
 
 The completed FOWF counts remain **9/9 basic and 9/9 overflow (54 scenarios)**. No additional
