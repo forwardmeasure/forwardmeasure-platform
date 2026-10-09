@@ -1,5 +1,20 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 09:41 EDT: overflow run resumed after a fixture-name rejection
+
+Attempt 03 ended at **02:10 EDT**. No tests were still running when checked at 09:39 EDT.
+It passed INLINE, RECOVER, CORRUPT, MISSING and MAXIMUM in Quarkus/Kafka, then the production
+workflow-definition API correctly rejected the sixth scenario's generated name (underscores and
+excess length violate the published DSL contract). This is a fixture failure, not a passed cell.
+
+FDS `7969ddc` derives the workflow name from a stable UUID while retaining the full marker in the
+payload. Production/test compilation passed (`fowf-overflow-name-compile.log`, 2.7s). Attempt 04
+is now running in `fowf-overflow-quarkus-kafka-streams-postgresql-04.log`; its sequential runner
+continues to the other eight runtime cells only after all six scenarios pass. The basic FOWF
+matrix remains **9/9 passed**. The earlier full WorldCheck export remains passed; the complete
+FEI/FDS/FDE matrices, final coverage and recorded API projection work are not complete.
+
+
 ## October 9, 02:04 EDT: three overflow scenarios passed; emulator deletion check repaired
 
 Quarkus/Kafka attempt 02 passed INLINE, RECOVER and CORRUPT. Recovery executed a real engine
