@@ -1,7 +1,7 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 17:16 EDT
+## Current execution summary — October 9, 17:21 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
@@ -14,26 +14,18 @@
   deployment cells verify authenticated Valkey and retained facts after FDE pod replacement.
   A fixture namespace omission was repaired before the six successful deployment runs; its
   failed attempt remains archived. Evidence: `fde-runtime-evidence-2026-10-09.json`.
-- FDS: **24/39 passed**. All thirteen Quarkus cells passed: direct Kafka/Pekko, bounded
-  workflow Kafka/Pekko (both Pekko backends), and continuous delivery (Kafka and both Pekko
-  backends). Spring is running; Micronaut follows. Exact completed cells and reports are listed
-  in `fds-runtime-evidence-2026-10-09.json`.
-  Repaired fixture issues: launcher used PDP credentials without organization membership;
-  framework test modules omitted the shared Cassandra test dependency. All three frameworks
-  compiled after each repair. Cassandra also had one archived Keycloak provisioning EOF;
-  its next isolated run passed. Earlier successful cells were retained, not rerun.
-  Spring/Cassandra then hit an OpenSearch Temurin 25 C2 `SIGSEGV` in `PhaseIdealLoop` during
-  startup, before ingestion. The shared container now supports an explicit opt-in
-  `forwardmeasure.testcontainers.opensearch.jvm-options`; the continuation sets
-  `-XX:TieredStopAtLevel=1` through OpenSearch's supported `OPENSEARCH_JAVA_OPTS`.
-  A real-node JVM-argument regression first rejected the ignored `JAVA_TOOL_OPTIONS` approach;
-  the corrected five-test fixture suite passed (34.605s), followed by install (2.191s).
-  Production defaults are unchanged. Failed runtime report and JVM crash log are retained;
-  Spring/Cassandra and both subsequent customer-master cells passed. Continuous Spring/Kafka
-  also passed. Continuous Spring/Pekko then queried a primary shard during recovery; its observation
-  helper now retries only that specific typed 503 within the existing deadline and retains the
-  last response on timeout. Actual field/update/count assertions remain required. The fixture
-  compiled and installed; the failed cell is resuming, preserving 24 completed cells.
+- FDS: **26/39 passed**. Quarkus and Spring each passed all thirteen cells: direct Kafka/Pekko,
+  bounded Kafka/Pekko with both Pekko backends, and continuous Kafka/Pekko with both backends.
+  Micronaut is running the final thirteen cells. Exact reports, hashes and selected image/JVM
+  properties are recorded in `fds-runtime-evidence-2026-10-09.json`.
+  Fixture repairs verified in these runs: tenant-member launcher machine identity; explicit
+  shared Cassandra dependency in all framework test classpaths; bounded retry of the specific
+  OpenSearch shard-recovery 503 during output observation. No final data assertion was removed.
+  One Keycloak provisioning EOF and an OpenSearch Temurin 25 C2 `PhaseIdealLoop` SIGSEGV are
+  archived as failed attempts. The continuation opts into C1-only OpenSearch execution through
+  `forwardmeasure.testcontainers.opensearch.jvm-options=-XX:TieredStopAtLevel=1`. Its five-test
+  fixture suite passed, including real-node verification of JVM arguments. Production defaults
+  are unchanged; these runs do not claim production-default JIT/performance verification.
 - New FOWF activity repair: **23 component/framework REST tests passed**, plus all nine complete
   packaged FDE workflow cells above. Full production/test compilation passed (2m09s); nine engine/API images
   built locally as `activity-projection-20261009-1`. Source checkpoint: `ec7a9867`.
