@@ -1,19 +1,33 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 14:13 EDT
+## Current execution summary — October 9, 14:49 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on recorded images.
-- FEI complete cells: **6/9 passed**, all Quarkus and Spring runtimes. The three Micronaut cells
-  are resuming with the repaired resolution API image. Passing report hashes/image properties:
-  `fei-complete-runtime-evidence-2026-10-09.json`.
-- FDE/FDS complete matrices: written and compiled; execution follows FEI.
+- FEI complete cells: **7/9 passed**: all Quarkus/Spring runtimes and now Micronaut/Kafka/PostgreSQL
+  (497.626s, all five families, including State Street). Micronaut/Pekko/PostgreSQL is running;
+  Micronaut/Pekko/Cassandra follows. Evidence: `fei-complete-runtime-evidence-2026-10-09.json`.
+- FDE/FDS complete matrices: written and compiled; execution follows FEI; no pass is inferred.
+- FOWF timer/effect API implementation is being repaired concurrently with the FEI diagnosis.
+  Initial full production/test compilation passed in 1m55s (`fowf-activity-full-compile-01.log`).
+  Focused execution passed 17 engine/reducer cases, then the new Quarkus REST case returned 400
+  when reading populated timer details. Spring/Micronaut have not executed this new case yet.
+  A timestamp parser defect was identified: SimpleDateFormat misreads nanosecond fractions as
+  milliseconds. Its RFC 3339 repair and date regressions are written. A subsequent compilation
+  found a missing JUnit dependency in the newly tested portable JAX-RS module; that dependency is
+  now declared. The next focused recheck is queued. This is not a completed FOWF repair.
+  The running FEI cell continues; only its launcher is gated so the next FOWF recheck can take the
+  shared build lock before the subsequent FEI cell. The gate automatically resumes on recheck exit.
 
-Micronaut's 500 was lazy authorization-bean creation rejecting shipped `5S` durations. Removing
-valid test overrides reproduced it; changing defaults to `PT5S` made all 27 entity-read/service
-contract cases pass. Only the Micronaut resolution API image was rebuilt. Detailed red/green,
-compile/image and rollout evidence is in FEI's `docs/full-file-ingestion-repair-2026-10-08.md`.
-Attempt 14 resumes Micronaut/Kafka first; six earlier passes are retained without rerunning them.
+Micronaut's earlier entity-read 500 was fixed by shipped `PT5S` authorization durations; all 27
+entity-read/service tests passed. The newly isolated State Street failure is a different endpoint,
+not a recurrence of that fixed lazy-bean failure. Focused reproduction logs are
+`fei-micronaut-statestreet-01.log/.xml` and `fei-micronaut-statestreet-02.log/.xml` under the
+existing external validation directory. The captured ingestion-service exception confirmed missing
+Java-time support in the persistence sink's mapper. A private mapper copy repairs it; the persisted
+date regression passed (1/0/0/0), dependency closure installed, and the Micronaut ingestion API image
+`resolution-persistence-dates-20261009-1` built locally. FEI checkpoint: `b35f7ed`.
+No new matrix axes have been added.
 <!-- current-runtime-summary:end -->
 
 ## October 9, 13:28 EDT: Spring/Pekko fixture capacity corrected; resume retains four passes
