@@ -1,5 +1,27 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 12:33 EDT: correlated assertion loss reproduced and repaired
+
+FEI attempt 10 passed WorldCheck/screening, configured pipelines, two-tenant full/delta and
+simple resolution. Correlated Spark and resolution-delivery Jobs also completed, but the public
+entity API returned only the higher-trust source's position assertion, dropping the other source's
+description. The complete cell failed correctly (`fei-complete-matrix-10/`); it is not a pass.
+FEI's correlation policy had no assertion-list rule, so the default scalar TRUST policy selected
+one source's entire list. FEI now explicitly unions assertions while retaining scalar trust rules.
+
+A real Spark/Kafka regression tests both source orders, retention of lower-trust evidence,
+deduplication of identical assertions and preservation of the higher-trust scalar name. With the
+production fix removed, both new cases failed (expected two assertions, received one):
+`fei-assertion-union-before-fix-02.log/.xml`. With the fix, all four class cases passed, none skipped,
+in `fei-assertion-union-after-fix-02.log/.xml` (17.665s total Maven time). Production and test sources
+compiled in that run. Initial diagnostic attempts used a scalar-only readback mapper and are not
+counted as defect evidence; the regression now inspects the actual Kafka JSON payload.
+The affected Spark image built locally as `assertion-union-20261009-1` in 27.355s
+(`fei-assertion-union-image.log`). Attempt 11 is running with that image; the unchanged migrations
+image was also rebuilt by the dependency reactor.
+No registry push or operator-cluster deployment has been performed. FEI complete cells remain 0/9;
+FOWF basic and overflow are already 9/9 each on their recorded images. FDE/FDS matrices await FEI.
+
 ## October 9, 12:10 EDT: full/delta passed; resolution worker startup corrected
 
 FEI attempt 08 passed **three of five families** on Quarkus/Kafka/PostgreSQL: WorldCheck with
