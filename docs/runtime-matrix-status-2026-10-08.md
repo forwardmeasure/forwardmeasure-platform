@@ -1,7 +1,7 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 17:27 EDT
+## Current execution summary — October 9, 17:44 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
@@ -14,11 +14,10 @@
   deployment cells verify authenticated Valkey and retained facts after FDE pod replacement.
   A fixture namespace omission was repaired before the six successful deployment runs; its
   failed attempt remains archived. Evidence: `fde-runtime-evidence-2026-10-09.json`.
-- FDS: **31/39 passed**. Quarkus and Spring each passed all thirteen cells: direct Kafka/Pekko,
+- FDS: **39/39 passed**. Quarkus, Spring and Micronaut each passed all thirteen cells: direct Kafka/Pekko,
   bounded Kafka/Pekko with both Pekko backends, and continuous Kafka/Pekko with both backends.
-  All four Micronaut direct cells and its bounded Kafka WorldCheck cell passed; the remaining
-  Micronaut workflow cells are running. Exact reports, hashes and selected image/JVM
-  properties are recorded in `fds-runtime-evidence-2026-10-09.json`.
+  The 39 cells executed 57 tests with no failures/errors/skips in the retained passing reports.
+  Exact reports, hashes and selected image/JVM properties are recorded in `fds-runtime-evidence-2026-10-09.json`.
   Fixture repairs verified in these runs: tenant-member launcher machine identity; explicit
   shared Cassandra dependency in all framework test classpaths; bounded retry of the specific
   OpenSearch shard-recovery 503 during output observation. No final data assertion was removed.
@@ -46,7 +45,9 @@ validation directory with `*-jvm-failure`, `*-media-type-failure`, `*-egress-fix
 Current FDE/FDS fixture JVM options are explicitly `-Xmx1g -XX:TieredStopAtLevel=1` after a captured
 Temurin C2 startup SIGSEGV. This is not production-default JIT/performance evidence.
 
-No matrix axes were added. No registry publication or operator-cluster deployment was performed.
+The FEI/FDE/FDS continuation exited successfully. All 63 retained reports and their logs were
+checked against their recorded SHA-256 hashes. No matrix axes were added. No registry publication
+or operator-cluster deployment was performed.
 Earlier FOWF basic/overflow and FEI passes certify their recorded images; new activity-image
 verification passed in all nine FDE workflow cells. Shared API-component ownership cleanup remains separate;
 see `shared-contract-ownership-2026-10-08.md` for the exact resource collision and duplicated schemas.
