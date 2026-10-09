@@ -1,5 +1,25 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 12:10 EDT: full/delta passed; resolution worker startup corrected
+
+FEI attempt 08 passed **three of five families** on Quarkus/Kafka/PostgreSQL: WorldCheck with
+screening, configured pipelines, and the entire two-tenant full/delta lifecycle (application,
+rollback, rejected-row handling and isolation). This verifies the activation schema fix through
+real APIs, workers and OpenSearch. The cell then failed at simple resolution worker startup:
+`entityintelligence.ingestion.opensearch.base-url` was mandatory even for the RESOLUTION sink,
+whose output goes through the ingestion API. Failure evidence is retained under
+`fei-complete-matrix-08/`; complete cells remain 0/9.
+
+The three worker bootstraps now acquire the OpenSearch client only for OPENSEARCH_INDEX. Quarkus
+uses an optional configuration injection to avoid its eager configuration validation; Spring's
+producer is lazy; Micronaut resolves the bean only in the index branch. Actual index-client
+creation still rejects a missing/blank endpoint. The existing public resolution scenario is the
+regression: it supplies no OpenSearch destination and requires actual persisted resolution output.
+All three workers and their production/test dependencies compiled in
+`fei-resolution-worker-compile.log` (29.231s). Three worker images are rebuilding with tag
+`resolution-sink-20261009-1`; attempt 09 will use them together with the corrected ingestion-service
+images. No matrix pass is claimed until the full five-family cell completes.
+
 ## October 9, 11:54 EDT: second tenant succeeds; activation contract repaired
 
 FEI attempt 07 passed WorldCheck and configured pipelines again. Both tenant full loads and
@@ -23,8 +43,8 @@ The three ingestion-service images built locally in 51s (`fei-revision-response-
 tagged `revision-response-20261009-1`; the dependency reactor also rebuilt the migrations image,
 which this fix does not require for rollout. The local contract install first stopped on the new
 test's abbreviated license header; the full project header is restored and the retry passed in
-`fei-revision-response-contract-install-02.log` (10.68s). Attempt 08 is running with the corrected
-local API resource and service images. Operator rollout also needs Studio and republication of
+`fei-revision-response-contract-install-02.log` (10.68s). Attempt 08 used the corrected local API resource and service images; its subsequent worker
+startup failure is described above. Operator rollout also needs Studio and republication of
 the FEI workflow bundle API document. Source repair checkpoint: `c816871`. Complete FEI cells remain 0/9. FOWF basic/overflow remain
 9/9 each on their recorded images; FDE/FDS complete matrices have not started.
 
