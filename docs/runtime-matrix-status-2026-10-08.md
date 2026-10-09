@@ -1,5 +1,19 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 01:58 EDT: overflow fixture barrier corrected; API timer-detail gap recorded
+
+The first Quarkus/Kafka overflow attempt passed INLINE but failed RECOVER **before restart**:
+`awaitDurableWait` assumed the public `timers` collection was populated. Inspection shows
+`JpaWorkflowExecutionProjectionStore` initializes that collection empty and does not update it.
+The workflow completed after its real timer while the fixture kept polling the empty collection.
+This is not successful restart/overflow recovery evidence.
+
+The fixture now synchronizes through persisted public history: Kafka's `TIMER_SCHEDULED` entry for
+`restoreWindow`, or Pekko's `STATE_OBSERVED` WAITING entry containing the received marker. The earlier
+HTTP-operation WAITING state is insufficient. Compile and rerun are required. Separately, populating
+public timer/effect details remains an API projection gap; this fixture change does not repair it.
+
+
 ## October 9, 01:53 EDT: basic matrix complete on the repaired runtime images
 
 All three changed-image confirmations passed: Quarkus/Pekko/PostgreSQL (110.6s),
