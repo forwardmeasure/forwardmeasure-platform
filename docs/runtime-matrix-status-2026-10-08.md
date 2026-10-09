@@ -1,7 +1,7 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 16:37 EDT
+## Current execution summary — October 9, 16:51 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
@@ -14,13 +14,14 @@
   deployment cells verify authenticated Valkey and retained facts after FDE pod replacement.
   A fixture namespace omission was repaired before the six successful deployment runs; its
   failed attempt remains archived. Evidence: `fde-runtime-evidence-2026-10-09.json`.
-- FDS: **8/39 passed** — four Quarkus direct cells, both bounded Kafka cells, and WorldCheck
-  bounded Pekko with PostgreSQL/Cassandra. Customer-master Pekko cells are running next.
+- FDS: **17/39 passed**. All thirteen Quarkus cells passed: direct Kafka/Pekko, bounded
+  workflow Kafka/Pekko (both Pekko backends), and continuous delivery (Kafka and both Pekko
+  backends). Spring is running; Micronaut follows. Exact completed cells and reports are listed
+  in `fds-runtime-evidence-2026-10-09.json`.
   Repaired fixture issues: launcher used PDP credentials without organization membership;
   framework test modules omitted the shared Cassandra test dependency. All three frameworks
-  compiled after each repair. The Cassandra run also had one archived Keycloak provisioning EOF;
+  compiled after each repair. Cassandra also had one archived Keycloak provisioning EOF;
   its next isolated run passed. Earlier successful cells were retained, not rerun.
-  Passing reports and exact image selections: `fds-runtime-evidence-2026-10-09.json`.
 - New FOWF activity repair: **23 component/framework REST tests passed**, plus all nine complete
   packaged FDE workflow cells above. Full production/test compilation passed (2m09s); nine engine/API images
   built locally as `activity-projection-20261009-1`. Source checkpoint: `ec7a9867`.
