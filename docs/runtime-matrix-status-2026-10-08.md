@@ -1,5 +1,24 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 10:16 EDT: recovered failure details verified across all three REST hosts
+
+Pekko public attempt 05 passed INLINE and RECOVER. CORRUPT then correctly reached FAILED without
+the downstream effect, but the API exposed `error: null`. A STATE_OBSERVED snapshot can report
+terminal failure before the FAILED journal fact is projected; the store handled completed snapshot
+output but omitted failed snapshot errors. FOWF `e90a5536` repairs that projection symmetry.
+
+Full FOWF production/test compilation passed (`fowf-observed-failure-full-compile.log`, 2m06s).
+The new real HTTP regression passed **1/1 on each of Quarkus, Spring and Micronaut**, zero
+failures/errors/skips (`fowf-observed-failure-http-regression.log`, separate XML reports retained).
+It asserts that the first FAILED response includes the cause and that later fact/replay delivery
+preserves the error, version and two-entry history. The fixture uses actual framework APIs,
+Keycloak and PostgreSQL; the separate packaged overflow test supplies the real workflow engine.
+
+The three execution-management API images built locally in 34s, tagged
+`observed-failure-20261009-1`. Attempt 06 is running with those images and the repaired Pekko
+engines. Overflow remains **1/9 complete cells passed** until a full six-scenario invocation passes;
+the previous Quarkus/Kafka pass is retained. No operator cluster or published image was changed.
+
 ## October 9, 10:05 EDT: interrupted-read defect reproduced and repaired
 
 The new focused regression failed against the previous engine with the recovered execution stuck
