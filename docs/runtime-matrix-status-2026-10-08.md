@@ -1,5 +1,23 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 13:28 EDT: Spring/Pekko fixture capacity corrected; resume retains four passes
+
+Spring/Pekko/PostgreSQL passed WorldCheck, configured overrides and two-tenant full/delta, then
+its adapter's rolling replacement exhausted the disposable shared PostgreSQL's default connection
+limit. Infrastructure inspection showed 97 JDBC clients, including 65 on the shared FOWF database;
+the replacement failed with reserved-superuser-slots exhaustion. The failed cell is retained under
+`fei-complete-matrix-12/spring-pekko-postgresql.log/.xml` and adapter startup diagnostics under
+`spring-pekko-adapter-restart.log`. It is not a passing cell.
+
+The single test database now explicitly permits 200 connections to accommodate all real FOWF/FEI
+services, two tenant pools per service and rolling overlap. Production defaults/images were not
+changed. The fixture compiled in `fei-matrix-capacity-compile.log` (3.667s). The matrix runner now
+accepts a validated `FEI_MATRIX_START_AT=framework/engine/persistence`, skips earlier cells without
+counting them as new passes, and reports only the selected count. Shell syntax passed. Attempt 13
+resumes at Spring/Pekko/PostgreSQL and will run the five outstanding FEI cells, then FDE/FDS.
+The four earlier complete passes remain valid on the same production images and retain their
+original reports in the machine-readable evidence. No image rebuild was required.
+
 ## Current FEI complete-cell count — October 9, 13:19 EDT
 
 **4/9 passed:** all three Quarkus runtime combinations and Spring/Kafka/PostgreSQL. Each passed
