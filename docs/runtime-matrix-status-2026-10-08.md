@@ -16,9 +16,15 @@ producer is lazy; Micronaut resolves the bean only in the index branch. Actual i
 creation still rejects a missing/blank endpoint. The existing public resolution scenario is the
 regression: it supplies no OpenSearch destination and requires actual persisted resolution output.
 All three workers and their production/test dependencies compiled in
-`fei-resolution-worker-compile.log` (29.231s). Three worker images are rebuilding with tag
-`resolution-sink-20261009-1`; attempt 09 will use them together with the corrected ingestion-service
-images. No matrix pass is claimed until the full five-family cell completes.
+`fei-resolution-worker-compile.log` (29.231s). Three worker images built in 41.031s (`fei-resolution-worker-images.log`) with tag
+`resolution-sink-20261009-1`; the dependency reactor also rebuilt the unchanged migrations image.
+Attempt 09 passed the same three families and **simple resolution ingestion with typed assertions
+and tenant isolation**, verifying the worker repair (`f66333e`, pushed). Correlated ingestion then
+failed before Spark dispatch: the fixture API deployment configured only its simple-worker image,
+leaving the correlated image blank. The adapter correctly rejected that unpinned image. The fixture
+now supplies its already-loaded digest-pinned Spark and FDS delivery images to the production API.
+That correction compiled in `fei-correlated-image-fixture-compile.log`; attempt 10 is starting without
+an image rebuild. Attempt 09's failure XML was automatically archived with its log. No matrix pass is claimed until the full five-family cell completes.
 
 ## October 9, 11:54 EDT: second tenant succeeds; activation contract repaired
 
