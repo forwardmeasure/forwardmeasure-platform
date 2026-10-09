@@ -1,5 +1,25 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 11:01 EDT: FEI execution resumed with required overflow storage
+
+The completed FOWF counts remain **9/9 basic and 9/9 overflow (54 scenarios)**. No additional
+matrix axes have been added. FEI's first complete cell (Quarkus/Kafka/PostgreSQL) failed before
+worker dispatch: the resolved operation was 49,639 bytes, above Kafka's 32,768-byte inline limit,
+and the fixture had not configured object storage. Attempt 02 retained the public failure body,
+which identified the disabled off-thread computation path; this was not an ingestion-worker crash.
+
+The fixture now uses `forwardmeasure-testcontainers-gcs` on the disposable K3s network, creates a
+real emulator bucket over HTTP, and supplies the existing production storage settings to engine
+and adapter. Inline/maximum limits remain unchanged. Production/test compilation passed in
+`fei-overflow-fixture-compile.log` (3.171s). Attempt 03 was deliberately stopped during setup
+after a DNS preflight showed that pods do not inherit Docker aliases. The fixture now registers
+its storage alias in the disposable cluster's CoreDNS, preserving existing host entries. That
+correction compiled in `fei-overflow-dns-compile.log` (2.896s); attempt 04 is running under
+`fei-complete-matrix-04/`. The stopped attempt is not a test pass. Current FEI images (19) and FDS executors (2) already built successfully;
+no image rebuild was needed for this fixture change. FEI complete cells remain **0/9 passed** until
+an entire five-family cell finishes. FDE's 15 and FDS's 39 configurations have not started.
+
+
 ## October 9, 10:45 EDT: both FOWF runtime matrices complete
 
 **FOWF basic API/recovery: 9/9 passed. FOWF overflow: 9/9 passed, all 54 scenarios.**
