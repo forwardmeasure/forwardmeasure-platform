@@ -1,5 +1,19 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 02:04 EDT: three overflow scenarios passed; emulator deletion check repaired
+
+Quarkus/Kafka attempt 02 passed INLINE, RECOVER and CORRUPT. Recovery executed a real engine
+stop/start after persisted history; corruption changed an object without changing its length and
+correctly produced FAILED without the downstream effect. MISSING stopped during fault setup because
+the emulator returned HTTP 200 for a successful delete while the fixture demanded 204.
+
+The fixture accepts the two successful deletion statuses and independently requires a subsequent
+GET to return 404, for both object and bucket deletion. Production/test compilation passed
+(`fowf-overflow-gcs-delete-compile.log`, 2s); attempt 03 is running. No complete overflow cell has yet
+passed. All nine basic API/recovery cells remain passed. The public timer-detail projection gap
+below remains recorded separately.
+
+
 ## October 9, 01:58 EDT: overflow fixture barrier corrected; API timer-detail gap recorded
 
 The first Quarkus/Kafka overflow attempt passed INLINE but failed RECOVER **before restart**:
