@@ -1,5 +1,28 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 11:54 EDT: second tenant succeeds; activation contract repaired
+
+FEI attempt 07 passed WorldCheck and configured pipelines again. Both tenant full loads and
+staged delta ingestion completed with real workers. Delta application reached the successful
+HTTP 200 activation callback, but Kafka's OpenAPI validator rejected its response: the FEI 3.1
+schema used 3.0 `nullable: true` declarations and did not allow a null `failure_reason`.
+The failed cell's XML and logs are retained under `fei-complete-matrix-07/`; this is not a pass.
+
+`ReferencePopulationRevisionResponseContractTest` serializes the actual generated response and
+validates it against the published activation response schema for INGESTING, READY and FAILED.
+After matching production ISO timestamp serialization, all three reproduced null-type failures
+(`fei-revision-response-before-fix-02.log`, preserved XML). Correcting the source schema to JSON
+Schema null type unions makes all three pass (`fei-revision-response-after-fix.log/.xml`), while
+wrong-type counters and a null mandatory status still fail validation. No generated Java was edited.
+The first full compile exposed Studio helpers that did not accept the newly accurate nullable
+Typescript fields. Studio now renders unavailable counts as an em dash and preserves measured
+zero. Full FEI production/test compilation, including Studio, passed in
+`fei-revision-response-full-compile-02.log` (1m28s); four Studio component tests passed in
+`fei-revision-response-studio-test.log` (including the null-versus-zero regression).
+The three ingestion-service images are rebuilding for attempt 08. Operator rollout also needs
+Studio and republication of the FEI workflow bundle API document. Complete FEI cells remain 0/9. FOWF basic/overflow remain
+9/9 each on their recorded images; FDE/FDS complete matrices have not started.
+
 ## October 9, 11:39 EDT: FEI/Kafka WorldCheck and configured pipelines passed
 
 Attempt 05 cleared the envelope-size failure but remained waiting without a worker Job.
@@ -28,9 +51,9 @@ full-load worker was then correctly denied: the fixture had provisioned caller B
 outbound identity but omitted worker membership and its authorization grant. The fixture now
 provisions the worker for tenant B using the same real Keycloak membership/grant setup as
 tenant A. Test compilation passed in `fei-second-tenant-worker-compile.log` (3.297s).
-Attempt 07 is running with that correction; no production image rebuild was needed.
+Attempt 07 used that correction; no production image rebuild was needed for the membership fix.
 The two passing families are partial evidence, not a completed cell: complete FEI cells remain
-**0/9**. Logs: `fei-complete-matrix-06/` (failed) and `fei-complete-matrix-07/` (running).
+**0/9**. Logs: `fei-complete-matrix-06/` (failed) and `fei-complete-matrix-07/` (subsequent contract failure, detailed above).
 No new matrix axis or unrelated feature is being added.
 
 
