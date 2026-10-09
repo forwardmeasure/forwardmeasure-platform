@@ -1,5 +1,13 @@
 # Runtime matrix accounting — October 8, 2026
 
+## Current FEI complete-cell count — October 9, 13:19 EDT
+
+**4/9 passed:** all three Quarkus runtime combinations and Spring/Kafka/PostgreSQL. Each passed
+all five families with one executed test and zero failures/errors/skips. Spring/Kafka took 452.1s;
+Spring/Pekko/PostgreSQL is running next. The current source repairs and local image selections are
+unchanged since the first passing cell. Exact evidence is in `fei-complete-runtime-evidence-2026-10-09.json`.
+FOWF basic/overflow remain 9/9 each; FDE/FDS matrices follow the FEI runner.
+
 ## October 9, 13:11 EDT: all three Quarkus FEI runtime cells passed
 
 Quarkus/Pekko/Cassandra passed every family in 618.0s with one test, zero failures/errors/skips.
