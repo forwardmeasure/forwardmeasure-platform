@@ -106,5 +106,38 @@
         "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml"
       ]
     }
-  ]
+  ],
+  "remediation_2026_10_09": {
+    "status": "implemented and verified: 140 tests passed; full FOWF/FEI production and test compile plus FDS launcher frameworks/dependencies passed",
+    "inventory_note": "Original files/collisions above are the October 8 audit, preserved as historical evidence, not a current rescan.",
+    "shared_api_owner": "forwardmeasure-platform/forwardmeasure-platform-api-contracts/src/main/resources/META-INF/forwardmeasure/openapi/problem-v1.json",
+    "java_artifact": "com.forwardmeasure.platform:forwardmeasure-platform-api-contracts",
+    "retained_java_package": "com.forwardmeasure.openworkflow.common.model",
+    "deleted_unused_resource": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml",
+    "derived_snapshots": [
+      "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml",
+      "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/META-INF/openapi/entity-intelligence-api.yaml",
+      "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/openapi/launcher.yaml"
+    ],
+    "sync_command": "python3 forwardmeasure-platform/scripts/sync-shared-api-components.py --check",
+    "current_affected_files": [
+      {
+        "path": "forwardmeasure-platform/forwardmeasure-platform-api-contracts/src/main/resources/META-INF/forwardmeasure/openapi/problem-v1.json",
+        "sha256": "be84bc08cd6713b330ecf1a46d7aecb7eb68e707aa1433b44245e98b568dc6f7"
+      },
+      {
+        "path": "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml",
+        "sha256": "3cbc400a8c423138a15eaa46ecf7b018a32194a1380673ccd5b8717535606bc8"
+      },
+      {
+        "path": "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/META-INF/openapi/entity-intelligence-api.yaml",
+        "sha256": "fc9ede98d4da2c00adbcc36cad042fca760a503d8ee19d3c7646194f6bb3655f"
+      },
+      {
+        "path": "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/openapi/launcher.yaml",
+        "sha256": "e4331b37501768839bfe6ec7d032e272ecfabb353d62c15d3468681248345ab6"
+      }
+    ],
+    "evidence": "shared-api-ownership-evidence-2026-10-09.json"
+  }
 }

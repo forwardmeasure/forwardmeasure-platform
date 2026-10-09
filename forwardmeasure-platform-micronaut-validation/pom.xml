@@ -29,9 +29,8 @@
   <name>ForwardMeasure Platform :: Micronaut Validation</name>
   <!--
   Moved here from forwardmeasure-openworkflow's own openworkflow-micronaut-validation (2026-10-01)
-  - see forwardmeasure-platform-server-jaxrs's own pom for why, and for the one real dependency
-  this family still has on an forwardmeasure-openworkflow artifact (openworkflow-common-models, via
-  forwardmeasure-platform-server-jaxrs).
+  - shared RFC 9457 models now belong to platform-api-contracts, so this library and its JAX-RS
+  counterpart have no dependency on a product's generated-model artifact.
 
   A request that breaks the API contract - a bean-validation failure, a body that doesn't bind, a
   required argument left out - and any other unmapped failure, as the RFC 9457 problem Quarkus and

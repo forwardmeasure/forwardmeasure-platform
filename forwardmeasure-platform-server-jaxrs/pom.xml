@@ -32,16 +32,8 @@
     RFC 9457 mapping for a request that breaks the contract - a bean-validation failure or a body
     JSON binding rejection - on every framework.
 
-    openworkflow-common-models stays a real (non-reactor, versioned) dependency: Problem/Violation
-    are generated there from common-definitions.yaml, the RFC 9457 lineage every product is meant
-    to converge on (see the repo's own notes on the RFC 9457 direction - FOWF's lineage wins,
-    others migrate later). That migration - relocating common-definitions.yaml's generation itself
-    out of forwardmeasure-openworkflow - is real, larger, separate work, not done here; this module
-    depends on the already-generated contract types only, never on any of forwardmeasure-openworkflow's
-    own server/business logic. This is forwardmeasure-platform's first dependency pointing at a
-    product repo rather than the usual direction (product -> platform) - a deliberate, narrow
-    exception for a shared contract type, not a precedent for depending on a product's internals
-    generally.
+    Problem/Violation now come from the neutral platform-api-contracts artifact. Their existing
+    Java package remains compatible, but this library no longer depends on a product artifact.
     -->
     <properties>
     </properties>
@@ -66,8 +58,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.forwardmeasure.openworkflow</groupId>
-            <artifactId>openworkflow-common-models</artifactId>
+            <groupId>com.forwardmeasure.platform</groupId>
+            <artifactId>forwardmeasure-platform-api-contracts</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>

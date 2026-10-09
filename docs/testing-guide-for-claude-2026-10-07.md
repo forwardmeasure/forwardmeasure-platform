@@ -325,6 +325,18 @@ existing missed-class policy unless separately authorized. Aggregate coverage ma
 cross-module service and REST execution; generated sources must be classified correctly even when
 handwritten and generated classes share a package. Handwritten adapters are not generated code.
 
+Shared API models have one owner: `forwardmeasure-platform-api-contracts`. Its canonical
+`problem-v1.json` generates `Problem`/`Violation`, retaining their established Java package.
+FOWF, FEI and FDS publish generated inline schema snapshots to preserve client-generator naming;
+run `scripts/sync-shared-api-components.py` in the platform repository after a canonical edit.
+Each product's `SharedProblemSchemaTest` checks the published resource against the dependency
+artifact, and FOWF's ownership test rejects duplicate generated classes. Keep those checks and
+real framework HTTP validation/error cases: schema equality alone does not prove runtime wiring.
+
+Population HTTP fixtures must supply the required source-schema and mapping URIs. Use the
+centralized provider contracts, preserve the missing-contract rejection case, and verify returned
+defaults. An old request that omits these fields must not be made to pass by weakening admission.
+
 Use the bounded wrapper and its shared Maven lock. Always provide an absolute `-f` because the
 wrapper changes directory. Keep Maven cache enabled; do not wipe the user's repository or build
 cache. Cache hits never constitute fresh execution evidence. Generated-source registration,
@@ -368,10 +380,13 @@ avoid concurrent edits/builds without coordination. Existing uncommitted changes
 5. Measure aggregate handwritten coverage and close behavioral gaps. Report exact remaining matrix
    cells and blockers. Finish with the affected-image build commands and deployment steps.
 
-The full repair is not complete. Earlier successful worker/index tests do not close public API,
-framework matrix or Studio acceptance. At the original October 7 checkpoint the FEI WorldCheck API case had only compiled. Later
-three-row and full-export passes are recorded in the matrix ledger; the small fixture alone is
-never full-file scale evidence.
+At the original October 7 checkpoint the FEI WorldCheck API case had only compiled. The October 9
+ledger now records FEI 9/9, FDS 39/39, FDE 15/15, and the earlier FOWF basic/overflow 9/9 each,
+with exact images and reports. The full WorldCheck export also passed on its recorded runtime.
+These close the recorded runtime cells; they do not establish the handwritten coverage gate or
+hundreds-of-GB execution. Focused test runs and leftover `jacoco.exec` files are not evidence of a
+complete coverage run, and external container processes require their own instrumentation before
+their execution can count toward JaCoCo coverage.
 
 ## 8. Source pointers reviewed during this analysis
 

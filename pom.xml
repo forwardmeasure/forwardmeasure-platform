@@ -349,6 +349,7 @@
   <modules>
     <module>forwardmeasure-platform-core-bom</module>
     <module>forwardmeasure-platform-data-contracts</module>
+    <module>forwardmeasure-platform-api-contracts</module>
     <module>forwardmeasure-platform-quarkus-bom</module>
     <module>forwardmeasure-platform-spring-bom</module>
     <module>forwardmeasure-platform-micronaut-bom</module>
@@ -364,6 +365,17 @@
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-api-contracts</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-api-contracts</artifactId>
+        <type>test-jar</type><classifier>tests</classifier>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform-data-contracts</artifactId>
