@@ -1,7 +1,7 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 16:51 EDT
+## Current execution summary — October 9, 17:16 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
@@ -14,7 +14,7 @@
   deployment cells verify authenticated Valkey and retained facts after FDE pod replacement.
   A fixture namespace omission was repaired before the six successful deployment runs; its
   failed attempt remains archived. Evidence: `fde-runtime-evidence-2026-10-09.json`.
-- FDS: **20/39 passed**. All thirteen Quarkus cells passed: direct Kafka/Pekko, bounded
+- FDS: **24/39 passed**. All thirteen Quarkus cells passed: direct Kafka/Pekko, bounded
   workflow Kafka/Pekko (both Pekko backends), and continuous delivery (Kafka and both Pekko
   backends). Spring is running; Micronaut follows. Exact completed cells and reports are listed
   in `fds-runtime-evidence-2026-10-09.json`.
@@ -29,7 +29,11 @@
   A real-node JVM-argument regression first rejected the ignored `JAVA_TOOL_OPTIONS` approach;
   the corrected five-test fixture suite passed (34.605s), followed by install (2.191s).
   Production defaults are unchanged. Failed runtime report and JVM crash log are retained;
-  Spring/Cassandra is resuming without rerunning twenty passing cells.
+  Spring/Cassandra and both subsequent customer-master cells passed. Continuous Spring/Kafka
+  also passed. Continuous Spring/Pekko then queried a primary shard during recovery; its observation
+  helper now retries only that specific typed 503 within the existing deadline and retains the
+  last response on timeout. Actual field/update/count assertions remain required. The fixture
+  compiled and installed; the failed cell is resuming, preserving 24 completed cells.
 - New FOWF activity repair: **23 component/framework REST tests passed**, plus all nine complete
   packaged FDE workflow cells above. Full production/test compilation passed (2m09s); nine engine/API images
   built locally as `activity-projection-20261009-1`. Source checkpoint: `ec7a9867`.
