@@ -588,3 +588,28 @@ FOWF `e90a5536` saves the snapshot's structured failure details. A new shared RE
 on Quarkus, Spring and Micronaut, checking the first terminal response, later fact delivery and
 idempotent observation replay. Do not poll only for a terminal enum and silently ignore a missing
 result/error. Assert the externally usable outcome as part of the same acceptance requirement.
+
+### October 9: verify aggregate control size and actual command serialization
+
+The FEI Kafka acceptance run exposed two failures that isolated mapping tests could not catch:
+
+- Several individually small payload fields produced an operation control envelope above its
+  32,768-byte limit. Test the combined serialized envelope with the production storage transport,
+  including a configured offload threshold larger than the aggregate. Preserve routing/security
+  metadata inline, enforce storage limits, and verify the adapter resolves the stored operation.
+  Test both combined-small fields and an individually large field. Do not raise limits just to pass.
+- A computed transition's fractional protocol deadline changed numeric representation after the
+  production Kafka JSON serializer round trip, invalidating its digest. Constructing and checking
+  an in-memory transition missed this. Round-trip the actual command through `JsonSerde`, verify
+  acceptance, and separately verify that mutation is still rejected. Preserve wire compatibility.
+
+The focused regressions passed (15 control-envelope/storage/adapter cases and 21 wire/runtime
+cases); the subsequent FEI API run passed WorldCheck ingestion/screening and configured pipelines.
+Those passing families do not make the entire runtime cell pass. Keep the complete-cell assertion
+and preserve failure reports for later families.
+
+Tenant setup must provision every participating identity, including the worker's service account,
+for each tenant. The second-tenant fixture initially provisioned its caller and outbound identity
+but omitted the worker, which was correctly denied. Add the real organization membership and
+scoped grant; never replace authorization with a permit-all service or reuse the first tenant's
+asserted identity to bypass the denial.
