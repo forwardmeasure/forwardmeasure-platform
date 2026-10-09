@@ -1,5 +1,56 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 01:29 EDT: Cassandra startup repair compiled and packaged
+
+FOWF `fdd62a39` separates relational tenant database configuration from the workflow journal in
+all three frameworks. Full production/test compilation passed (`pekko-relational-config-full-compile.log`,
+2m07s). The three affected engine images built locally (`pekko-relational-config-local-images.log`,
+48s), tagged `pekko-relational-config-20261009-1`. Adapters retain `pekko-recovery-20261009-1`.
+FDS `d95f60f` supplies Kafka to the Pekko human-task producer and detects dead cluster members;
+production/test compile and shared fixture install passed (`fowf-pekko-bootstrap-fixture-compile.log`).
+Spring/Pekko/Cassandra attempt 02 is running, followed by the three Micronaut combinations. Previously
+passing Pekko cells must be rechecked with the latest configuration repair before final sign-off.
+Source checkpoints are pushed to `backup/full-file-ingestion-20261008`; images remain local.
+
+## October 9, 01:24 EDT: five passes; Cassandra Spring startup defect
+
+Spring/Pekko/PostgreSQL passed 1/1 (`fowf-basic-spring-pekko-postgresql-01.log`), bringing the
+basic API/restart matrix to **5/9 passed**. Spring/Pekko/Cassandra attempt 01 exposed a production
+configuration defect: `tenantDataSourceRegistry` derives relational tenant URLs from the workflow
+journal endpoint, which is `cassandra:9042` for this backend. Spring eagerly constructs the bean and
+fails startup. The same coupling exists in all three framework bindings. The repair uses the existing
+`forwardmeasure.jpa.tenant-database.*` settings independently of journal configuration. Compilation
+and a rerun are required; this failure is not a pass. The shared fixture also supplies its real Kafka
+endpoint to Pekko's human-task producer and fails promptly if a cluster member exits during bootstrap.
+
+
+## October 9, 01:19 EDT: four basic runtime cells passed
+
+The Quarkus/Pekko/Cassandra cell passed 1/1 (`fowf-basic-quarkus-pekko-cassandra-01.log`, 199.5s
+in the test). All three Quarkus combinations now pass. Spring/Kafka attempt 01 exposed a production
+startup defect: the Kafka-only deployment activated JPA auto-configuration from the shared binding,
+whose unused repository types were absent. FOWF commit `11147492` disables database auto-configuration
+for that deployment and provides the tenant scope needed by its authenticated HTTP filter.
+Production/test compilation and the targeted image build passed (`spring-kafka-bootstrap-image-01.log`,
+26s). The local image is `openworkflow-engine-kafka-streams-spring:spring-kafka-bootstrap-20261009-1`.
+
+Spring/Kafka attempt 02 passed 1/1 in 2m02s through real API admission, adapter effects, engine restart,
+completion and tenant isolation (`fowf-basic-spring-kafka-streams-postgresql-02.log`). The shared
+fixture now waits for application readiness for Kafka engine/adapter services, catching startup
+failures before admission. **4/9 basic cells passed**; the remaining five are running sequentially.
+No new images were pushed and no operator cluster was changed.
+
+## October 9, 01:07 EDT: packaged Pekko recovery passed
+
+`fowf-public-runtime-matrix-05-q-pekko-pg.log` **PASSED 1/1**, no failures/errors/skips, in 2m18s.
+This verifies Quarkus/Pekko/PostgreSQL public admission, real adapter effects, engine restart,
+terminal persisted output, history, stable idempotency, wrong-issuer/denied authorization and
+cross-tenant isolation with the production role fix and corrected fixture callback URL.
+Together with the retained Quarkus/Kafka Streams pass, **2/9 basic FOWF runtime cells have passed**.
+The remaining seven basic cells are running sequentially, beginning with Quarkus/Pekko/Cassandra;
+`fowf-basic-results.csv` records each result and stops on failure. Overflow and FDE/FDS/FEI matrices
+remain separate, unexecuted requirements; this does not mark them passed.
+
 ## October 9 runtime execution and recovery defect
 
 `fowf-public-runtime-matrix-03.log` executed the public API/restart matrix: **Quarkus/Kafka Streams
