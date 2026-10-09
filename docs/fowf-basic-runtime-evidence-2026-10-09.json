@@ -1,0 +1,107 @@
+{
+  "recordedAt": "2026-10-09T05:53:17.167116+00:00",
+  "suite": "FowfRuntimeMatrixAcceptanceTest",
+  "scope": "Public workflow API, real HTTP adapter effects, engine restart, persisted output/history, idempotency, authentication/authorization and tenant isolation.",
+  "limitations": [
+    "Does not establish overflow, FDE, FDS or FEI complete-matrix results.",
+    "Local images; no image publication or operator-cluster deployment."
+  ],
+  "cases": [
+    {
+      "runtime": "quarkus/kafka-streams/postgresql",
+      "status": "PASSED",
+      "log": "fowf-public-runtime-matrix-03.log",
+      "logSha256": "b7e1c89234856d8dc0e72d5d31e6bdf026c2c74491b70a10cbed998fba038e91",
+      "seconds": 110.426,
+      "evidence": "First parameterized invocation passed; the containing run later failed on a different runtime."
+    },
+    {
+      "runtime": "quarkus/pekko/postgresql",
+      "status": "PASSED",
+      "log": "fowf-basic-quarkus-pekko-postgresql-03.log",
+      "logSha256": "52e83e4eb9b3c3de3ccf69589ff87797ab7d56fce872661d436ad3ef788c7f48",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 110.6
+    },
+    {
+      "runtime": "quarkus/pekko/cassandra",
+      "status": "PASSED",
+      "log": "fowf-basic-quarkus-pekko-cassandra-03.log",
+      "logSha256": "63138e66938d5643b98994e29b2349cd3c0ea8338b5634b79d1804b8d9e6b35a",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 200.5
+    },
+    {
+      "runtime": "spring/kafka-streams/postgresql",
+      "status": "PASSED",
+      "log": "fowf-basic-spring-kafka-streams-postgresql-02.log",
+      "logSha256": "f3e2d9b8930c4f145d4a701144aca71483114eb901cb1968418a0775d3dd774b",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 119.1
+    },
+    {
+      "runtime": "spring/pekko/postgresql",
+      "status": "PASSED",
+      "log": "fowf-basic-spring-pekko-postgresql-03.log",
+      "logSha256": "be62bd082b0bbae52fbba75d38e870debcad1bc4b9b38925c34a3ccf44ff1736",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 125.9
+    },
+    {
+      "runtime": "spring/pekko/cassandra",
+      "status": "PASSED",
+      "log": "fowf-basic-spring-pekko-cassandra-02.log",
+      "logSha256": "bf9516c51916b56578282cc1c000dcbfdd7bb26d60680cd96d906cf1c820dc76",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 180.3
+    },
+    {
+      "runtime": "micronaut/kafka-streams/postgresql",
+      "status": "PASSED",
+      "log": "fowf-basic-micronaut-kafka-streams-postgresql-03.log",
+      "logSha256": "24914b664503d6f678b5105408d32a1aeb8ac716c88ebc176054b43aca514240",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 121.0
+    },
+    {
+      "runtime": "micronaut/pekko/postgresql",
+      "status": "PASSED",
+      "log": "fowf-basic-micronaut-pekko-postgresql-03.log",
+      "logSha256": "a514d6d54e1b53ce17eba08663d285283ec16190120f33c3f7a84834c5f6f7bc",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 131.2
+    },
+    {
+      "runtime": "micronaut/pekko/cassandra",
+      "status": "PASSED",
+      "log": "fowf-basic-micronaut-pekko-cassandra-03.log",
+      "logSha256": "bc0bdcc52a6f7bf26ecdd2989f7861cb67524ef07c20974f28c7dc3408c447c6",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 200.1
+    }
+  ]
+}

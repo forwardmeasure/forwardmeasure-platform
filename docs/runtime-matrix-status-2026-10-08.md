@@ -1,5 +1,20 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 01:53 EDT: basic matrix complete on the repaired runtime images
+
+All three changed-image confirmations passed: Quarkus/Pekko/PostgreSQL (110.6s),
+Quarkus/Pekko/Cassandra (200.5s), and Spring/Pekko/PostgreSQL (125.9s). The basic FOWF matrix is
+**9/9 passed** with no outstanding image rechecks. The retained Quarkus/Kafka invocation is explicitly
+identified as a passing method from a subsequently failed multi-runtime run; it is not described as a
+passing whole run. [Per-runtime evidence with source log hashes](fowf-basic-runtime-evidence-2026-10-09.json)
+records the result of each combination.
+
+Overflow execution has begun with Quarkus/Kafka Streams. It remains a separate nine-deployment,
+54-scenario requirement. Each scenario now logs its start and successful completion; the runner
+records a cell pass only after all six scenarios pass. Production and test sources compiled with
+this logging change before execution. Broader FDE/FDS/FEI matrices and final coverage are still pending.
+
+
 ## October 9, 01:45 EDT: all nine basic FOWF combinations have passing runs
 
 Micronaut/Pekko/Cassandra passed 1/1 with no failures/errors/skips in 3m20s
