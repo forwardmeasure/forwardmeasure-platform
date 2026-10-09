@@ -3,6 +3,15 @@
 Status: governing testing guidance agreed with the user on 2026-10-07. Codex owns the current
 repair. This guide does **not** claim that the outstanding tests have been repaired or executed.
 
+Current execution accounting is maintained in [the runtime matrix ledger](runtime-matrix-status-2026-10-08.md).
+The dated diagnosis sections below describe findings at inspection time. Since then the full
+5,611,953,182-byte WorldCheck API/worker/OpenSearch run and packaged authenticated FDE conformance
+passed; neither proves the outstanding runtime matrices. On October 9 the missing FEI runtime,
+FOWF overflow and FDE adapter/Valkey deployment fixtures were written and compiled. Shared
+`PublicWorkflowAcceptanceClient`/`RealFowfWorkflowFixture` helpers and the shared GCS/Kubernetes
+containers are the reusable fixture implementations; do not copy their infrastructure into new tests.
+The fixtures must execute before their assertions can be reported as verified.
+
 ## 1. The settled policy
 
 The user explicitly agreed to **both direct tests and REST tests**, after discussing the limits
@@ -341,8 +350,9 @@ avoid concurrent edits/builds without coordination. Existing uncommitted changes
    cells and blockers. Finish with the affected-image build commands and deployment steps.
 
 The full repair is not complete. Earlier successful worker/index tests do not close public API,
-framework matrix or Studio acceptance. The FEI WorldCheck API case is written and compiled but has
-not yet executed; the unchanged three-row premium sample is representative, not a full vendor file.
+framework matrix or Studio acceptance. At the original October 7 checkpoint the FEI WorldCheck API case had only compiled. Later
+three-row and full-export passes are recorded in the matrix ledger; the small fixture alone is
+never full-file scale evidence.
 
 ## 8. Source pointers reviewed during this analysis
 
@@ -365,7 +375,7 @@ not yet executed; the unchanged three-row premium sample is representative, not 
 - [CloudEventSubscriptionRepositoryParityTest](../../forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/CloudEventSubscriptionRepositoryParityTest.java)
 - [RealCloudEventOutboxRecoveryTest](../../forwardmeasure-openworkflow/openworkflow-engine/openworkflow-pekko-engine/openworkflow-pekko-persistence-contract-tests/src/test/java/com/forwardmeasure/openworkflow/persistence/RealCloudEventOutboxRecoveryTest.java)
 
-## 9. FDE deployment acceptance supplement
+## 9. FDE deployment acceptance supplement (original diagnosis; see current ledger)
 
 FDE exposes gRPC. Apply the same authenticated public-interface rule through real gRPC calls to
 each packaged Quarkus, Spring and Micronaut server; do not invent a REST interface for the test.

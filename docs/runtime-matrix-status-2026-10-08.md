@@ -1,5 +1,35 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9 runtime execution and recovery defect
+
+`fowf-public-runtime-matrix-03.log` executed the public API/restart matrix: **Quarkus/Kafka Streams
+passed; Quarkus/Pekko/PostgreSQL failed; seven cells skipped** after failure. Method results are
+retained in `fowf-public-runtime-matrix-03-results.json` beside the log. Attempts 01/02 exposed
+fixture header mistakes (missing correlation ID, then changing it during idempotent replay);
+these were corrected, along with the required If-Match on cross-tenant cancellation.
+
+The Pekko failure is different: the engine rejoins after restart, but lifecycle projections seek
+sharding coordinators on the older adapter member, where those projection types are not initialized.
+The public execution remains RUNNING. Engine logs are retained separately in
+`fowf-public-runtime-03-pekko-engine.log`. A production fix scopes default sharding and daemon-process
+coordinators to the configured runtime role, preserving explicit cross-role workflow proxies.
+A focused regression starts the adapter first and requires a real engine-only daemon to start.
+The fix is **partially validated**: full FOWF production/test compilation passed at 00:55 EDT
+(`pekko-role-full-reactor-compile.log`, 2m06s), and all four bootstrap regressions passed at 00:56
+(`pekko-role-bootstrap-regression-01.log`), including the new mixed-role cluster reproduction.
+The packaged recovery rerun is still required. Six local Pekko engine/adapter images are building
+with tag `pekko-recovery-20261009-1` in `pekko-recovery-local-images-01.log`.
+This expands the affected local image set to Pekko engines **and Pekko adapters**, all three frameworks.
+The nine overflow endpoint images alone do not contain this subsequent recovery fix.
+
+The six recovery images built successfully at 00:57 EDT (1m18s). Packaged attempt 04 then exposed
+an independent fixture endpoint error: Pekko lifecycle events used the default hostname instead of
+the test network's real execution API. It failed with the public execution still RUNNING. The
+shared fixture now explicitly configures that callback; compile/install passed in
+`fowf-public-runtime-client-compile-04.log`. Targeted attempt 05 is running with both corrections.
+FEI per-component/framework image selection and the final FDE deployment image selection also
+compiled (`fei-current-image-selection-compile.log`, `fde-deployment-image-selection-compile.log`).
+
 ## October 9 fixture completion and runtime preparation
 
 The previously missing matrix fixtures are now written and compile. **No new matrix execution
@@ -129,7 +159,7 @@ Configured-pipeline status subsequently passed its public-API regression at 23:0
 an additional published image; no user deployment or image push was performed by these tests.
 [Source/image/log evidence](../../forwardmeasure-entity-intelligence/docs/delta-lifecycle-regression-evidence-2026-10-08.json).
 
-## FEI: 27 parameterized scenario invocations
+## Historical FEI audit: original 27 parameterized invocations
 
 Source: [ReferencePopulationPublicApiAcceptanceIT](../../forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-k3s-verification/src/test/java/com/forwardmeasure/entityintelligence/ingestion/k3s/ReferencePopulationPublicApiAcceptanceIT.java).
 Production and test compilation passed in `fei-provider-semantics-all-frameworks-compile.log`.
@@ -173,7 +203,7 @@ decoder tests. These include real OpenSearch and PostgreSQL. The external ten-re
 sample was checked for mapping/validation, not public-API ingestion. Neither it nor the 5.6 GB
 export is the existing public-API matrix fixture.
 
-## FDS: 30 named matrix classes, with fixture gaps
+## Historical FDS audit: 30 named matrix classes and original fixture gaps
 
 All classes are under `forwardmeasure-data-streaming-deployments/launcher/{quarkus,spring,micronaut}/src/test/java`.
 The following ten class patterns each exist for `Quarkus`, `Spring` and `Micronaut`:
@@ -209,7 +239,7 @@ Historical gaps identified by the initial audit (current repairs are in the chec
    passing ingestion dispatch. Older two-Job simple/correlated and executor component passes remain
    valid separate evidence; they do not establish these launcher combinations.
 
-## FOWF: nine deployed runtime configurations remain incomplete
+## Historical FOWF audit: nine deployed runtime configurations
 
 Use the same nine framework/engine/backend combinations listed for FEI. This is a deployment
 coverage requirement, not nine fully implemented tests waiting in a queue. The missing integrated
@@ -238,7 +268,7 @@ this evening's audit, so this is retained handover evidence, not a newly reverif
 statement that a clean combined rerun was outstanding was stale. The nine-deployment acceptance
 harness/scenario work remains incomplete; this component-suite pass does not close those cells.
 
-## FDE: packaged framework acceptance is complete; two integration areas remain
+## Historical FDE audit: packaged framework evidence and two integration gaps
 
 `DecisionEngineContainerConformanceTest.authenticatedFrameworkRoutesEachTenantToItsOwnPhysicalDatabase`
 passed for Quarkus, Spring and Micronaut with real Keycloak, PostgreSQL and Valkey. The handover
@@ -253,7 +283,8 @@ Remaining requirements are:
 2. Real deployment verification for both Helmfile Valkey modes: an embedded release and an externally
    supplied service. These are deployment shapes, not additional FDE runtime engines.
 
-These are unfinished integration areas, not an enumerated additional matrix of ready-to-run cases.
+At the original audit these fixtures were unfinished. The October 9 inventory above supersedes
+that status: nine adapter cases and six Valkey deployment cases are now written and compiled.
 
 ## Separate outstanding work and reporting rule
 
@@ -265,5 +296,5 @@ aggregate coverage gates remain separate work. They must not be hidden in “mat
 Preserve existing passing evidence unless a relevant change requires refresh. Record each future
 execution by scenario, framework, actual engine/backend, image identity, source revision and log.
 Reuse deployed fixtures where practical; do not count overlapping FEI/FDS/FOWF observations as
-independent new builds or automatically multiply unrelated axes. No honest whole-stack “runs left”
-total exists until unfinished fixture/scenario work is enumerated.
+independent new builds or automatically multiply unrelated axes. Use the enumerated October 9
+fixture inventory above; keep deployment cells, scenario executions and test-method counts distinct.
