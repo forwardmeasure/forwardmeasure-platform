@@ -1,5 +1,37 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 01:45 EDT: all nine basic FOWF combinations have passing runs
+
+Micronaut/Pekko/Cassandra passed 1/1 with no failures/errors/skips in 3m20s
+(`fowf-basic-micronaut-pekko-cassandra-03.log`). Every framework/engine/backend combination now has
+passing public publication/admission, real adapter effects, restart recovery, persisted output/history,
+idempotency, authentication/authorization and tenant-isolation evidence. Three earlier Pekko passes
+are being rechecked with `pekko-relational-config-20261009-1`: Quarkus/PostgreSQL, Quarkus/Cassandra,
+and Spring/PostgreSQL. This is a changed-image confirmation, not three missing fixture implementations.
+The same sequential runner proceeds into the nine overflow deployments after those confirmations.
+No overflow, FDE, FDS or FEI complete-matrix pass is inferred from the basic FOWF result.
+
+FDE matrix fixtures now support exact selection (`fowf.acceptance.runtime` and
+`decision.engine.acceptance.deployment`) while defaulting to all combinations and rejecting unknown
+selections. Production/test compilation passed (`fde-matrix-selectors-compile.log`, 2s). This allows
+failed cells to be retried without discarding completed evidence; FDE execution is still pending.
+
+
+## October 9, 01:36 EDT: Cassandra repair passed; Micronaut Kafka lazy startup found
+
+Spring/Pekko/Cassandra attempt 02 passed 1/1 in 3m03s with the relational repair, including engine
+restart and cross-tenant checks (`fowf-basic-spring-pekko-cassandra-02.log`, XML retained beside it).
+**Six distinct basic combinations have passed.** Micronaut/Kafka attempt 02 failed: generic HTTP
+health returned ready while the lazy Kafka engine bean remained uninitialized; the adapter then
+failed because the engine-owned checkpoint topic did not exist. The production repair (`6f304638`) eagerly starts
+the Micronaut Kafka runtime, closes it at shutdown, and exposes runtime-backed readiness. Targeted
+production/test compilation and the local image build passed in 29s (`micronaut-kafka-startup-image.log`,
+image tag `micronaut-kafka-startup-20261009-1`). The packaged rerun passed 1/1 at 01:39 EDT in 2m01s
+(`fowf-basic-micronaut-kafka-streams-postgresql-03.log`). Micronaut/Pekko/PostgreSQL then passed 1/1
+at 01:41 EDT in 2m13s. Micronaut/Pekko/Cassandra is running: eight distinct combinations have passed. No fixture-created
+topics are being added to mask the missing production startup.
+
+
 ## October 9, 01:29 EDT: Cassandra startup repair compiled and packaged
 
 FOWF `fdd62a39` separates relational tenant database configuration from the workflow journal in
