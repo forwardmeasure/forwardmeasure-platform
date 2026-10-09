@@ -22,10 +22,15 @@ five Kafka/storage cases, four computation-state cases and one aggregate record-
 Separate XML reports are retained. Source commit `db04fa65` is pushed. The three Kafka engine
 images built locally in 40s (`fowf-decimal-transition-local-images.log`), tagged
 `decimal-transition-20261009-1`; adapters retain `control-envelope-20261009-1`.
-FEI attempt 06 has **passed WorldCheck ingestion/screening and configured-pipeline overrides**
-through the real API/Kafka/worker/OpenSearch path. Both Jobs completed. It is now executing
-two-tenant full/delta; simple/correlated resolution and State Street follow. This is two of five
-scenario families in the first cell, not a completed 9-cell matrix. Logs: `fei-complete-matrix-06/`.
+FEI attempt 06 **passed WorldCheck ingestion/screening and configured-pipeline overrides**
+through the real API/Kafka/worker/OpenSearch path. Both Jobs completed. The second-tenant
+full-load worker was then correctly denied: the fixture had provisioned caller B and the
+outbound identity but omitted worker membership and its authorization grant. The fixture now
+provisions the worker for tenant B using the same real Keycloak membership/grant setup as
+tenant A. Test compilation passed in `fei-second-tenant-worker-compile.log` (3.297s).
+Attempt 07 is running with that correction; no production image rebuild was needed.
+The two passing families are partial evidence, not a completed cell: complete FEI cells remain
+**0/9**. Logs: `fei-complete-matrix-06/` (failed) and `fei-complete-matrix-07/` (running).
 No new matrix axis or unrelated feature is being added.
 
 
