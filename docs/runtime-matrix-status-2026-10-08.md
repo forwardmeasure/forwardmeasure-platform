@@ -1,22 +1,19 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 14:07 EDT
+## Current execution summary — October 9, 14:13 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on recorded images.
-- FEI complete cells: **6/9 passed**, all Quarkus and Spring runtime combinations. Micronaut/Kafka
-  passed WorldCheck, configured overrides and two-tenant full/delta, but its populated resolution
-  entity read returned HTTP 500. The full cell failed; the two later Micronaut cells have not run.
-  Exact passing reports/hashes/images: `fei-complete-runtime-evidence-2026-10-09.json`.
+- FEI complete cells: **6/9 passed**, all Quarkus and Spring runtimes. The three Micronaut cells
+  are resuming with the repaired resolution API image. Passing report hashes/image properties:
+  `fei-complete-runtime-evidence-2026-10-09.json`.
 - FDE/FDS complete matrices: written and compiled; execution follows FEI.
 
-The Micronaut failure is retained in `fei-complete-matrix-13/micronaut-kafka-streams-postgresql.log/.xml`.
-A focused authenticated in-process Micronaut populated-entity HTTP test passed (1 test, no skips,
-`fei-micronaut-populated-read-before-fix-02.log`, 32.461s Maven time). It does not reproduce the
-packaged ingestion failure. A resolution-only packaged run reproduced the same 500 in 350s
-(`fei-micronaut-resolution-01.log/.xml`); its 150-line diagnostic tail omitted the exception cause.
-The next focused run streams the complete resolution-service log and retains a larger failure
-tail. No speculative production fix or image rebuild has been applied. Six prior passes stand.
+Micronaut's 500 was lazy authorization-bean creation rejecting shipped `5S` durations. Removing
+valid test overrides reproduced it; changing defaults to `PT5S` made all 27 entity-read/service
+contract cases pass. Only the Micronaut resolution API image was rebuilt. Detailed red/green,
+compile/image and rollout evidence is in FEI's `docs/full-file-ingestion-repair-2026-10-08.md`.
+Attempt 14 resumes Micronaut/Kafka first; six earlier passes are retained without rerunning them.
 <!-- current-runtime-summary:end -->
 
 ## October 9, 13:28 EDT: Spring/Pekko fixture capacity corrected; resume retains four passes
