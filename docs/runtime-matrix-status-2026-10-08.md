@@ -1,18 +1,18 @@
 # Runtime matrix accounting — October 8, 2026
 
 <!-- current-runtime-summary:start -->
-## Current execution summary — October 9, 13:36 EDT
+## Current execution summary — October 9, 13:47 EDT
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on recorded images.
-- FEI complete cells: **5/9 passed**. All Quarkus combinations and Spring/Kafka/PostgreSQL plus
-  Spring/Pekko/PostgreSQL passed every family. Spring/Pekko/Cassandra is running; three Micronaut
-  cells follow. Exact reports, hashes and image properties: `fei-complete-runtime-evidence-2026-10-09.json`.
+- FEI complete cells: **6/9 passed**. All Quarkus and Spring runtime combinations passed every
+  family. Micronaut/Kafka/PostgreSQL is running; Micronaut/Pekko/PostgreSQL and Cassandra follow.
+  Exact reports, hashes and image properties: `fei-complete-runtime-evidence-2026-10-09.json`.
 - FDE/FDS complete matrices: written and compiled; execution follows FEI.
 
-The latest passing cell took 480.2s with one test and zero failures/errors/skips. Its adapter
-rolled successfully after the fixture capacity correction; the shared database had 102 concurrent
-client connections, exceeding its former 100-connection default. No production-image change was
-needed. Earlier entries below are historical evidence, not additional outstanding work or passes.
+The Spring/Cassandra cell passed in 620.8s with one test and zero failures/errors/skips, including
+State Street and correlated assertion persistence. Its capacity-adjusted fixture required no
+further production change. Earlier entries below are historical evidence, not additional
+outstanding work or passes.
 <!-- current-runtime-summary:end -->
 
 ## October 9, 13:28 EDT: Spring/Pekko fixture capacity corrected; resume retains four passes

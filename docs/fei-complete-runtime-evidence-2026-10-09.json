@@ -1,6 +1,6 @@
 {
   "suite": "FEI complete public API runtime matrix",
-  "recorded_at": "2026-10-09T13:36:05.333985-04:00",
+  "recorded_at": "2026-10-09T13:46:44.097120-04:00",
   "passed_cells": [
     {
       "framework": "quarkus",
@@ -272,8 +272,63 @@
         "fei.acceptance.ingestion-service.quarkus.image": "forwardmeasure/entity-intelligence-ingestion-service-quarkus:revision-response-20261009-1"
       },
       "fixture_database_max_connections": 200
+    },
+    {
+      "framework": "spring",
+      "engine": "pekko",
+      "persistence": "cassandra",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 620.811,
+      "families": [
+        "WorldCheck ingestion and screening",
+        "configured pipeline overrides",
+        "two-tenant full/delta lifecycle",
+        "simple/correlated resolution",
+        "State Street customer master"
+      ],
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-complete-matrix-13/spring-pekko-cassandra.log",
+      "log_sha256": "d18d349ab54605c28de6e3b88f987996b0ec035cae249500c014a06a2a0ca844",
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-complete-matrix-13/spring-pekko-cassandra.xml",
+      "report_sha256": "541c449f669246228227c7ba1370e2cc3efbf97b8fb2b2d14f8a33d7ca7ccd0e",
+      "runner": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/run-fei-matrix-13.sh",
+      "image_properties": {
+        "openworkflow.acceptance.operation-adapter-pekko.micronaut.image": "forwardmeasure/openworkflow-operation-adapter-pekko-micronaut:pekko-recovery-20261009-1",
+        "openworkflow.acceptance.operation-adapter-kafka-streams.micronaut.image": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-micronaut:control-envelope-20261009-1",
+        "fei.acceptance.ingestion-worker.spring.image": "forwardmeasure/entity-intelligence-ingestion-worker-spring:resolution-dates-20261009-1",
+        "fds.delivery.image": "forwardmeasure/data-streaming-executor-kafka-streams:runtime-validation-20261009-1",
+        "fei.acceptance.ingestion-worker.quarkus.image": "forwardmeasure/entity-intelligence-ingestion-worker-quarkus:resolution-dates-20261009-1",
+        "openworkflow.acceptance.engine-kafka-streams.spring.image": "forwardmeasure/openworkflow-engine-kafka-streams-spring:decimal-transition-20261009-1",
+        "openworkflow.acceptance.engine-pekko.spring.image": "forwardmeasure/openworkflow-engine-pekko-spring:pekko-read-recovery-20261009-1",
+        "openworkflow.acceptance.engine-pekko.micronaut.image": "forwardmeasure/openworkflow-engine-pekko-micronaut:pekko-read-recovery-20261009-1",
+        "fei.acceptance.ingestion-worker.micronaut.image": "forwardmeasure/entity-intelligence-ingestion-worker-micronaut:resolution-dates-20261009-1",
+        "fei.acceptance.resolution-delivery-worker.spring.image": "forwardmeasure/entity-intelligence-resolution-delivery-worker-spring:resolution-dates-20261009-1",
+        "openworkflow.acceptance.operation-adapter-pekko.spring.image": "forwardmeasure/openworkflow-operation-adapter-pekko-spring:pekko-recovery-20261009-1",
+        "openworkflow.acceptance.definition-management.micronaut.image": "forwardmeasure/openworkflow-definition-management-micronaut:issuer-repair-20261008-1",
+        "fei.acceptance.ingestion-service.spring.image": "forwardmeasure/entity-intelligence-ingestion-service-spring:revision-response-20261009-1",
+        "openworkflow.acceptance.engine-kafka-streams.micronaut.image": "forwardmeasure/openworkflow-engine-kafka-streams-micronaut:decimal-transition-20261009-1",
+        "openworkflow.acceptance.operation-adapter-pekko.quarkus.image": "forwardmeasure/openworkflow-operation-adapter-pekko-quarkus:pekko-recovery-20261009-1",
+        "openworkflow.acceptance.engine-kafka-streams.quarkus.image": "forwardmeasure/openworkflow-engine-kafka-streams-quarkus:decimal-transition-20261009-1",
+        "openworkflow.acceptance.execution-management.micronaut.image": "forwardmeasure/openworkflow-execution-management-micronaut:observed-failure-20261009-1",
+        "openworkflow.image.tag": "1.1.0",
+        "fei.acceptance.resolution-delivery-worker.micronaut.image": "forwardmeasure/entity-intelligence-resolution-delivery-worker-micronaut:resolution-dates-20261009-1",
+        "fei.image.tag": "runtime-validation-20261009-1",
+        "openworkflow.acceptance.operation-adapter-kafka-streams.spring.image": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-spring:control-envelope-20261009-1",
+        "fds.image.tag": "1.1.0",
+        "fei.spark.worker.image": "forwardmeasure/entity-intelligence-ingestion-worker-spark:assertion-union-20261009-1",
+        "openworkflow.acceptance.engine-pekko.quarkus.image": "forwardmeasure/openworkflow-engine-pekko-quarkus:pekko-read-recovery-20261009-1",
+        "openworkflow.acceptance.execution-management.quarkus.image": "forwardmeasure/openworkflow-execution-management-quarkus:observed-failure-20261009-1",
+        "openworkflow.acceptance.execution-management.spring.image": "forwardmeasure/openworkflow-execution-management-spring:observed-failure-20261009-1",
+        "fei.acceptance.resolution-delivery-worker.quarkus.image": "forwardmeasure/entity-intelligence-resolution-delivery-worker-quarkus:resolution-dates-20261009-1",
+        "openworkflow.acceptance.operation-adapter-kafka-streams.quarkus.image": "forwardmeasure/openworkflow-operation-adapter-kafka-streams-quarkus:control-envelope-20261009-1",
+        "fei.acceptance.ingestion-service.micronaut.image": "forwardmeasure/entity-intelligence-ingestion-service-micronaut:revision-response-20261009-1",
+        "fei.acceptance.ingestion-service.quarkus.image": "forwardmeasure/entity-intelligence-ingestion-service-quarkus:revision-response-20261009-1"
+      },
+      "fixture_database_max_connections": 200
     }
   ],
-  "remaining_cells": 4,
+  "remaining_cells": 3,
   "notes": "Only complete cells are counted. Runtime image overrides and actual selected image properties are retained per cell."
 }
