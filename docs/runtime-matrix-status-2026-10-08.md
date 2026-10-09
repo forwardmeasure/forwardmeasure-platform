@@ -1,5 +1,34 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 11:39 EDT: FEI/Kafka WorldCheck and configured pipelines passed
+
+Attempt 05 cleared the envelope-size failure but remained waiting without a worker Job.
+The engine rejected its computed transition with `Workflow computation transition digest does not match`.
+The serialized command and engine diagnosis are retained under `fei-complete-matrix-05/`;
+the stalled run was deliberately stopped (exit 143), not counted as an executed passing cell.
+The actual transition contained a fractional numeric protocol subscription deadline. Jackson's
+in-memory decimal tree and Kafka's deserialized double tree render the same value differently,
+so hashing the original tree was not stable across the command wire.
+
+`DurableWireCompatibilityTest#computationDigestSurvivesDecimalProtocolDeadlineAcrossTheCommandWire`
+reproduced that exact rejection using the production command serializer
+(`fowf-decimal-transition-before-fix-02.log/.xml`, one error, no skips). The first test attempt
+used a human actor for a system-only observation and was corrected; it is not defect evidence.
+The repair hashes a JSON-round-tripped tree before dispatch, preserving the existing command
+reader's representation and retaining digest/tamper verification. Full production/test compilation
+passed in `fowf-decimal-transition-full-compile.log` (2m06s). All **21** focused tests passed,
+zero failures/errors/skips, in `fowf-decimal-transition-after-fix.log` (44.7s): eleven wire cases,
+five Kafka/storage cases, four computation-state cases and one aggregate record-limit case.
+Separate XML reports are retained. Source commit `db04fa65` is pushed. The three Kafka engine
+images built locally in 40s (`fowf-decimal-transition-local-images.log`), tagged
+`decimal-transition-20261009-1`; adapters retain `control-envelope-20261009-1`.
+FEI attempt 06 has **passed WorldCheck ingestion/screening and configured-pipeline overrides**
+through the real API/Kafka/worker/OpenSearch path. Both Jobs completed. It is now executing
+two-tenant full/delta; simple/correlated resolution and State Street follow. This is two of five
+scenario families in the first cell, not a completed 9-cell matrix. Logs: `fei-complete-matrix-06/`.
+No new matrix axis or unrelated feature is being added.
+
+
 ## October 9, 11:16 EDT: FEI/Kafka control-envelope defect reproduced
 
 Attempt 04 passed fixture startup with real overflow storage but failed before worker dispatch:
