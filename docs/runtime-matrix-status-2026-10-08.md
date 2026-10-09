@@ -37,6 +37,22 @@ negative screening all passed. The disposable cluster was removed. This closes t
 first scenario in that runtime cell; it is not full/delta/resolution or other framework parity.
 [Current image/source fingerprints and logs](../../forwardmeasure-entity-intelligence/docs/post-rollout-regression-evidence-2026-10-08.json).
 
+## Delta lifecycle continuation — October 8, 20:22 EDT
+
+A new disposable entrypoint, `IngestionPipelineFowfK3sVerificationTest#fullDeltaRollbackAndRejectedRowsUsePublicApi`,
+passed **1/1** on Quarkus/Pekko/PostgreSQL in 4m54s. It shares the lifecycle assertions with the
+matrix: missing-baseline rejection, full admission/replay/activation, staging, actual delta worker
+and authenticated activation callback, wrong-owner/trigger rejection, rollback and preservation
+after rejected rows. This entrypoint is single-tenant: the two-tenant isolation assertions in the
+matrix still need execution, so this is partial coverage of that cell, not a second complete cell.
+
+Attempt 02 exposed a production delta-status HTTP 500 (lazy relationship read after session closure).
+The fix and the same correction in configured-pipeline status compiled across all three frameworks.
+Attempt 03 passed using local `entity-intelligence-ingestion-service-quarkus:delta-status-repair-20261008-1`.
+Configured-pipeline status itself is not newly HTTP-verified. Only the selected ingestion API needs
+an additional published image; no user deployment or image push was performed by these tests.
+[Source/image/log evidence](../../forwardmeasure-entity-intelligence/docs/delta-lifecycle-regression-evidence-2026-10-08.json).
+
 ## FEI: 27 parameterized scenario invocations
 
 Source: [ReferencePopulationPublicApiAcceptanceIT](../../forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-ingestion-k3s-verification/src/test/java/com/forwardmeasure/entityintelligence/ingestion/k3s/ReferencePopulationPublicApiAcceptanceIT.java).
@@ -45,7 +61,7 @@ Production and test compilation passed in `fei-provider-semantics-all-frameworks
 | Deployment | WorldCheck public ingestion/indexing/screening | Full/delta lifecycle | Simple + correlated resolution |
 | --- | --- | --- | --- |
 | Quarkus / Kafka Streams | No retained passing acceptance evidence | No retained passing acceptance evidence | No retained passing acceptance evidence |
-| Quarkus / Pekko / PostgreSQL | Shared-helper scenario refreshed and passed 19:38 EDT on current images | No retained passing acceptance evidence | No retained passing acceptance evidence |
+| Quarkus / Pekko / PostgreSQL | Shared-helper scenario refreshed and passed 19:38 EDT on current images | Single-tenant lifecycle passed 20:22 EDT; two-tenant isolation pending | No retained passing acceptance evidence |
 | Quarkus / Pekko / Cassandra | No retained passing acceptance evidence | No retained passing acceptance evidence | No retained passing acceptance evidence |
 | Spring / Kafka Streams | No retained passing acceptance evidence | No retained passing acceptance evidence | No retained passing acceptance evidence |
 | Spring / Pekko / PostgreSQL | No retained passing acceptance evidence | No retained passing acceptance evidence | No retained passing acceptance evidence |
@@ -71,8 +87,9 @@ These are three invocations on each of nine deployments, not 27 separate full bu
 requires endpoints, fixture hosting, tenant tokens and a preprovisioned correlated pipeline; it does
 not yet provision all nine stacks itself. The prior WorldCheck pass is
 `fei-worldcheck-public-k3s-05.log`, one case through `IngestionPipelineFowfK3sVerificationTest`.
-Thus 26 invocations lack retained passing evidence; the equivalent shared-helper pass has now been
-refreshed on current images (see evening continuation).
+Thus 26 complete invocations lack retained passing evidence; one of these now has passing
+single-tenant lifecycle coverage but still lacks its two-tenant checks. The WorldCheck shared-helper
+pass has been refreshed on current images (see evening continuation).
 This is not evidence that 26 executions failed.
 
 The new provider semantics have separate passing evidence: 23 focused FEI tests plus two matching
