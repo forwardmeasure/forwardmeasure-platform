@@ -1,5 +1,14 @@
 # Runtime matrix accounting — October 8, 2026
 
+## October 9, 13:11 EDT: all three Quarkus FEI runtime cells passed
+
+Quarkus/Pekko/Cassandra passed every family in 618.0s with one test, zero failures/errors/skips.
+FEI is now **3/9 complete cells passed**, covering all three Quarkus runtime combinations.
+WorldCheck/screening, configured overrides, two-tenant full/delta, simple/correlated resolution
+and State Street persisted semantics passed in each. The runner has moved to Spring/Kafka/PostgreSQL.
+Evidence and image properties are retained in `fei-complete-runtime-evidence-2026-10-09.json`;
+raw Cassandra results are `fei-complete-matrix-12/quarkus-pekko-cassandra.log/.xml`.
+
 ## October 9, 13:00 EDT: FEI complete matrix now 2/9
 
 Quarkus/Pekko/PostgreSQL passed all five families in 452.9s, one executed test and no failures,
