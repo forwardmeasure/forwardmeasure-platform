@@ -719,3 +719,51 @@ Its regression queries the real node's JVM input arguments; merely seeing an env
 in Docker configuration would miss this failure. The October 9 continuation uses C1-only JIT
 because a captured Temurin 25 C2 `PhaseIdealLoop` crash occurred on this host. Record the option
 in evidence and do not describe those runs as production-default JVM/performance verification.
+
+
+### Persistence-context regressions must preserve the triggering state
+
+A real FEI merge failure came from reading an already-initialized inverse collection after child
+classifications had been saved through their own service. Clearing the persistence context before
+merging would conceal that failure. The regression creates both entities through managed services,
+initializes the survivor's empty classifications, saves duplicate and distinct child classifications,
+and merges in the same context. It then commits/clears and verifies persisted classification UUIDs,
+source deletion and deduplication/repoint counts. Run this shared service contract with the real
+Quarkus, Spring and Micronaut beans. Exercise public endpoints over HTTP where they exist; label
+service-only behavior accurately when the API has no corresponding operation.
+
+A Hibernate default schema qualifies ORM-generated statements; it does not configure PostgreSQL's
+search path for a native statement. Persistence fixtures that legitimately test native allocation
+or locking must use the tenant-routed connection schema as production does. Keep this infrastructural
+check separate from business fixtures, which must not seed domain state with SQL.
+
+### Repair fixture assumptions without weakening the contract
+
+Recovery tests must seed the journal when production deliberately ignores snapshots that lack
+required authenticated identity. Do not re-enable legacy snapshot recovery to rescue a fixture.
+Assert the recovered state before testing its command transitions. Avoid combining automatic actor
+advancement with manual step commands when the case requires deterministic intermediate states.
+Append golden payloads for new wire types without replacing previously established bytes.
+
+For an operation dispatched before its response exceeds a size limit, retain the public
+unknown-outcome classification and assert the precise limit failure in the structured cause chain.
+A public summary need not expose the deepest implementation exception. Compiler diagnostics should
+assert stable error semantics and exclude random temporary paths from exact string comparisons.
+
+Positive JWT fixtures must obtain a genuinely signed token with the intended audience, issuer,
+organization membership and client roles. Negative cases should change one boundary at a time;
+otherwise a wrong-audience rejection can falsely appear to prove a role check. A forged-claims case
+must retain the original signature and prove signature validation rejects the modified token.
+
+### Coverage and execution inventory are separate evidence
+
+Coverage attached only to a client test JVM does not measure a remote service. When using packaged
+services, install an opt-in agent into the disposable container and dump its execution data before
+shutdown; verify matching production class IDs before including it in a coverage claim. Keep image
+provenance and JVM options with the report. Generated-source exclusions do not justify excluding
+handwritten framework adapters.
+
+Component selection must use an explicit inventory when a module also contains packaged acceptance
+fixtures. Excluding two named matrix classes does not exclude older staged/real-image acceptance
+classes. Preserve the completed matrix evidence and its exact images; do not rerun legacy defaults
+as if they validated the same deployment. An interrupted selection is not a passing suite.

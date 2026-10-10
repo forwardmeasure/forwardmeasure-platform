@@ -1,0 +1,53 @@
+{
+  "scope": "Five previously failing FOWF component cases corrected; nine focused cases executed",
+  "source_checkpoint": "c853ba00",
+  "reports": [
+    {
+      "class": "com.forwardmeasure.openworkflow.actor.PekkoEngineRuntimeProviderTest",
+      "counts": {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-tail-corrections-reports/TEST-com.forwardmeasure.openworkflow.actor.PekkoEngineRuntimeProviderTest.xml",
+      "sha256": "a1962d6126e3ab983cac9fde050542ef1d5003ee5b708c77e5deaf7c3ff55250"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.adapter.kafka.KafkaOperationAdapterDispatcherContractTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-tail-corrections-reports/TEST-com.forwardmeasure.openworkflow.adapter.kafka.KafkaOperationAdapterDispatcherContractTest.xml",
+      "sha256": "9749a8a8e447f9d550cbb461f5b7f971929825dac25bf53c80e08869899dced8"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.adapter.kafka.KafkaOperationAdapterDispatcherIntegrationTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-tail-corrections-reports/TEST-com.forwardmeasure.openworkflow.adapter.kafka.KafkaOperationAdapterDispatcherIntegrationTest.xml",
+      "sha256": "4fc7230336813d4792d6df136c2df51716c6ff86202873b17f6107386b4608d1"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.adapter.kafka.KafkaOperationAdapterRuntimeTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-tail-corrections-reports/TEST-com.forwardmeasure.openworkflow.adapter.kafka.KafkaOperationAdapterRuntimeTest.xml",
+      "sha256": "a13c60f6e952692c47bf0205d4a123cd4f6bda3454c8b8d434b90a49b1640ef6"
+    }
+  ],
+  "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-tail-failures-corrected-02.log",
+  "log_sha256": "1615e76022bc73ab97d2158668efdc1376ea28bb6a4c17e89592a06f3e5000d7",
+  "not_claimed": "Does not claim the nine previously skipped dependent modules, a coverage gate, or packaged image verification."
+}

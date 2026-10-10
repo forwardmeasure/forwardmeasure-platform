@@ -63,6 +63,44 @@ The 85% handwritten line/branch coverage gate remains unverified. Component-suit
 running separately; partial existing JaCoCo files and external-container acceptance are not being
 counted as a complete aggregate gate pass.
 
+### Current component checkpoint — October 9, 22:31 EDT
+
+The prior continuation finished; it was not still running. Its FEI API selection executed 104
+cases: 90 passed, three fixture initialization errors and eleven skips. All three errors were
+`IngestionWorkerOperationsResourceTest`: its test-only population insert omitted the mandatory
+schema/mapping. That fixture now uses the centralized WorldCheck contracts and is being rerun
+across Quarkus, Spring and Micronaut. No deployed changelog was changed.
+
+The FOWF continuation executed 104 cases: 99 passed, three assertion failures and two errors.
+Nine downstream modules were skipped. The five failed cases are now corrected and **nine focused
+cases passed** in `fowf-tail-failures-corrected-02.log`: all six engine-provider cases plus three
+Kafka adapter cases. Assertions now verify admission definition provenance and task activity;
+the HTTP dispatch fixture creates its checkpoint topic; preexisting corrupt checkpoints must
+fail startup; missing-secret errors retain the tenant context. Production semantics were not changed.
+The nine previously skipped modules are queued after the FEI fixture rerun, using the same bounded
+Maven lock. Full FOWF production/test compilation had already passed in
+`fowf-corrections-full-compile-01.log`.
+
+FDE's rejected-update extension now **passed all three packaged frameworks**, zero failures,
+errors or skips, in `fde-rejected-updates-04.log` (1m56s Maven). The retained evidence includes the
+persisted-state comparison after every rejected mutation and continued successful evaluation.
+Remote backups for FOWF `1a60efd6`, FDS `337c4f4` and FDE `85fd859` were confirmed on October 9.
+
+The subsequent FEI fixture rerun reached HTTP and exposed its remaining obsolete request contract:
+all frameworks send additive checkpoints, omit admitted resolution sinks, and expect a revision
+with rejected records to succeed. The fixture is being corrected to cumulative replay-safe totals,
+separate admitted resolution revisions, and a real finalized OpenSearch artifact for READY.
+These are still pending verification; initialization success is not a test pass.
+
+Current source-matched diagnostics: FEI 70.17% lines / 55.84% branches (no class-ID mismatch), FDE
+82.98% / 68.05% (one Quarkus enhanced transactional class does not match). These are not Maven
+gates. The remaining coverage gap is substantial and must not be described as a completed gate
+or merely waiting for one rerun. No thresholds or generated-source ownership rules were changed.
+
+Completion still requires the unblocked component suites and the configured 85% handwritten
+line/branch gates. Passing image matrices and the diagnostics below do not establish those gates.
+No new matrix axes or feature work have been added.
+
 ### Component-suite follow-up (in progress)
 
 The broader component run is separate from the recorded image matrices. Initial FEI component
@@ -70,7 +108,23 @@ results were 312 tests, two failures and eight errors; initial FDE results were 
 errors. A real FEI classification-merge defect is corrected in source, with a new regression
 inherited by all three managed-service framework fixtures. Constructor/schema test fixtures and
 one narrowly documented Micronaut transaction-binding architecture exception are corrected.
-These changes await their queued reruns; they are not covered by the earlier image evidence.
+The FEI corrections now passed **114 tests**: 32 focused component cases plus 27 Quarkus,
+27 Spring and 28 Micronaut managed-service/entity-read cases. All had zero failures/errors/skips.
+The merge regression is a managed-service contract (there is no public merge endpoint); public
+entity reads also cross HTTP. Evidence: `fei-component-corrections-evidence-2026-10-09.json`.
+These results are separate from the earlier image evidence. Full FEI production/test compilation
+passed in 1m28s; the verified FEI checkpoint `4ba0435` is pushed.
+
+FDE's corrected rule evaluator (nine tests), real Valkey contracts (six) and schema-routed ruleset
+persistence (two) passed. Its JWT suite exposed a missing audience on the real Keycloak fixture's
+positive token. Explicit audience provisioning and the correct authentication-versus-authorization boundary now
+pass all nine JWT cases. Members without client roles retain their authenticated identity with an
+empty role set; actual gRPC operations still deny unauthorized callers. No production verifier was
+relaxed. The initial extended gRPC lifecycle passed all three packaged frameworks (activation,
+delete restrictions, monotonic concurrent versions, tenant isolation); evidence is retained in
+`fde-grpc-lifecycle-evidence-2026-10-09.json`. Additional rejected-update atomicity assertions now passed all three frameworks after correcting
+a timestamp fixture to compare persisted microsecond-precision state rather than the immediate
+JVM nanosecond timestamp. See the current checkpoint above.
 
 The FOWF component pass exposed eight Pekko fixture failures. Snapshot-seeded state was ignored
 by the deliberate journal-only recovery policy; three manually stepped tests raced automatic
@@ -80,12 +134,36 @@ shorten the fixture alias, and append new golden payloads without modifying olde
 rerun is queued. Kafka restoration then executed 26 cases: 25 passed, while one retry-deadline
 assertion still expected the old `purpose` payload. Its correction asserts the original stable
 timer ID, safe activity metadata, unchanged due timestamp and terminal timeout failure. Only that
-case is queued for rerun. The rest of the component reactor continues with failure-at-end enabled.
+case is queued for rerun. The broad component reactor finished in 46m46s; fourteen dependent
+modules were skipped after the upstream failures and are queued explicitly after corrections.
+Three additional adapter fixture mismatches were corrected: MCP must assert the deliberately
+injected trusted tenant environment; oversized HTTP/gRPC replies expose their detailed cause in
+structured exceptions while retaining the public unknown-outcome summary; malformed protobuf
+assertions must match the pinned compiler's diagnostic without comparing temporary paths.
+Their focused reruns are queued. No production failure semantics were weakened.
+
+The corrected Pekko tests subsequently exposed a production wire-read defect: nested
+`WorkflowReply` values in HTTP/protocol coordinator claim messages had no concrete decoder.
+A field-scoped decoder retains the existing outgoing shape and now reads all four reply variants;
+the actual serializer round trip and old golden payloads pass. **127 unique focused cases passed**
+across state, projection, command-matrix and wire checks. Evidence:
+`fowf-wire-recovery-evidence-2026-10-09.json`. The first rerun also caught two missing imports and
+stray assertion text in one newly added Base64 fixture; those failed attempts remain retained.
+Six MCP cases, eleven gRPC adapter cases, eight HTTP adapter cases and the single Kafka retry-deadline
+case passed. A shortened license header stopped the dependency installation at RAT; the full
+standard header is restored, and installation resumes at that module rather than rebuilding the
+completed dependency set. The new decoder needs both deployed Pekko engine and adapter images;
+exact incremental build/push instructions are in FOWF's activity repair document.
 
 The FDS component run inadvertently selected packaged FOWF matrix tests with default image tags.
 It was interrupted after an old engine image failed storage initialization. This is not another
 matrix result. The remaining component selection explicitly excludes packaged acceptance classes;
-the earlier passing matrix reports retain their exact image selections.
+the earlier passing matrix reports retain their exact image selections. A second selection caught
+older staged acceptance classes too and was interrupted; 24 ordinary launcher cases had passed.
+The explicit client/resource continuation passed twelve cases and exposed three errors from an
+old fixture URL (`/v1/executions`). Updating it to the actual `/v1/workflow-executions` route, with
+exact method/path/returned-ID assertions, passed all four resource cases on rerun. Incoming HTTP
+and authorization evidence remain the separate three-framework deployment suites.
 
 An interim source-matched diagnostic for FDS reports 93.63% handwritten lines and 86.39% branches
 with zero class-ID mismatches. This is not the configured per-module Maven gate. FDE's next

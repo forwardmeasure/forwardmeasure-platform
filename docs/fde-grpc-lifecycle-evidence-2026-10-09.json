@@ -1,0 +1,47 @@
+{
+  "scope": "Authenticated packaged FDE gRPC lifecycle extension across all three frameworks",
+  "tests": 3,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fde-grpc-lifecycle-reports/TEST-com.forwardmeasure.decisionengine.conformance.DecisionEngineContainerConformanceTest.xml",
+  "report_sha256": "e9b7eccf5767947a08605b9aacea90a6515bad339f4fd36094ef9416eb023bfb",
+  "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fde-grpc-lifecycle-01.log",
+  "log_sha256": "81556af21e0e38ecc3be4befe425915c7c4cd35db4646da19ca73854862152b7",
+  "service_image_ids": {
+    "quarkus": "sha256:23bee6666b04f0090f9309a2d9c22f0f417cf2654408803591b7a30ff2ac656d",
+    "spring": "sha256:bbc72a966fd717259321a51f56168e006aaa038b2e1ae875c2569f29bf73170b",
+    "micronaut": "sha256:189d55c7dcf9f03aef2b0a6343f8f32cfecc4c2fad8d980a0f38669484fdb2de"
+  },
+  "java_tool_options": "-Xmx1g -XX:TieredStopAtLevel=1 plus opt-in JaCoCo 0.8.15 agent",
+  "coverage": "Actual service JVM execution data collected; source/class-ID matching and 85% gate not yet verified",
+  "scenarios": [
+    "two-tenant routing and authorization",
+    "active versus pinned version evaluation",
+    "pagination and invalid cursors",
+    "activate and reject deletion of active version",
+    "delete inactive version and return NOT_FOUND",
+    "never reuse deleted compiled version identity",
+    "four concurrent creations allocate distinct monotonic versions"
+  ],
+  "rejected_update_extension": {
+    "counts": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fde-rejected-update-reports/TEST-com.forwardmeasure.decisionengine.conformance.DecisionEngineContainerConformanceTest.xml",
+    "report_sha256": "410ae81c3c63fa1977251b4a3cd1a95468c698a1bace3cc4ab9b8f51db1bccd6",
+    "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fde-rejected-updates-04.log",
+    "log_sha256": "7b57e094ca13659acc5627e736447a9a9435bb72210508ced4cbbcfb7d115c9d",
+    "source_checkpoint": "85fd859",
+    "scenarios": [
+      "invalid mode, globals, DRL, name and stateful bounds reject without changing persisted active rules",
+      "trusted identity overrides caller-supplied createdBy",
+      "first version must be active and rejection creates no rows",
+      "missing activate/delete/warm and invalid warm/unload parameters return correct gRPC status"
+    ],
+    "fixture_correction": "Compare persisted timestamp precision and persisted list entry, not immediate JVM nanoseconds. Failed attempts retained."
+  }
+}

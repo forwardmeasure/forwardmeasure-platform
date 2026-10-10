@@ -1,0 +1,99 @@
+{
+  "scope": "FEI component corrections and three-framework managed service/entity-read regression",
+  "executed_tests": 114,
+  "coverage_gate": "not verified",
+  "packaged_image_matrix": "separate prior evidence; these are source-level framework runs",
+  "reports": [
+    {
+      "class": "com.forwardmeasure.entityintelligence.architecture.ReactorBoundaryArchitectureTest",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-component-corrections-reports/TEST-com.forwardmeasure.entityintelligence.architecture.ReactorBoundaryArchitectureTest.xml",
+      "report_sha256": "70a0a1a61e0c63eaa157454b5872b779d4ec66971bf1dc1d3d85e5b3366044e2",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-components-corrected-01.log",
+      "log_sha256": "39348c1fd6bee3ea6a99ba137c0075d3407cf505f25d01a0cf9334d61cea7893"
+    },
+    {
+      "class": "com.forwardmeasure.entityintelligence.screeningworker.PopulationScreeningWorkerIntegrationTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-component-corrections-reports/TEST-com.forwardmeasure.entityintelligence.screeningworker.PopulationScreeningWorkerIntegrationTest.xml",
+      "report_sha256": "861e759743fdc0028c61c75f65d6de71b59ae6ec6aa315597120e3d585644415",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-components-corrected-01.log",
+      "log_sha256": "39348c1fd6bee3ea6a99ba137c0075d3407cf505f25d01a0cf9334d61cea7893"
+    },
+    {
+      "class": "com.forwardmeasure.entityintelligence.deployment.resolutionservice.quarkus.EntityReadIntegrationTest",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-component-corrections-reports/TEST-com.forwardmeasure.entityintelligence.deployment.resolutionservice.quarkus.EntityReadIntegrationTest.xml",
+      "report_sha256": "0472d6df79d718ba9eb609e54305707c10dd39c58abb9951c9a580b3fdf7ece2",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-managed-merge-corrected-01.log",
+      "log_sha256": "4ab22e6efe557c0c9cdee7e7b08c5035671fdb1153e4b0347ec76ed956af6794"
+    },
+    {
+      "class": "com.forwardmeasure.entityintelligence.deployment.resolutionservice.spring.EntityReadIntegrationTest",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-component-corrections-reports/TEST-com.forwardmeasure.entityintelligence.deployment.resolutionservice.spring.EntityReadIntegrationTest.xml",
+      "report_sha256": "192d604ec7295285baf3f3b46bcbc55b890f64c2283670d5ee33a3651b71fdae",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-managed-merge-corrected-01.log",
+      "log_sha256": "4ab22e6efe557c0c9cdee7e7b08c5035671fdb1153e4b0347ec76ed956af6794"
+    },
+    {
+      "class": "com.forwardmeasure.entityintelligence.deployment.resolutionservice.micronaut.EntityReadIntegrationTest",
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-component-corrections-reports/TEST-com.forwardmeasure.entityintelligence.deployment.resolutionservice.micronaut.EntityReadIntegrationTest.xml",
+      "report_sha256": "e20b9171020dd693c15d2cb177fdced59b28dce7cefc1102cb9792c396c10eec",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-managed-merge-corrected-01.log",
+      "log_sha256": "4ab22e6efe557c0c9cdee7e7b08c5035671fdb1153e4b0347ec76ed956af6794"
+    },
+    {
+      "class": "com.forwardmeasure.entityintelligence.resolutionservice.application.EntityApplicationServiceTest",
+      "counts": {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-component-corrections-reports/TEST-com.forwardmeasure.entityintelligence.resolutionservice.application.EntityApplicationServiceTest.xml",
+      "report_sha256": "3669ec090699d5c5ed6628e588dc12697848f6296fa96eadad94842fc82d2218",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-components-corrected-01.log",
+      "log_sha256": "39348c1fd6bee3ea6a99ba137c0075d3407cf505f25d01a0cf9334d61cea7893"
+    },
+    {
+      "class": "com.forwardmeasure.entityintelligence.ingestionservice.application.ReferencePopulationApplicationServiceTest",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-component-corrections-reports/TEST-com.forwardmeasure.entityintelligence.ingestionservice.application.ReferencePopulationApplicationServiceTest.xml",
+      "report_sha256": "04419e1667ef7f71f4b6c35c72a1bfd35881a4ffd91b021b8d36e29dad9a595f",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fei-components-corrected-01.log",
+      "log_sha256": "39348c1fd6bee3ea6a99ba137c0075d3407cf505f25d01a0cf9334d61cea7893"
+    }
+  ]
+}

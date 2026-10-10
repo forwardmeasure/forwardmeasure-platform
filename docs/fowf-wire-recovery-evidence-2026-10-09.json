@@ -1,0 +1,63 @@
+{
+  "scope": "Pekko managed FSM/recovery and actual wire serialization corrections",
+  "executed_unique_cases": 127,
+  "notes": [
+    "Reports combine the passing state/projection classes from a run whose golden-file case failed, and the subsequent complete passing wire class.",
+    "No packaged image rebuild or operator rollout in this verification.",
+    "Original published golden bytes retained; one newly appended entry had copied assertion text removed."
+  ],
+  "reports": [
+    {
+      "class": "com.forwardmeasure.openworkflow.actor.TenantProjectionSupervisorTest",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-recovery-reports/TEST-com.forwardmeasure.openworkflow.actor.TenantProjectionSupervisorTest.xml",
+      "report_sha256": "289153778837484dd3871ba559118332bf532313fd5c5c76a97b733fa46a793f",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-recovery-corrected-02.log",
+      "log_sha256": "287ca2197d7e5d57c64175e13f5459e70ca751fc0c95f9f388ff60c355590d86"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.actor.WorkflowEntityTest",
+      "counts": {
+        "tests": 113,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-recovery-reports/TEST-com.forwardmeasure.openworkflow.actor.WorkflowEntityTest.xml",
+      "report_sha256": "25ea0e7ecf5d5e990829fae972777c8db41b470bc589e03ee1eec013b49b0947",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-recovery-corrected-02.log",
+      "log_sha256": "287ca2197d7e5d57c64175e13f5459e70ca751fc0c95f9f388ff60c355590d86"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.actor.WorkflowFsmMatrixTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-recovery-reports/TEST-com.forwardmeasure.openworkflow.actor.WorkflowFsmMatrixTest.xml",
+      "report_sha256": "94ee6a6bce397573981c6a04aebed79d8a382076a1442ac14d336340560d1102",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-recovery-corrected-02.log",
+      "log_sha256": "287ca2197d7e5d57c64175e13f5459e70ca751fc0c95f9f388ff60c355590d86"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.actor.serialization.WireGoldenFixtureTest",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "report": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-recovery-reports/TEST-com.forwardmeasure.openworkflow.actor.serialization.WireGoldenFixtureTest.xml",
+      "report_sha256": "7a0c977aaef15cf4aea8936f562b8f2d376009fa160601f22bbb814cebbecf46",
+      "log": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-wire-golden-final-01.log",
+      "log_sha256": "d692888660c2289a0eeca82706c24ecc7f51190f8127d9e1791a6612d681c0d2"
+    }
+  ]
+}
