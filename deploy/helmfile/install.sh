@@ -91,7 +91,10 @@ python3 "${SCRIPT_DIR}/scripts/sync-platform-secrets.py" "${SECRET_STORE}"
 
 apply_stage identity
 # Existing applications must load new credentials before product publishing hooks call them.
-python3 "${SCRIPT_DIR}/scripts/reload-secret-consumers.py"
+# --defer-missing: a product controller still pointing at a renamed Secret is re-rendered by its own
+# stage; restarting it here only stalls on pods that cannot start. install-platform.sh's final
+# reload (after every product) is strict.
+python3 "${SCRIPT_DIR}/scripts/reload-secret-consumers.py" --defer-missing
 apply_stage messaging
 apply_stage search
 apply_stage ml-serving

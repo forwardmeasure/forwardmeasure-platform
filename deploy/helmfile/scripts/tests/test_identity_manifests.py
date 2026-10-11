@@ -95,10 +95,11 @@ class ManifestTest(unittest.TestCase):
                         'apiVersion: v1\nkind: ConfigMap\nmetadata: {name: fixture}\ndata:\n'
                         '  clients: {{ tpl .Values.credentialTemplate (merge (dict '
                         '"ingestionWorkerSecret" "fixture-ingestion-secret" '
+                        '"screeningWorkerSecret" "fixture-screening-secret" '
                         '"evaluatorSecret" "fixture-evaluator-secret") .) | quote }}\n')
                     rendered = yaml.safe_load(fixture.run("helm", "template", "fixture", str(chart)))
                 clients = json.loads(rendered["data"]["clients"])
-                expected = {"entity-intelligence-ingestion-token"}
+                expected = {"entity-intelligence-ingestion-token", "entity-intelligence-screening-token"}
                 if fde:
                     expected.add("decision-engine-token")
                 self.assertEqual(expected, set(clients))
@@ -109,6 +110,12 @@ class ManifestTest(unittest.TestCase):
                 refs = {item["secretKey"]: item["remoteRef"]["key"] for item in secret["spec"]["data"]}
                 self.assertEqual(values["platform"]["identity"]["serviceClients"]
                                  ["entityIntelligenceIngestionWorker"]["secretRemoteKey"], refs["ingestionWorkerSecret"])
+                screening = clients["entity-intelligence-screening-token"]
+                self.assertEqual("entity-intelligence-screening-worker", screening["clientId"])
+                self.assertEqual("fixture-screening-secret", screening["clientSecret"])
+                self.assertEqual(values["platform"]["endpoints"]["keycloak"]["tokenUrl"], screening["tokenUrl"])
+                self.assertEqual(values["platform"]["identity"]["serviceClients"]
+                                 ["entityIntelligenceScreeningWorker"]["secretRemoteKey"], refs["screeningWorkerSecret"])
                 self.assertEqual(fde, "evaluatorSecret" in refs)
 
     def test_all_operation_adapter_variants_consume_the_composed_service_credentials(self):

@@ -87,6 +87,7 @@ secrets:
   # Tenant-scoped service tokens for operation-adapter callbacks. Keep FEI available when
   # decision-engine is disabled; these credentials never enter workflow input/history.
   {{- $operationClients := printf "dict \"entity-intelligence-ingestion-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .ingestionWorkerSecret)" .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.clientId }}
+  {{- $operationClients = printf "%s \"entity-intelligence-screening-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .screeningWorkerSecret)" $operationClients .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.entityIntelligenceScreeningWorker.clientId }}
   {{- if .Values.platform.products.decisionEngine.enabled }}
   {{- $operationClients = printf "%s \"decision-engine-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .evaluatorSecret)" $operationClients .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.decisionEngineEvaluator.clientId }}
   {{- end }}
@@ -98,6 +99,7 @@ secrets:
       OPENWORKFLOW_SERVICE_CLIENT_CREDENTIALS: {{ printf "{{ %s | toJson }}" $operationClients | quote }}
     remoteRefs:
       - {secretKey: ingestionWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.secretRemoteKey | quote }}}
+      - {secretKey: screeningWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceScreeningWorker.secretRemoteKey | quote }}}
       {{- if .Values.platform.products.decisionEngine.enabled }}
       - {secretKey: evaluatorSecret, remoteKey: {{ .Values.platform.identity.serviceClients.decisionEngineEvaluator.secretRemoteKey | quote }}}
       {{- end }}
@@ -161,12 +163,27 @@ secrets:
   # the opensearch-cluster release's own admin Secret uses, delivered into fei's namespace so its REST
   # services and dispatched worker Jobs can authenticate to the platform's secured OpenSearch. Its own
   # Secret, not a key in fei's entity-intelligence-credentials: application credentials are separately owned by the ExternalSecret above.
+  # The OpenSearch cluster's private root CA certificate (2026-10-10), so fei's services and worker
+  # Jobs verify the https endpoint. The opensearch-cluster release publishes it to this store.
+  - name: entity-intelligence-opensearch-ca
+    enabled: true
+    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
+    remoteRefs:
+      - {secretKey: ca.crt, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchRootCaCertificate | quote }} }
   - name: {{ .Values.openSearch.entityIntelligenceCredentialsSecret }}
     enabled: true
     namespaces: [{{ .Values.namespaces.entityIntelligence }}]
     remoteRefs:
       - {secretKey: username, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchUsername | quote }} }
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchPassword | quote }} }
+  # FEI ingestion storage configuration (2026-10-08). The ingestion service and its dispatched source
+  # Jobs read key config.json as FEI_INGESTION_STORAGE_CONFIG; the name is fixed by FEI's
+  # entity-intelligence-services release and its ingestion workflow definitions.
+  - name: entity-intelligence-ingestion-storage
+    enabled: true
+    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
+    remoteRefs:
+      - {secretKey: config.json, remoteKey: {{ .Values.secretStore.remoteKeys.entityIntelligenceIngestionStorageConfig | quote }} }
   - name: {{ .Values.identity.openworkflowCredentialsSecret }}
     identityClientCredentials: true
     enabled: true

@@ -28,6 +28,9 @@ externalSecret:
     username: {remoteKey: {{ .Values.secretStore.remoteKeys.openSearchUsername | quote }}, property: username}
     password: {remoteKey: {{ .Values.secretStore.remoteKeys.openSearchPassword | quote }}, property: password}
     cookie: {remoteKey: {{ .Values.secretStore.remoteKeys.openSearchCookie | quote }}, property: cookie}
+  # Publish the root CA certificate to the central store for the cluster's clients.
+  caCertificate:
+    remoteKey: {{ .Values.secretStore.remoteKeys.openSearchRootCaCertificate | quote }}
 securityConfig:
   secretName: opensearch-security-config
   passwordHashRemoteKey: {{ .Values.secretStore.remoteKeys.openSearchPasswordHash | quote }}

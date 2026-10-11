@@ -1085,6 +1085,12 @@
         <version>${forwardmeasure.openworkflow.version}</version>
       </dependency>
       <dependency>
+        <!-- Test scope only: OKS topic provisioning for test fixtures (no service creates topics). -->
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-kafka-streams-testkit</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.forwardmeasure.openworkflow</groupId>
         <artifactId>openworkflow-definition-management-client-apachehttp</artifactId>
         <version>${forwardmeasure.openworkflow.version}</version>
@@ -1290,6 +1296,13 @@
         <artifactId>rest-assured</artifactId>
         <version>${rest-assured.version}</version>
       </dependency>
+      <!-- The agent tests inject into JVMs they start in containers or clusters (KubernetesTestContainer#withJacocoCoverage). -->
+      <dependency>
+        <groupId>org.jacoco</groupId>
+        <artifactId>org.jacoco.agent</artifactId>
+        <version>${jacoco.version}</version>
+        <classifier>runtime</classifier>
+      </dependency>
       <dependency>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-bom</artifactId>
@@ -1460,6 +1473,24 @@
         <groupId>org.liquibase.ext</groupId>
         <artifactId>liquibase-cassandra</artifactId>
         <version>${liquibase.cassandra.version}</version>
+        <exclusions>
+          <!-- Optional cloud-provider integrations are published as mandatory transitives by the
+               Cassandra JDBC wrapper. The AWS SigV4 plugin also drags in the retired
+               com.datastax.oss:java-driver-core 4.17, which duplicates (with different classes)
+               the org.apache.cassandra:java-driver-core every product uses - caught by
+               duplicate-finder in FEI's K3s module, which reaches this through FOWF's migrations.
+               Ordinary Cassandra credentials are used here; provider-specific authentication
+               belongs in a separate deployment binding. Moved here from FOWF's root pom so every
+               consumer gets it, not only FOWF's own reactor. -->
+          <exclusion>
+            <groupId>software.aws.mcs</groupId>
+            <artifactId>aws-sigv4-auth-cassandra-java-driver-plugin</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>secretsmanager</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.liquibase</groupId>
@@ -1586,6 +1617,20 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven.surefire.version}</version>
+          <configuration>
+            <!--
+              @QuarkusTest application classes are loaded by QuarkusClassLoader, which the JaCoCo
+              agent is told to skip (see jacoco-maven-plugin below); quarkus-jacoco, a test
+              dependency of each Quarkus deployment leaf, records them instead. These properties
+              make it merge into the same per-module jacoco.exec the agent writes, so module checks,
+              aggregates and require-coverage-data see one data file. Unused outside Quarkus leaves.
+            -->
+            <systemPropertyVariables>
+              <quarkus.jacoco.data-file>${project.build.directory}/jacoco.exec</quarkus.jacoco.data-file>
+              <quarkus.jacoco.reuse-data-file>true</quarkus.jacoco.reuse-data-file>
+              <quarkus.jacoco.report>false</quarkus.jacoco.report>
+            </systemPropertyVariables>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1639,6 +1684,10 @@
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco.version}</version>
+          <configuration>
+            <!-- quarkus-jacoco instruments @QuarkusTest classes; the agent must not do it twice. -->
+            <exclClassLoaders>*QuarkusClassLoader</exclClassLoaders>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -1939,6 +1988,22 @@
       <id>coverage</id>
       <build>
         <plugins>
+          <plugin>
+            <!--
+              Tests that run product JVMs inside containers or a K3s cluster inject this agent into
+              them (KubernetesTestContainer#withJacocoCoverage) and append what those JVMs record
+              to the module's own jacoco.exec, so image-based tests count toward coverage too.
+              prepare-agent below resolves the runtime jar into the local repository first.
+            -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <forwardmeasure.testcontainers.jacoco.agent>${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar</forwardmeasure.testcontainers.jacoco.agent>
+                <forwardmeasure.testcontainers.jacoco.output>${project.build.directory}/jacoco.exec</forwardmeasure.testcontainers.jacoco.output>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
           <plugin>
             <groupId>com.forwardmeasure.platform</groupId>
             <artifactId>forwardmeasure-platform-policy-maven-plugin</artifactId>

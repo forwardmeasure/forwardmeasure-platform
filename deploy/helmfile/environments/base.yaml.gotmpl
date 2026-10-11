@@ -80,6 +80,12 @@ secretStore:
     openSearchPassword: platform-opensearch-admin-password
     openSearchPasswordHash: platform-opensearch-admin-password-hash
     openSearchCookie: platform-opensearch-admin-cookie
+    # The OpenSearch cluster's root CA certificate - published here by the opensearch-cluster
+    # release (PushSecret), read by its clients through platform-secrets.
+    openSearchRootCaCertificate: platform-opensearch-root-ca-certificate
+    # FEI ingestion's storage configuration JSON (FEI_INGESTION_STORAGE_CONFIG, key config.json). No
+    # credentials on GKE (GCS via Workload Identity); a store entry so S3-style keys stay deliverable.
+    entityIntelligenceIngestionStorageConfig: platform-entity-intelligence-ingestion-storage-config
     huggingFaceToken: platform-huggingface-token
     supersetSecretKey: platform-superset-secret-key
     # Store the complete SQLAlchemy URI so private IP, public IP and verified

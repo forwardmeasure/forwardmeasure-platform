@@ -1,0 +1,284 @@
+{
+  "scope": "Nine FOWF component modules previously skipped after upstream failures",
+  "tests": 61,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "note": "The original continuation failed on one fixture setup. These reports combine its unchanged passing classes with the corrected tenant lifecycle rerun, not a claim that the original Maven run succeeded.",
+  "reports": [
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.jaxrs.AuthzenAuthenticatedActorProviderTest",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.jaxrs.AuthzenAuthenticatedActorProviderTest.xml",
+      "sha256": "16d4d77d4422faa4051ff3bc2fa38799abea8878c28ac873bd8a59b28e4e861b",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.jaxrs.CloudEventIngressResourceResponseTest",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.jaxrs.CloudEventIngressResourceResponseTest.xml",
+      "sha256": "26250944ba7c164e55eacdd38e902ca9689b29e83078bf7307ae1d8a79d4ff2f",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.jaxrs.CloudEventIngressResourceTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.jaxrs.CloudEventIngressResourceTest.xml",
+      "sha256": "bd20a30e8bd3f152d9ce95145ff4fe1332c4e168f8359133d05a26f4c2677e19",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.persistence.postgresql.PostgresqlCloudEventSubscriptionRepositoryTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.persistence.postgresql.PostgresqlCloudEventSubscriptionRepositoryTest.xml",
+      "sha256": "9ac4e064bbe73a1cbb434b11b2a1616ef9a5d81647631751dfbba7a8ce6c6f08",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.persistence.postgresql.TenantAwareCloudEventSubscriptionRoutingTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.persistence.postgresql.TenantAwareCloudEventSubscriptionRoutingTest.xml",
+      "sha256": "5caf97bfbecf778b00197b1318688bb49c48af163836c9162a7c7423297c17e5",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.cassandra.CassandraCloudEventSubscriptionRepositoryTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.cassandra.CassandraCloudEventSubscriptionRepositoryTest.xml",
+      "sha256": "053fbb79294ccc6ff1ad65f9917c1b717248ef2f3586f31eb255a6c975aee338",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.persistence.HibernateSessionWorkflowExecutionQueryRepositoryTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.persistence.HibernateSessionWorkflowExecutionQueryRepositoryTest.xml",
+      "sha256": "77b24eaf1e66cfbfb969b129cd3677407eed8f3599f0eb11cbff021fd6180690",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.persistence.JpaSubworkflowPlanResolverTest",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.persistence.JpaSubworkflowPlanResolverTest.xml",
+      "sha256": "9e7dfdbbe25a7b0fdeccfbd5cde595bcfb4215f449817c3315ac6d3a23d4385e",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.kafka.KafkaCloudEventConsumerRoutingIntegrationTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.kafka.KafkaCloudEventConsumerRoutingIntegrationTest.xml",
+      "sha256": "5a1bee38d9c756bc6d03ec80e89e2cf10d1467ea2b239a06429ffd1f8c999f9e",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.kafka.KafkaCloudEventTransportIntegrationTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.kafka.KafkaCloudEventTransportIntegrationTest.xml",
+      "sha256": "ba58e84ada2024fbe77b06d325a1b638e8a00b21c9dc4296ee59eef8813dc633",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.kafka.KafkaHumanTaskOutcomeBackoffIntegrationTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.kafka.KafkaHumanTaskOutcomeBackoffIntegrationTest.xml",
+      "sha256": "a1b7b1ffbf58a16103a4585d3e71b9074913dc875500788313b0f2b7516f8270",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.eventing.kafka.KafkaHumanTaskOutcomeTransportIntegrationTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.eventing.kafka.KafkaHumanTaskOutcomeTransportIntegrationTest.xml",
+      "sha256": "ddf76525db0691994aae031b86da6a3d6c1ea93ab1a6e98d4659268304fc645a",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.actor.RealOverflowJournalRecoveryTest",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.actor.RealOverflowJournalRecoveryTest.xml",
+      "sha256": "ec7ddd4a1406cedf1e3903cae4d1234ec9a7edf762a3ce8e1fa9c50a10602d86",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.persistence.CloudEventSubscriptionRepositoryParityTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.persistence.CloudEventSubscriptionRepositoryParityTest.xml",
+      "sha256": "30f39b0ca58fc31c181f091113dfe71ee05cc8355c3ac120bad04fef33b061ed",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.persistence.MixedClasspathProfileSelectionTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.persistence.MixedClasspathProfileSelectionTest.xml",
+      "sha256": "d6f4953f1c86c1257ae78b52aeeaf106601a9f4a4e31930cc7788a83495ef60c",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.persistence.RealCloudEventOutboxRecoveryTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.persistence.RealCloudEventOutboxRecoveryTest.xml",
+      "sha256": "9ab85e67d0e54da0262982df5829b69300c4a2df8260583e05c2b66efa06a10b",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.persistence.RealHumanTaskRequestOutboxTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.persistence.RealHumanTaskRequestOutboxTest.xml",
+      "sha256": "fd0d6980aa9d6b836e04edfb60236fda57b163008b069a3dc55243382d205732",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.persistence.RealJournalWorkflowRecoveryTest",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.persistence.RealJournalWorkflowRecoveryTest.xml",
+      "sha256": "e380d128ef1b495e87a5da1e13a5c64af158e589d499c64e62996264f5e29840",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.persistence.RealSubworkflowRecoveryTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.persistence.RealSubworkflowRecoveryTest.xml",
+      "sha256": "ddbe00d8d5d4724967b75e19beb0a65a5e82d67e417e11d576b1c7e74a5a670d",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.persistence.RealTenantConnectionLifecycleTest",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.persistence.RealTenantConnectionLifecycleTest.xml",
+      "sha256": "43750866001b66a9e9d6c1232f05880dfd0a631d98eae0fb25c764c99d75fc45",
+      "log": "fowf-tenant-pool-corrected-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.operation.persistence.postgresql.DataSourceJdbcSessionTest",
+      "counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.operation.persistence.postgresql.DataSourceJdbcSessionTest.xml",
+      "sha256": "770188cda2bd493aa55868904e434e2cd113366930c2532aa57131efd77f0f10",
+      "log": "fowf-component-unblocked-01.log"
+    },
+    {
+      "class": "com.forwardmeasure.openworkflow.adapter.pekko.PekkoOperationAdapterRuntimeTest",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-unblocked-reports/TEST-com.forwardmeasure.openworkflow.adapter.pekko.PekkoOperationAdapterRuntimeTest.xml",
+      "sha256": "8120e762d514338b0df4fed11260356706fb42aea85e520af7fcf586c558e0de",
+      "log": "fowf-component-unblocked-01.log"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-component-unblocked-01.log",
+      "sha256": "1dd4a763be9a2ef442680f72e25045abe171ddd52680d4dd5ba76452d80274fc"
+    },
+    {
+      "path": "/home/pn/.local/state/forwardmeasure/validation/20261008-post-rollout/fowf-tenant-pool-corrected-01.log",
+      "sha256": "c6d5f518a1312794993e6639b49bc0dabef7457a9f3d0bf96914f598b6e9d9b7"
+    }
+  ]
+}

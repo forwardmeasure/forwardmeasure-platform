@@ -27,6 +27,7 @@ class Cluster:
         self.hash = "original"
         self.calls = []
         self.interrupt = False
+        self.secrets = {("fei", "credentials")}
         self.items = [{"metadata": {"namespace": "fei", "name": "credentials",
                                    "labels": {"app.kubernetes.io/managed-by": "Helm",
                                               "platform.forwardmeasure.com/identity-client-credentials": "true"},
@@ -38,6 +39,9 @@ class Cluster:
 
     def command(self, *args):
         self.calls.append(args)
+        if args[:2] == ("get", "secrets"):
+            assert "-o" not in args, "Secret listing must not request object data"
+            return "\n".join(f"{namespace} {name}   Opaque   1   1d" for namespace, name in sorted(self.secrets))
         if args[:2] == ("get", "externalsecrets"):
             items = self.items
             if "-l" in args:
@@ -97,3 +101,21 @@ class ReloadTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Drain active Job"):
             module.reload(cluster.command)
         self.assertEqual(0, cluster.patches())
+
+    def test_early_pass_defers_controller_requiring_renamed_secret(self):
+        cluster = Cluster()
+        containers = cluster.controller["spec"]["template"]["spec"]["containers"]
+        containers[0]["env"].append({"valueFrom": {"secretKeyRef": {"name": "renamed-away", "key": "k"}}})
+        self.assertEqual(0, module.reload(cluster.command, defer_missing=True))
+        self.assertEqual(0, cluster.patches())
+        self.assertFalse(any(len(call) > 2 and call[2] == "rollout" for call in cluster.calls))
+        # The final pass stays strict: it patches and waits, so a Secret still missing fails rollout.
+        module.reload(cluster.command)
+        self.assertEqual(1, cluster.patches())
+
+    def test_optional_missing_secret_does_not_defer(self):
+        cluster = Cluster()
+        cluster.controller["spec"]["template"]["spec"]["volumes"] = [
+            {"name": "tenant", "secret": {"secretName": "tenant-secrets", "optional": True}}]
+        self.assertEqual(1, module.reload(cluster.command, defer_missing=True))
+        self.assertEqual(1, cluster.patches())

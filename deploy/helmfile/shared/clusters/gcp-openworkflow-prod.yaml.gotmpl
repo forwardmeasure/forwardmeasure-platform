@@ -84,6 +84,8 @@ platform:
         serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
         # Matches the dedicated bucket in openworkflow-k8s-setup/terraform/gcp/evidence-storage.tf.
         evidenceBucket: {{ printf "%s-fei-evidence-%s" $gcpProjectId (trunc 8 (sha256sum $gcpClusterName)) | quote }}
+        # Matches openworkflow-k8s-setup/terraform/gcp/ingestion-inputs-storage.tf - ingestion contract documents and source files.
+        ingestionInputsBucket: {{ printf "%s-fei-ingestion-inputs-%s" $gcpProjectId (trunc 8 (sha256sum $gcpClusterName)) | quote }}
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

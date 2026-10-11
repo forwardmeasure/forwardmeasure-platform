@@ -4,6 +4,11 @@
 Rerun after an interruption: the pod-template fingerprint makes updates idempotent; rollout status
 is checked even when an earlier invocation patched the template and then died. Jobs are never
 replayed: drain running Jobs before credential rotation.
+
+--defer-missing is for the early pass that runs before product installs. A controller whose pod
+template requires a Secret that does not exist yet (e.g. a product's own release still references a
+Secret that platform-secrets has since renamed) is left alone: restarting it now would only roll out
+pods that cannot start, and its product stage re-renders it. The final pass runs without the flag.
 """
 import argparse
 import hashlib
@@ -21,29 +26,36 @@ def kubectl(*args):
     return result.stdout.strip()
 
 
-def references(spec):
+def references(spec, required_only=False):
     names = set()
+
+    def add(name, ref):
+        if name and not (required_only and ref.get("optional")):
+            names.add(name)
+
     for container in spec.get("containers", []) + spec.get("initContainers", []):
         for env in container.get("env", []):
-            name = env.get("valueFrom", {}).get("secretKeyRef", {}).get("name")
-            if name:
-                names.add(name)
+            ref = env.get("valueFrom", {}).get("secretKeyRef", {})
+            add(ref.get("name"), ref)
         for env in container.get("envFrom", []):
-            name = env.get("secretRef", {}).get("name")
-            if name:
-                names.add(name)
+            ref = env.get("secretRef", {})
+            add(ref.get("name"), ref)
     for volume in spec.get("volumes", []):
-        name = volume.get("secret", {}).get("secretName")
-        if name:
-            names.add(name)
+        ref = volume.get("secret", {})
+        add(ref.get("secretName"), ref)
         for source in volume.get("projected", {}).get("sources", []):
-            name = source.get("secret", {}).get("name")
-            if name:
-                names.add(name)
+            ref = source.get("secret", {})
+            add(ref.get("name"), ref)
     return names
 
 
-def reload(command=kubectl, timeout=300):
+def existing_secrets(command):
+    # Table output: names only, no Secret data crosses the wire.
+    rows = command("get", "secrets", "--all-namespaces", "--no-headers")
+    return {tuple(line.split()[:2]) for line in rows.splitlines() if line.strip()}
+
+
+def reload(command=kubectl, timeout=300, defer_missing=False):
     inventory = json.loads(command("get", "externalsecrets", "--all-namespaces", "-l",
                                    "platform.forwardmeasure.com/identity-client-credentials=true", "-o", "json"))
     # Helm overwrites managed-by; the release annotation survives installation.
@@ -62,6 +74,7 @@ def reload(command=kubectl, timeout=300):
         versions[(namespace, name)] = digest
     controllers = json.loads(command("get", "deployments,statefulsets,daemonsets,cronjobs,jobs",
                                      "--all-namespaces", "-o", "json"))
+    present = existing_secrets(command) if defer_missing else None
     desired = []
     for item in controllers["items"]:
         kind, meta = item["kind"].lower(), item["metadata"]
@@ -75,6 +88,13 @@ def reload(command=kubectl, timeout=300):
                 if (namespace, name) in versions}
         if not used:
             continue
+        if present is not None:
+            missing = sorted(secret for secret in references(template["spec"], required_only=True)
+                             if (namespace, secret) not in present)
+            if missing:
+                print(f"Deferring {kind} {namespace}/{name}: requires missing Secret(s) {', '.join(missing)}; "
+                      "its own release re-renders it and the final reload checks it.")
+                continue
         digest = hashlib.sha256(json.dumps(used, sort_keys=True).encode()).hexdigest()
         current = template.get("metadata", {}).get("annotations", {}).get(ANNOTATION)
         if kind == "job":
@@ -103,11 +123,13 @@ def reload(command=kubectl, timeout=300):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--timeout", type=int, default=300)
+    parser.add_argument("--defer-missing", action="store_true",
+                        help="skip controllers whose pod template requires a Secret that does not exist yet")
     args = parser.parse_args()
     if args.timeout <= 0:
         parser.error("--timeout must be positive")
     try:
-        count = reload(timeout=args.timeout)
+        count = reload(timeout=args.timeout, defer_missing=args.defer_missing)
     except (RuntimeError, KeyError, ValueError) as failure:
         parser.exit(1, f"{failure}\n")
     print(f"Checked {count} controllers consuming platform secrets.")
