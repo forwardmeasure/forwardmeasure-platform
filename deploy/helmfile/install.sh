@@ -25,6 +25,9 @@ WORKSPACE_DIR="$(cd -- "${SCRIPT_DIR}/../../.." && pwd)"
 ENVIRONMENT="${1:?Usage: $0 <configured-environment> [stage]}"
 REQUESTED_STAGE="${2:-}"
 source "${SCRIPT_DIR}/../scripts/product-selection.sh"
+source "${SCRIPT_DIR}/../scripts/install-steps.sh"
+# install-platform.sh checked the tools already; run on its own, check them here.
+install_prepared || check_install_tools
 python3 "${SCRIPT_DIR}/../scripts/check-deployment-transition.py"
 
 for command in kubectl helm helmfile yq python3; do
@@ -34,25 +37,24 @@ for command in kubectl helm helmfile yq python3; do
   }
 done
 
-"${SCRIPT_DIR}/validate.sh" "${ENVIRONMENT}"
-"${SCRIPT_DIR}/scripts/preflight.sh" "${ENVIRONMENT}"
+# install-platform.sh has already validated every repository for this run.
+install_prepared || install_step "Validate platform configuration" "${SCRIPT_DIR}/validate.sh" "${ENVIRONMENT}"
+install_step "Platform preflight" "${SCRIPT_DIR}/scripts/preflight.sh" "${ENVIRONMENT}"
 
 kubectl apply -f "${SCRIPT_DIR}/manifests/namespaces.yaml"
 python3 "${SCRIPT_DIR}/../scripts/selection-manifests.py" namespaces | kubectl apply -f -
 GATEWAY_API_VERSION="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" gatewayApi.version)"
 kubectl apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml"
 
-# Reconcile every selected release in Helmfile order, including unchanged failed releases.
-# A separate failed-release prepass can retry a dependent before its prerequisite is updated.
-# Honor needs even with stage selectors; do not implicitly include disabled or unselected releases.
-# sync reruns hooks; migrations, identity reconciliation and publication must remain repeatable.
-
+# Each stage upgrades only the releases that changed (helmfile apply), with their hooks;
+# a stage holding a failed or interrupted release is synchronized in full, in Helmfile order,
+# so that release is retried after its prerequisites (see reconcile_releases in
+# ../scripts/install-steps.sh). Needs are honoured even with stage selectors; disabled or
+# unselected releases are never included implicitly.
 apply_stage() {
   local stage="$1"
-  echo "Applying ForwardMeasure platform stage: ${stage}"
-  helmfile --file "${SCRIPT_DIR}/helmfile.yaml.gotmpl" \
-    --environment "${ENVIRONMENT}" --selector "stage=${stage}" \
-    sync --skip-needs=false --wait --wait-for-jobs
+  install_step "Platform stage: ${stage}" \
+    reconcile_releases "${SCRIPT_DIR}/helmfile.yaml.gotmpl" "${ENVIRONMENT}" "stage=${stage}"
 }
 
 if [[ -n "${REQUESTED_STAGE}" ]]; then
@@ -72,7 +74,8 @@ apply_stage configuration
 SECRET_STORE="$(${SCRIPT_DIR}/scripts/environment-value.sh "${ENVIRONMENT}" secretStore.name)"
 kubectl wait --for=condition=Ready --timeout=180s "clustersecretstore/${SECRET_STORE}"
 
-python3 "${SCRIPT_DIR}/scripts/sync-platform-secrets.py" "${SECRET_STORE}"
+install_step "Synchronize platform secrets" \
+  python3 "${SCRIPT_DIR}/scripts/sync-platform-secrets.py" "${SECRET_STORE}"
 
 # Keycloak's/Superset's Postgres roles don't exist until OpenWorkflow's
 # migrations Job creates them (OpenWorkflowTenantMigrator.ensureRuntimeRole) -
@@ -87,18 +90,20 @@ python3 "${SCRIPT_DIR}/scripts/sync-platform-secrets.py" "${SECRET_STORE}"
 # and would reintroduce this same deadlock. install-platform.sh's own final,
 # unconditional full install.sh call re-runs this stage again later - both
 # operations it performs are idempotent, so that's safe, not wasted work.
-"${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/install.sh" "${ENVIRONMENT}" migrations
+install_step "OpenWorkflow stage: migrations (before identity)" \
+  "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/install.sh" "${ENVIRONMENT}" migrations
 
 apply_stage identity
 # Existing applications must load new credentials before product publishing hooks call them.
 # --defer-missing: a product controller still pointing at a renamed Secret is re-rendered by its own
 # stage; restarting it here only stalls on pods that cannot start. install-platform.sh's final
 # reload (after every product) is strict.
-python3 "${SCRIPT_DIR}/scripts/reload-secret-consumers.py" --defer-missing
+install_step "Reload secret consumers" \
+  python3 "${SCRIPT_DIR}/scripts/reload-secret-consumers.py" --defer-missing
 apply_stage messaging
 apply_stage search
 apply_stage ml-serving
 apply_stage analytics
 apply_stage dashboard
 
-"${SCRIPT_DIR}/scripts/readiness.sh" "${ENVIRONMENT}"
+install_step "Platform readiness" "${SCRIPT_DIR}/scripts/readiness.sh" "${ENVIRONMENT}"

@@ -127,6 +127,8 @@ if [ "$coverage" = true ] || [ "$skip_tests" = false ]; then
 	profiles="$profiles,coverage"
 fi
 
+build_started=$(date +%s)
+
 case "$mode" in
 	module)
 		"${maven_command[@]}" -pl "$target" -am spotless:apply
@@ -143,3 +145,8 @@ case "$mode" in
 esac
 
 # Container publication is owned by the selected Maven modules; never push unrelated local images.
+# Every image this build created must have reached the registry: a module that builds an image
+# without a push step would otherwise be skipped silently, and no deploy would ever pick it up.
+if [ "$push" = true ]; then
+	python3 scripts/verify-pushed-images.py "$build_started"
+fi

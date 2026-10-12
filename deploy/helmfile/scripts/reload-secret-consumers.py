@@ -14,13 +14,35 @@ import argparse
 import hashlib
 import json
 import subprocess
+import time
 
 ANNOTATION = "platform.forwardmeasure.com/secret-versions"
 DATA_HASH = "reconcile.external-secrets.io/data-hash"
 
 
+# The API server occasionally answers a request with a transient failure ("the server is currently
+# unable to handle the request", a 5xx, a dropped connection) during control-plane maintenance or
+# load. Such a request is retried with back-off; anything else (NotFound, Forbidden, a rollout that
+# timed out, invalid input) fails immediately.
+TRANSIENT = ("the server is currently unable to handle the request", "(InternalError)",
+             "(ServiceUnavailable)", "(Timeout)", "TLS handshake timeout", "connection refused",
+             "connection reset by peer", "i/o timeout", "client connection lost",
+             "etcdserver: request timed out", "unexpected EOF")
+RETRY_DELAYS = (2, 4, 8, 16)
+
+
+def run_kubectl(args, sleep=time.sleep, run=subprocess.run):
+    for delay in (*RETRY_DELAYS, None):
+        result = run(["kubectl", *args], text=True, capture_output=True, check=False)
+        if not result.returncode or delay is None or not any(m in result.stderr for m in TRANSIENT):
+            return result
+        print(f"kubectl {' '.join(args[:3])}: transient API server error, retrying in {delay}s: "
+              f"{result.stderr.strip()[:200]}")
+        sleep(delay)
+
+
 def kubectl(*args):
-    result = subprocess.run(["kubectl", *args], text=True, capture_output=True, check=False)
+    result = run_kubectl(args)
     if result.returncode:
         raise RuntimeError(f"kubectl {' '.join(args[:3])} failed: {result.stderr.strip()}")
     return result.stdout.strip()

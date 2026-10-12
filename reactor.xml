@@ -16,7 +16,8 @@
   limitations under the License.
 -->
 <!--
-Standalone compatibility-verification reactor for the whole Apache-licensed ForwardMeasure stack
+Standalone compatibility-verification reactor for the whole ForwardMeasure stack: the
+Apache-licensed repositories plus the proprietary forwardmeasure-entity-intelligence
 (see README.md's "Artifact compatibility" section and .github/workflows/platform-verify.yml,
 which builds this file's module list, not pom.xml's). Deliberately not named pom.xml and
 deliberately not a parent of anything and has no parent of its own - the whole point is that
@@ -43,6 +44,7 @@ there directly instead, and why that broke every Quarkus module's local build ec
 
   <modules>
     <module>.</module>
+    <module>../forwardmeasure-presentation-system</module>
     <module>../forwardmeasure-testcontainers</module>
     <module>../forwardmeasure-database-migrations</module>
     <module>../forwardmeasure-jpa</module>
@@ -55,6 +57,7 @@ there directly instead, and why that broke every Quarkus module's local build ec
     <module>../forwardmeasure-decision-engine</module>
     <module>../forwardmeasure-agent-os</module>
     <module>../forwardmeasure-entity-intelligence</module>
+    <module>../forwardmeasure-platform-operations</module>
   </modules>
 
   <build>

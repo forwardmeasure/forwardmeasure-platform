@@ -6,11 +6,37 @@ import subprocess
 import time
 import uuid
 
+import yaml
+
 MARKER = "platform.forwardmeasure.com/secret-sync"
+RELEASE = "platform-secrets"
+RELEASE_NAME = "meta.helm.sh/release-name"
+RELEASE_NAMESPACE = "meta.helm.sh/release-namespace"
+
+
+# The API server occasionally answers a request with a transient failure ("the server is currently
+# unable to handle the request", a 5xx, a dropped connection) during control-plane maintenance or
+# load. Such a request is retried with back-off; anything else (NotFound, Forbidden, a rollout that
+# timed out, invalid input) fails immediately.
+TRANSIENT = ("the server is currently unable to handle the request", "(InternalError)",
+             "(ServiceUnavailable)", "(Timeout)", "TLS handshake timeout", "connection refused",
+             "connection reset by peer", "i/o timeout", "client connection lost",
+             "etcdserver: request timed out", "unexpected EOF")
+RETRY_DELAYS = (2, 4, 8, 16)
+
+
+def run_kubectl(args, sleep=time.sleep, run=subprocess.run):
+    for delay in (*RETRY_DELAYS, None):
+        result = run(["kubectl", *args], text=True, capture_output=True, check=False)
+        if not result.returncode or delay is None or not any(m in result.stderr for m in TRANSIENT):
+            return result
+        print(f"kubectl {' '.join(args[:3])}: transient API server error, retrying in {delay}s: "
+              f"{result.stderr.strip()[:200]}")
+        sleep(delay)
 
 
 def kubectl(*args, optional=False):
-    result = subprocess.run(["kubectl", *args], text=True, capture_output=True, check=False)
+    result = run_kubectl(args)
     if result.returncode:
         if optional and "(NotFound)" in result.stderr:
             return ""
@@ -18,16 +44,57 @@ def kubectl(*args, optional=False):
     return result.stdout.strip()
 
 
-def sync(store, timeout=300, command=kubectl, now=time.monotonic, sleep=time.sleep):
+def helm(*args):
+    result = subprocess.run(["helm", *args], text=True, capture_output=True, check=False)
+    if result.returncode:
+        raise RuntimeError(f"helm {' '.join(args[:3])} failed: {result.stderr.strip()}")
+    return result.stdout
+
+
+def released_externalsecrets(release_namespace, helm_command=helm):
+    """(namespace, name) of every ExternalSecret in the release's current deployed manifest."""
+    manifest = helm_command("get", "manifest", RELEASE, "--namespace", release_namespace)
+    owned = set()
+    for document in yaml.safe_load_all(manifest):
+        if document and document.get("kind") == "ExternalSecret":
+            metadata = document["metadata"]
+            owned.add((metadata.get("namespace") or release_namespace, metadata["name"]))
+    if not owned:
+        # Never treat an empty or unreadable manifest as "everything is an orphan".
+        raise RuntimeError(f"The {RELEASE} release in {release_namespace} has no ExternalSecrets")
+    return owned
+
+
+def sync(store, timeout=300, command=kubectl, now=time.monotonic, sleep=time.sleep,
+         helm_command=helm, report=print):
     # Helm replaces managed-by with "Helm" at install time. Use release ownership,
     # not the chart's rendered managed-by label, to identify installed resources.
     inventory = json.loads(command("get", "externalsecrets", "--all-namespaces", "-o", "json"))
-    selected = [item for item in inventory["items"]
-                if item["metadata"].get("annotations", {}).get("meta.helm.sh/release-name") == "platform-secrets"
+    labelled = [item for item in inventory["items"]
+                if item["metadata"].get("annotations", {}).get(RELEASE_NAME) == RELEASE
                 and item["spec"]["secretStoreRef"]["name"] == store
                 and item["spec"]["secretStoreRef"].get("kind", "SecretStore") == "ClusterSecretStore"]
-    if not selected:
+    if not labelled:
         raise RuntimeError(f"No platform ExternalSecrets reference {store}")
+    release_namespaces = {item["metadata"]["annotations"].get(RELEASE_NAMESPACE) for item in labelled}
+    if len(release_namespaces) != 1 or None in release_namespaces:
+        raise RuntimeError(f"Cannot tell which namespace the {RELEASE} release is in: {release_namespaces}")
+    owned = released_externalsecrets(release_namespaces.pop(), helm_command)
+    # A failed Helm upgrade leaves the objects it created behind, still annotated with the release:
+    # Helm only removes what was in the last successful revision. Such an orphan is not part of the
+    # release any more, can wait forever on a key a later stage publishes, and blocks the release
+    # that now owns that name from installing. Remove it, then synchronize only what the release owns.
+    selected = []
+    for item in labelled:
+        namespace, name = item["metadata"]["namespace"], item["metadata"]["name"]
+        if (namespace, name) in owned:
+            selected.append(item)
+            continue
+        command("--namespace", namespace, "delete", "externalsecret", name, "--ignore-not-found")
+        report(f"Removed {namespace}/{name}: labelled as {RELEASE} but not in its deployed manifest "
+               "(left behind by a failed upgrade).")
+    if not selected:
+        raise RuntimeError(f"No ExternalSecrets of the deployed {RELEASE} release reference {store}")
     nonce = uuid.uuid4().hex
     pending = []
     for item in selected:
@@ -71,7 +138,7 @@ def main():
         parser.error("--timeout must be positive")
     try:
         count = sync(args.store, args.timeout)
-    except (RuntimeError, ValueError, KeyError) as failure:
+    except (RuntimeError, ValueError, KeyError, yaml.YAMLError) as failure:
         parser.exit(1, f"{failure}\n")
     print(f"Synchronized {count} platform ExternalSecrets, including product namespaces.")
 

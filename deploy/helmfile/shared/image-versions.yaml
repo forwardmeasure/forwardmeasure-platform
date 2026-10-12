@@ -31,10 +31,10 @@ imageVersions:
   dataStreamingExecutorKafkaStreams:
     repository: docker.io/forwardmeasure/data-streaming-executor-kafka-streams
     tag: "1.1.0"
-    digest: "sha256:a11d12bcd923a89befb8af6e8e9a4be88cfcc6a80e1e6b2fa598f04f385d34de"
+    digest: "sha256:1405ce25c6f33d56a4ff8716eacda05eb46f05fb92f2f5c1b839c9fa41fe5d70"
   # forwardmeasure-openworkflow's workflow publisher - run by every product's workflow bundle
   # (helm-charts' openworkflow-workflow-bundle chart) to publish its workflows into each tenant.
   openworkflowWorkflowPublisher:
     repository: docker.io/forwardmeasure/openworkflow-workflow-publisher
     tag: "1.1.0"
-    digest: "sha256:bf08205f2b16985ad12debf7e824c25b5908cd05fadcbb2e4b6f2f49c0cba936"
+    digest: "sha256:bf137b422271b81a8f38ef11310f5d99d98462b398e9233436ee9d05ebee0b7d"

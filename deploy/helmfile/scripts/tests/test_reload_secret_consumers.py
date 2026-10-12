@@ -15,6 +15,7 @@
 import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 
 spec = importlib.util.spec_from_file_location("reload_consumers", Path(__file__).parents[1] / "reload-secret-consumers.py")
@@ -119,3 +120,43 @@ class ReloadTest(unittest.TestCase):
             {"name": "tenant", "secret": {"secretName": "tenant-secrets", "optional": True}}]
         self.assertEqual(1, module.reload(cluster.command, defer_missing=True))
         self.assertEqual(1, cluster.patches())
+
+
+class TransientRetryTest(unittest.TestCase):
+    """The kubectl wrapper retries the API server's transient failures, and only those."""
+
+    def run_with(self, stderrs):
+        calls, delays = [], []
+
+        def run(args, **_):
+            calls.append(args)
+            stderr = stderrs[min(len(calls), len(stderrs)) - 1]
+            return SimpleNamespace(returncode=1 if stderr else 0, stdout="ok", stderr=stderr or "")
+
+        result = module.run_kubectl(("-n", "fei", "rollout", "status", "deployment/x"), delays.append, run)
+        return result, calls, delays
+
+    def test_unavailable_api_server_is_retried_until_it_answers(self):
+        unavailable = ('Error from server (InternalError): an error on the server ("Internal Server Error: '
+                       '\\"/apis/apps/v1/namespaces/fei/deployments/x\\": the server is currently unable '
+                       'to handle the request")')
+        result, calls, delays = self.run_with([unavailable, unavailable, None])
+        self.assertEqual(0, result.returncode)
+        self.assertEqual(3, len(calls))
+        self.assertEqual([2, 4], delays)
+
+    def test_real_errors_fail_without_retrying(self):
+        for stderr in ('Error from server (NotFound): deployments.apps "x" not found',
+                       'Error from server (Forbidden): deployments.apps "x" is forbidden',
+                       'error: timed out waiting for the condition'):
+            result, calls, delays = self.run_with([stderr])
+            self.assertEqual(1, result.returncode)
+            self.assertEqual(1, len(calls), stderr)
+            self.assertEqual([], delays)
+
+    def test_a_server_that_stays_unavailable_fails_after_the_last_retry(self):
+        result, calls, delays = self.run_with(["Error from server (ServiceUnavailable): the server is "
+                                               "currently unable to handle the request"])
+        self.assertEqual(1, result.returncode)
+        self.assertEqual(len(module.RETRY_DELAYS) + 1, len(calls))
+        self.assertEqual(list(module.RETRY_DELAYS), delays)

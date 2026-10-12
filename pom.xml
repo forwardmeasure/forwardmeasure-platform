@@ -61,6 +61,7 @@
     <forwardmeasure.openworkflow.version>1.1.0</forwardmeasure.openworkflow.version>
     <forwardmeasure.nlp.version>1.1.0</forwardmeasure.nlp.version>
     <forwardmeasure.platform-operations.version>1.1.0</forwardmeasure.platform-operations.version>
+    <forwardmeasure.presentation-system.version>1.1.0</forwardmeasure.presentation-system.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.outputTimestamp>1980-01-01T00:00:02Z</project.build.outputTimestamp>

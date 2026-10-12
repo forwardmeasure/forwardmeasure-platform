@@ -54,7 +54,7 @@ imageVersions:
     # framework doesn't set.
     repository: docker.io/forwardmeasure/forwardmeasure-platform-operations-quarkus
     tag: "1.0.0"
-    digest: sha256:3bc1980226e808fa2df39fc54cb08fb35f6048433eaf4e4bbddf803b3964459b
+    digest: sha256:97860fa6bfe747dd53e7c8b8905ed6529c006592bc0b9bedb39243c389e2f7fb
     pullPolicy: Always
   modelUtilities:
     repository: docker.io/forwardmeasure/ml-model-utilities

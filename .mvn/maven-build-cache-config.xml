@@ -29,7 +29,12 @@ limitations under the License.
         <dirName>test-classes</dirName>
         <dirName>generated-sources</dirName>
         <dirName>generated-test-sources</dirName>
-        <dirName>generated-typescript</dirName>
+        <!-- target/generated-typescript is deliberately not cached. It holds an npm package
+             directory, node_modules included, and the cache zips symlinks as plain copies:
+             restored node_modules/.bin launchers (node-pre-gyp) then can't find their modules,
+             and `npm install` reports "up to date" without repairing them. Every plugin that
+             writes this directory (openapi-generator, resources, dependency, frontend) is in
+             runAlways below, so it is regenerated on cache hits anyway. -->
         <dirName>quarkus-app</dirName>
       </dirNames>
     </attachedOutputs>

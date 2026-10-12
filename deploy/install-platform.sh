@@ -51,7 +51,10 @@ for argument in "$@"; do
 done
 
 source "${SCRIPT_DIR}/scripts/product-selection.sh"
+source "${SCRIPT_DIR}/scripts/install-steps.sh"
+check_install_tools
 python3 "${SCRIPT_DIR}/scripts/check-deployment-transition.py"
+INSTALL_STARTED=$(date +%s)
 
 image_files=(
   "${SCRIPT_DIR}/helmfile/shared/image-versions.yaml"
@@ -120,17 +123,25 @@ if (( ${#RELEASES[@]} > 0 )); then
 fi
 # Render the workflow environment before any registry lookups. Invalid configuration must fail
 # visibly here, rather than after resolving every other product's image inventory.
-echo "Checking OpenWorkflow environment inputs (${ENVIRONMENT})"
+echo "[$(date +%H:%M:%S)] Checking OpenWorkflow environment inputs (${ENVIRONMENT})"
 "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/scripts/environment-value.sh" \
   "${ENVIRONMENT}" cloudProvider >/dev/null
-echo "Resolving selected platform/product image digests"
-"${SCRIPT_DIR}/scripts/sync-image-digests.sh" --framework "${framework}" "${DIGEST_SELECTION_ARGS[@]}" "${image_files[@]}"
-echo "Resolving OpenWorkflow image digests"
-"${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/scripts/resolve-image-digests.sh" "${ENVIRONMENT}"
+install_step "Resolve platform and product image digests" \
+  "${SCRIPT_DIR}/scripts/sync-image-digests.sh" --framework "${framework}" "${DIGEST_SELECTION_ARGS[@]}" "${image_files[@]}"
+install_step "Resolve OpenWorkflow image digests" \
+  "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/scripts/resolve-image-digests.sh" "${ENVIRONMENT}"
 
 # Before touching the cluster: everything renders, and every product references our images by
 # digest (a template that drops a digest fails here, not on a stale pull).
-"${SCRIPT_DIR}/validate-platform.sh" "${ENVIRONMENT}"
+install_step "Validate every repository" "${SCRIPT_DIR}/validate-platform.sh" "${ENVIRONMENT}"
+
+# Validation rendered every helmfile without --skip-deps, which added their chart repositories and
+# built their chart dependencies: every later helmfile call skips both.
+for file in "${helmfile_files[@]}"; do
+  mark_helmfile_prepared "${file}"
+done
+# Digests are resolved and every repository is validated: nested install.sh scripts skip both.
+export FORWARDMEASURE_INSTALL_PREPARED=true
 
 # Cross-repository values (domain, gateway, endpoints, shared namespaces, shared chart/image pins)
 # are not copied into the product repositories: every helmfile loads helmfile/shared/ directly from
@@ -142,19 +153,19 @@ if (( ${#RELEASES[@]} > 0 )); then
     echo "Updating${selected_by_file[${file}]//--selector name=/} from ${file#"${WORKSPACE_DIR}/"}"
     # shellcheck disable=SC2086 # the selector flags are deliberately word-split
     helmfile --file "${file}" --environment "${ENVIRONMENT}" ${selected_by_file[${file}]} \
-      sync --wait --wait-for-jobs
+      sync --skip-deps --wait --wait-for-jobs
   done
-  echo "Updated ${RELEASES[*]} for ${ENVIRONMENT}."
+  echo "Updated ${RELEASES[*]} for ${ENVIRONMENT} in $(($(date +%s) - INSTALL_STARTED))s."
   exit 0
 fi
 
-"${SCRIPT_DIR}/helmfile/install.sh" "${ENVIRONMENT}"
+install_step "Platform" "${SCRIPT_DIR}/helmfile/install.sh" "${ENVIRONMENT}"
 for product in "${PRODUCT_REPOSITORIES[@]}"; do
-  "${WORKSPACE_DIR}/${product}/deploy/helmfile/install.sh" "${ENVIRONMENT}"
+  install_step "${product}" "${WORKSPACE_DIR}/${product}/deploy/helmfile/install.sh" "${ENVIRONMENT}"
 done
 
-python3 "${SCRIPT_DIR}/helmfile/scripts/reload-secret-consumers.py"
+install_step "Reload secret consumers" python3 "${SCRIPT_DIR}/helmfile/scripts/reload-secret-consumers.py"
 
 python3 "${SCRIPT_DIR}/scripts/selection-manifests.py" record | kubectl apply -f -
 
-echo "ForwardMeasure platform (${PRODUCT_SUMMARY}) installed/updated for ${ENVIRONMENT}."
+echo "ForwardMeasure platform (${PRODUCT_SUMMARY}) installed/updated for ${ENVIRONMENT} in $(($(date +%s) - INSTALL_STARTED))s."

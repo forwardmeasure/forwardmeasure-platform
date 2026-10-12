@@ -25,20 +25,51 @@ WORKSPACE_DIR="$(cd -- "${PLATFORM_DIR}/.." && pwd)"
 ENVIRONMENT="${1:-gcp-greenfield-example}"
 source "${SCRIPT_DIR}/scripts/product-selection.sh"
 
-"${SCRIPT_DIR}/helmfile/validate.sh" "${ENVIRONMENT}"
-"${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/validate.sh" "${ENVIRONMENT}"
+# Every check below is independent (each renders on its own), so they run in parallel; each one's
+# output is kept apart and printed once it finishes, failures last with their full output.
+LOGS="$(mktemp -d)"
+trap 'rm -rf "${LOGS}"' EXIT
+pids=()
+names=()
+check() {
+  local name="$1"
+  shift
+  "$@" >"${LOGS}/${#names[@]}.log" 2>&1 &
+  pids+=($!)
+  names+=("${name}")
+}
+
+check "platform validation" "${SCRIPT_DIR}/helmfile/validate.sh" "${ENVIRONMENT}"
+check "OpenWorkflow validation" "${WORKSPACE_DIR}/forwardmeasure-openworkflow/deploy/helmfile/validate.sh" "${ENVIRONMENT}"
 
 # Every product's render must reference our images by digest (check-image-digests.sh). For the
 # products with no validate.sh of their own, rendering is also the whole check (it fails on an
 # undeclared environment or a missing shared value).
+render_and_check_digests() {
+  helmfile --file "$1" --environment "${ENVIRONMENT}" template \
+    | "${SCRIPT_DIR}/scripts/check-image-digests.sh" "$2 (${ENVIRONMENT})"
+}
 helmfiles=("${SCRIPT_DIR}/helmfile/helmfile.yaml.gotmpl")
 for product in "${PRODUCT_REPOSITORIES[@]}"; do
   helmfiles+=("${WORKSPACE_DIR}/${product}/deploy/helmfile/helmfile.yaml.gotmpl")
 done
 for helmfile in "${helmfiles[@]}"; do
   product="$(basename "$(dirname "$(dirname "$(dirname "${helmfile}")")")")"
-  helmfile --file "${helmfile}" --environment "${ENVIRONMENT}" template \
-    | "${SCRIPT_DIR}/scripts/check-image-digests.sh" "${product} (${ENVIRONMENT})"
+  check "${product} image digests" render_and_check_digests "${helmfile}" "${product}"
 done
+
+failed=()
+for index in "${!pids[@]}"; do
+  if wait "${pids[${index}]}"; then
+    echo "${names[${index}]}: passed"
+  else
+    failed+=("${index}")
+  fi
+done
+for index in "${failed[@]}"; do
+  echo "${names[${index}]} failed:" >&2
+  cat "${LOGS}/${index}.log" >&2
+done
+((${#failed[@]} == 0)) || exit 1
 
 echo "ForwardMeasure platform (${PRODUCT_SUMMARY}) validated for ${ENVIRONMENT}."

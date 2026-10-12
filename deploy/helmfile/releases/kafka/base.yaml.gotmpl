@@ -22,3 +22,7 @@ controllers:
 brokers:
   replicas: {{ .Values.kafka.brokers }}
   storage: {size: {{ .Values.kafka.brokerStorage | quote }}, deleteClaim: false}
+# Strimzi-managed Cruise Control: lets the topic operator apply a KafkaTopic's replica count to an
+# existing topic (e.g. OpenWorkflow's topics declare 3 replicas). Needs kafka chart support for it.
+cruiseControl:
+  enabled: true

@@ -109,6 +109,34 @@ resolve_digest() {
   return 1
 }
 
+# Looks up every repository:tag in parallel (registry queries are network-bound and independent),
+# so the loop below reads results instead of waiting on each query in turn.
+DIGEST_CACHE="$(mktemp -d)"
+trap 'rm -rf "${DIGEST_CACHE}"' EXIT
+prefetch_digests() {
+  local reference running=0
+  while IFS= read -r reference; do
+    [[ -n "${reference}" ]] || continue
+    local key
+    key="$(printf '%s' "${reference}" | sha256sum | cut -c1-32)"
+    [[ -e "${DIGEST_CACHE}/${key}" ]] && continue
+    ( resolve_digest "${reference%:*}" "${reference##*:}" >"${DIGEST_CACHE}/${key}" \
+        || rm -f "${DIGEST_CACHE}/${key}" ) &
+    running=$((running + 1))
+    if ((running >= 8)); then
+      wait -n || true
+      running=$((running - 1))
+    fi
+  done
+  wait
+}
+
+cached_digest() {
+  local key
+  key="$(printf '%s:%s' "$1" "$2" | sha256sum | cut -c1-32)"
+  [[ -s "${DIGEST_CACHE}/${key}" ]] && cat "${DIGEST_CACHE}/${key}"
+}
+
 sync_file() {
   local file="$1" rows
   echo "Syncing digests in ${file}"
@@ -142,6 +170,17 @@ sync_file() {
     | join("\u001f")
   ')"
 
+  # Every reference the loop below would resolve, looked up in parallel first.
+  prefetch_digests < <(while IFS=$'\x1f' read -r _ repository tag current_digest kind; do
+    [[ -n "${repository}" && -n "${tag}" ]] || continue
+    if [[ ! "${repository}" =~ ${OURS} ]]; then
+      [[ "${kind}" == "pin" && -n "${current_digest}" ]] || continue
+    elif [[ "${kind}" == "nofield" ]]; then
+      continue
+    fi
+    echo "${repository}:${tag}"
+  done <<<"${rows}")
+
   # One row per digest field (pinned or empty), plus one per entry of any
   # repository that has no digest field: yq path to the field, repository,
   # tag, current digest, and "pin" or "nofield". Fields are separated by
@@ -160,7 +199,7 @@ sync_file() {
       [[ -n "${current_digest}" ]] || failures+=("${file}: ${repository} has neither tag nor digest")
       continue
     fi
-    if ! new_digest="$(resolve_digest "${repository}" "${tag}")"; then
+    if ! new_digest="$(cached_digest "${repository}" "${tag}")"; then
       failures+=("${file}: ${repository}:${tag} could not be resolved (not pushed?)")
       continue
     fi

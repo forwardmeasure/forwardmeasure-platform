@@ -62,8 +62,10 @@ printf '%s' "${MERGED_JSON}" | jq -e '
   exit 1
 }
 
+# Read from the values rendered once above, not environment-value.sh: that renders the whole
+# platform helmfile again on every call (seconds each, a dozen calls here).
 value() {
-  "${SCRIPT_DIR}/environment-value.sh" "${ENVIRONMENT}" "$1"
+  printf '%s' "${MERGED_JSON}" | yq -p=json -r ".${1} // \"\""
 }
 
 PROJECT_ID="$(value gcp.projectId)"
