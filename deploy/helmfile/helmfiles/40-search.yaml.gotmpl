@@ -37,3 +37,18 @@ releases:
     values:
       - ../releases/opensearch-cluster/base.yaml.gotmpl
     {{- end }}
+
+  # fei's copy of the OpenSearch root CA certificate. opensearch-cluster publishes the key to the
+  # central store, so this ExternalSecret installs after it rather than in platform-secrets, which
+  # installs first and would wait on a key that does not exist yet.
+  - name: entity-intelligence-opensearch-ca
+    namespace: {{ .Values.namespaces.externalSecrets }}
+    chart: forwardmeasure/platform-secrets
+    version: {{ .Values.chartVersions.platformSecrets | quote }}
+    installed: {{ if $cloud }}true{{ else }}false{{ end }}
+    needs: [{{ .Values.namespaces.openSearch }}/opensearch-cluster]
+    labels: {stage: search, component: secrets}
+    {{- if $cloud }}
+    values:
+      - ../releases/entity-intelligence-opensearch-ca/base.yaml.gotmpl
+    {{- end }}

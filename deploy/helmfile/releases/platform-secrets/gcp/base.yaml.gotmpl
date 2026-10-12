@@ -163,13 +163,9 @@ secrets:
   # the opensearch-cluster release's own admin Secret uses, delivered into fei's namespace so its REST
   # services and dispatched worker Jobs can authenticate to the platform's secured OpenSearch. Its own
   # Secret, not a key in fei's entity-intelligence-credentials: application credentials are separately owned by the ExternalSecret above.
-  # The OpenSearch cluster's private root CA certificate (2026-10-10), so fei's services and worker
-  # Jobs verify the https endpoint. The opensearch-cluster release publishes it to this store.
-  - name: entity-intelligence-opensearch-ca
-    enabled: true
-    namespaces: [{{ .Values.namespaces.entityIntelligence }}]
-    remoteRefs:
-      - {secretKey: ca.crt, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchRootCaCertificate | quote }} }
+  # (fei's copy of the OpenSearch root CA certificate is not here: the opensearch-cluster release
+  # publishes that key, so its ExternalSecret is the entity-intelligence-opensearch-ca release in
+  # helmfiles/40-search, which installs after it.)
   - name: {{ .Values.openSearch.entityIntelligenceCredentialsSecret }}
     enabled: true
     namespaces: [{{ .Values.namespaces.entityIntelligence }}]
