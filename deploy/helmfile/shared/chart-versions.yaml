@@ -23,3 +23,7 @@ chartVersions:
   # bumps the patch of Chart.yaml's version on each publish. 0.1.2 adds apiDocuments and didMethod
   # (definitions name bundle documents by DID URL); it must be published before this renders.
   openworkflowWorkflowBundle: "0.1.4"
+  # Strimzi operator and helm-charts' kafka chart: the platform's messaging layer and every
+  # standalone OpenWorkflow environment (which runs its own single-node Strimzi Kafka).
+  strimzi: "1.2.0"
+  kafka: "0.0.4"
