@@ -1,5 +1,14 @@
 # Copyright (c) 2026 ForwardMeasure, Inc. All rights reserved.
+#
+# This file is part of ForwardMeasure Entity Intelligence and is
+# proprietary and confidential. Unauthorized copying, modification,
+# distribution or use of this file, via any medium, is strictly
+# prohibited without the prior written permission of
+# ForwardMeasure, Inc.
+#
 # State Street customer master -> FEI resolution assertions. JSON Schema 2020-12 in YAML.
+# output_schema below is the platform resolution target (resolved-entity-record-schema-v1.yaml)
+# and must stay identical to it; admission validates mappings against the target itself.
 # This contract replaces the unused documentation-only schema. Raw source strings are
 # validated before mapping. Duplicate trailing headers require the reader's positional policy.
 contract_version: 1

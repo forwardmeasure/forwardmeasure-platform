@@ -1,0 +1,50 @@
+# Copyright (c) 2026 ForwardMeasure, Inc. All rights reserved.
+#
+# This file is part of ForwardMeasure Entity Intelligence and is
+# proprietary and confidential. Unauthorized copying, modification,
+# distribution or use of this file, via any medium, is strictly
+# prohibited without the prior written permission of
+# ForwardMeasure, Inc.
+#
+# The platform's standard resolution target: one resolved-entity record as FEI's resolution
+# service persists it. JSON Schema 2020-12 in YAML. Every monitored or configured resolution
+# pipeline is frozen against this target; a provider mapping must produce records valid here.
+$schema: https://json-schema.org/draft/2020-12/schema
+type: object
+required: [uid, entity_kind, display_name]
+properties:
+  uid: {type: string, minLength: 1}
+  entity_kind: {type: string, enum: [person, organization]}
+  display_name: {type: string, minLength: 1}
+  primary_jurisdiction: {type: [string, 'null']}
+  assertions:
+    type: array
+    items:
+      type: object
+      required: [key, value]
+      properties:
+        key: {type: string, minLength: 1}
+        value:
+          type: object
+          required: [valueType]
+          oneOf:
+            - required: [value_string]
+              properties:
+                valueType: {const: string}
+                value_string: {type: string, minLength: 1}
+            - required: [value_date]
+              properties:
+                valueType: {const: date}
+                value_date: {type: string, format: date}
+            - required: [value_identifier]
+              properties:
+                valueType: {const: identifier}
+                value_identifier: {type: object}
+            - required: [value_address]
+              properties:
+                valueType: {const: address}
+                value_address: {type: object}
+            - required: [value_json]
+              properties:
+                valueType: {const: json}
+                value_json: {type: object}

@@ -22,4 +22,21 @@
   </licenses>
   <description>Authoritative versioned source, mapping, destination and index resources.
     Resource-only artifact shared by admission, workers and acceptance packaging.</description>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <!-- Moving FEI resources to the platform does not change their proprietary license. -->
+          <config>${project.basedir}/src/rat/forwardmeasure-proprietary-license.xml</config>
+          <licenseFamiliesApproved>FMPROP</licenseFamiliesApproved>
+          <licenseFamiliesDenied>AL</licenseFamiliesDenied>
+          <inputExcludes combine.children="append">
+            <inputExclude>**/.flattened-pom.xml</inputExclude>
+          </inputExcludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

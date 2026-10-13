@@ -3,17 +3,17 @@
   "contracts": [
     {
       "id": "worldcheck-screening-v1",
-      "source": "contracts/worldcheck-source-v1.json",
-      "mapping": "contracts/worldcheck-mapping-v1.json",
-      "destination": "contracts/screening-document-v1.json",
+      "source": "contracts/worldcheck-source-schema-v1.yaml",
+      "mapping": "contracts/worldcheck-opensearch-mapping-v1.yaml",
+      "destination": "contracts/screening-document-schema-v1.yaml",
       "index": "opensearch/reference-population-index-mapping.json",
       "status": "bounded-semantics-validated-runtime-matrix-pending"
     },
     {
       "id": "state-street-customer-master-resolution-v1",
-      "source": "contracts/state-street-customer-master-source-v1.yaml",
-      "mapping": "contracts/state-street-customer-master-resolution-mapping-v1.yaml",
-      "destination": "contracts/state-street-customer-master-source-v1.yaml#/output_schema",
+      "source": "contracts/state-street-customer-master-source-schema-v1.yaml",
+      "mapping": "contracts/state-street-customer-master-resolved-entity-mapping-v1.yaml",
+      "destination": "contracts/resolved-entity-record-schema-v1.yaml",
       "status": "bounded-semantics-validated-runtime-matrix-pending"
     }
   ],

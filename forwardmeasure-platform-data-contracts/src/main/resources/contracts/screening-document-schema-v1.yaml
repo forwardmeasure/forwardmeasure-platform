@@ -1,0 +1,228 @@
+# Copyright (c) 2026 ForwardMeasure, Inc. All rights reserved.
+#
+# This file is part of ForwardMeasure Entity Intelligence and is
+# proprietary and confidential. Unauthorized copying, modification,
+# distribution or use of this file, via any medium, is strictly
+# prohibited without the prior written permission of
+# ForwardMeasure, Inc.
+#
+# Shared canonical screening document: JSON Schema 2020-12 expressed in YAML.
+# Automatically loaded by FEI for reference-population ingestion; not a provider source schema.
+# OpenSearch field types and analyzers are defined separately in the index mapping.
+type: object
+additionalProperties: false
+properties:
+  uid:
+    type: string
+    minLength: 1
+  entity_kind:
+    type: string
+    enum:
+    - PERSON
+    - ORGANIZATION
+    - PHYSICAL_ASSET
+    - UNKNOWN
+  names:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        value:
+          type: string
+          minLength: 1
+        name_type:
+          type: string
+      required:
+      - value
+    minItems: 1
+  dates:
+    type: array
+    items:
+      type: string
+      format: date
+  nationalities:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  countries:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  location_country_codes:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  locations:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        country_name:
+          type: string
+          minLength: 1
+        country_code:
+          type: string
+          minLength: 1
+        city:
+          type: string
+          minLength: 1
+        state_or_province:
+          type: string
+          minLength: 1
+        location_type:
+          type: string
+          minLength: 1
+      required: []
+      minProperties: 1
+  identifiers:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          minLength: 1
+        value:
+          type: string
+          minLength: 1
+        normalized_value:
+          type: string
+          minLength: 1
+      required:
+      - type
+      - value
+  source_data:
+    type: object
+    description: Vendor/source-specific values preserved without canonical screening semantics. Searchable
+      fields require explicit index mappings.
+    additionalProperties: true
+  title:
+    type: string
+    minLength: 1
+  position:
+    type: string
+    minLength: 1
+  place_of_birth:
+    type: string
+    minLength: 1
+  further_information:
+    type: string
+    minLength: 1
+  update_category:
+    type: string
+    minLength: 1
+  editor:
+    type: string
+    minLength: 1
+  pep_status:
+    type: string
+    minLength: 1
+  source_categories:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  source_subcategories:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  company_ids:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  linked_record_ids:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  keywords:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  external_sources:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  external_source_domains:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  pep_roles:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  special_interest_categories:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  categories:
+    type: array
+    items:
+      type: string
+      minLength: 1
+  age:
+    type: integer
+    minimum: 0
+  deceased:
+    type: boolean
+  entered_date:
+    type: string
+    format: date
+  updated_date:
+    type: string
+    format: date
+  age_as_of_date:
+    type: string
+    format: date
+  date_details:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+      - value
+      - precision
+      properties:
+        value:
+          type: string
+          pattern: ^\d{4}(-\d{2}(-\d{2})?)?$
+        precision:
+          enum:
+          - YEAR
+          - MONTH
+          - DAY
+      oneOf:
+      - properties:
+          precision:
+            const: YEAR
+          value:
+            pattern: ^\d{4}$
+      - properties:
+          precision:
+            const: MONTH
+          value:
+            pattern: ^\d{4}-\d{2}$
+      - properties:
+          precision:
+            const: DAY
+          value:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+required:
+- uid
+- entity_kind
+- names
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: urn:fei:screening-document:1

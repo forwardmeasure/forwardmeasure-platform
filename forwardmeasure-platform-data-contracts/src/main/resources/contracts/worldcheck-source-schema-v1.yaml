@@ -1,0 +1,210 @@
+# Copyright (c) 2026 ForwardMeasure, Inc. All rights reserved.
+#
+# This file is part of ForwardMeasure Entity Intelligence and is
+# proprietary and confidential. Unauthorized copying, modification,
+# distribution or use of this file, via any medium, is strictly
+# prohibited without the prior written permission of
+# ForwardMeasure, Inc.
+#
+# Authoritative WorldCheck source contract. JSON Schema 2020-12 expressed in YAML.
+# Parsing metadata is outside source_schema; mapping rules live in worldcheck-opensearch-mapping-v1.yaml.
+# ISO-8859-1 is the established export setting; supplier confirmation versus CP1252 remains outstanding.
+# quote: null preserves literal quote characters in this line-oriented TSV export.
+# This is source validation, not canonical-output validation or an OpenSearch index mapping.
+contract_version: 1
+source:
+  name: worldcheck_reference_population
+  description: WorldCheck Premium provider records for reference-population screening. Tab-delimited,
+    with a header row. Classification and risk labels are provider evidence; they do not imply every
+    record is sanctioned.
+  format: csv
+  has_header: true
+  delimiter: "\t"
+  encoding: ISO-8859-1
+  quote: null
+identity:
+  version: 1
+  document_field: uid
+  source_fields:
+  - UID
+  strategy: provider-stable
+  description: UID is the provider-stable record key. The mapping writes it to canonical uid; the
+    screening sink uses that identity for the OpenSearch document ID and idempotent writes.
+source_schema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  title: WorldCheck Premium raw source record
+  description: Raw named cells before mapping. UID and CATEGORY must be present and nonempty. Other
+    declared fields may be absent, empty strings or null; the delimited reader normally supplies empty
+    strings for blank cells. Unknown columns are allowed and preserved with original values in source_data.
+    Compound values remain strings here and are interpreted by mapping transforms.
+  type: object
+  required:
+  - UID
+  - CATEGORY
+  additionalProperties: true
+  properties:
+
+    # Provider identity
+    UID:
+      type: string
+      description: WorldCheck unique numeric identifier for this record.
+      minLength: 1
+      examples:
+      - '123456'
+
+    # Names
+    LAST NAME:
+      type: [string, "null"]
+      description: Last name (individuals) or full organisation name.
+    FIRST NAME:
+      type: [string, "null"]
+      description: First name (individuals only).
+    ALIASES:
+      type: [string, "null"]
+      description: Semicolon-separated list of aliases.
+    LOW QUALITY ALIASES:
+      type: [string, "null"]
+      description: Semicolon-separated low-quality or phonetic aliases.
+    ALTERNATIVE SPELLING:
+      type: [string, "null"]
+      description: Semicolon-separated alternative spellings.
+
+    # Classification
+    CATEGORY:
+      type: string
+      description: World-Check category. Values include INDIVIDUAL, POLITICAL INDIVIDUAL, LEGAL, CORPORATE,
+        BANK, WEBSITE, VESSEL, AIRCRAFT, and other provider categories. Used with E/I to derive EntityKind.
+      minLength: 1
+    TITLE:
+      type: [string, "null"]
+      description: Provider title or honorific, retained as source text.
+    SUB-CATEGORY:
+      type: [string, "null"]
+      description: Provider subcategory labels, preserved separately from the primary category.
+    POSITION:
+      type: [string, "null"]
+      description: Position or role held by individual.
+
+    # Individual identity and date precision
+    AGE:
+      type: [string, "null"]
+      description: Age as supplied by the provider. Mapping accepts a nonnegative integer; other values
+        remain raw.
+    DOB:
+      type: [string, "null"]
+      description: Primary date of birth in YYYY/MM/DD format with partial zero components. Mapping
+        preserves partial year/month/day precision; zero components are unknown, never an invented
+        January or first day. Only valid complete dates enter the exact-date list.
+    DOBS:
+      type: [string, "null"]
+      description: Additional dates of birth, semicolon-separated. Parsed together with DOB and deduplicated,
+        with the same partial-date rules.
+    PLACE OF BIRTH:
+      type: [string, "null"]
+      description: Provider place-of-birth text, preserved without inventing structured address components.
+    DECEASED:
+      type: [string, "null"]
+      description: Provider deceased indicator, historically Y or blank. Current mapping recognizes
+        Y/N, YES/NO, TRUE/FALSE, 1/0 and DECEASED; unknown spellings remain raw rather than becoming
+        false.
+
+    # Identifiers
+    PASSPORTS:
+      type: [string, "null"]
+      description: Passport numbers, including bare passport values and semicolon-separated {SCHEME}value
+        pairs. Mapping assigns PASSPORT to bare values and retains scheme information; the original
+        cell remains in source_data.
+    SSN:
+      type: [string, "null"]
+      description: Social security or national ID numbers.
+    IDENTIFICATION NUMBERS:
+      type: [string, "null"]
+      description: Semicolon-separated {SCHEME}value identifier pairs, for example {AU-DFAT}291. Mapping
+        retains scheme information; bare untyped values use OTHER. Malformed pairs and masked/incomplete
+        identifiers remain raw rather than becoming invented exact identifiers.
+
+    # Geography
+    LOCATIONS:
+      type: [string, "null"]
+      description: Semicolon-separated location entries, including tilde-delimited city, region and
+        country components (~ City, Region ~ COUNTRY). Mapping retains city/region/original country
+        text and resolves known country names; unparseable content remains raw.
+    COUNTRIES:
+      type: [string, "null"]
+      description: Semicolon-separated country names.
+    CITIZENSHIP:
+      type: [string, "null"]
+      description: Semicolon-separated country names.
+
+    # Relationships and entity discriminator
+    COMPANIES:
+      type: [string, "null"]
+      description: Semicolon-separated linked company IDs.
+    E/I:
+      type: [string, "null"]
+      description: World-Check overloaded entity/gender discriminator. E denotes a non-person entity;
+        M and F denote male and female individuals; U denotes an individual whose sex is unknown or
+        unspecified. I is accepted for compatibility with older extracts that used a generic individual
+        indicator. CATEGORY refines an E record into organization versus vessel/aircraft, but must
+        not override the person/non-person meaning. Empty or null cells represent an unspecified indicator;
+        unknown nonempty codes are rejected. CATEGORY supplies classification when the indicator is
+        unspecified.
+      enum:
+      - E
+      - M
+      - F
+      - U
+      - I
+      - ''
+      - null
+    LINKED TO:
+      type: [string, "null"]
+      description: Semicolon-separated linked record IDs.
+
+    # Narrative and external sources
+    FURTHER INFORMATION:
+      type: [string, "null"]
+      description: Full narrative text about the record including biography, sanctions history, reports.
+    KEYWORDS:
+      type: [string, "null"]
+      description: Tilde-separated keywords.
+    EXTERNAL SOURCES:
+      type: [string, "null"]
+      description: Space-separated external source URLs. Mapping extracts external_sources and external_source_domains;
+        the original multi-URL cell remains in source_data. This cell is not constrained as a single
+        URI.
+      examples:
+      - https://example.invalid/report-one https://example.invalid/report-two
+
+    # Provider metadata
+    UPDATE CATEGORY:
+      type: [string, "null"]
+      description: Provider update classification, retained as text. This field alone is not an ingestion
+        delete or tombstone instruction.
+    ENTERED:
+      type: [string, "null"]
+      description: Date first entered in YYYY/MM/DD format.
+    UPDATED:
+      type: [string, "null"]
+      description: Date last updated in YYYY/MM/DD format.
+    EDITOR:
+      type: [string, "null"]
+      description: Provider editorial attribution, retained as text.
+    AGE DATE (AS OF DATE):
+      type: [string, "null"]
+      description: Date to which AGE applies, using provider YYYY/MM/DD notation. Only complete valid
+        dates enter the canonical date field.
+
+    # PEP and screening labels
+    PEP ROLES:
+      type: [string, "null"]
+      description: Tilde-separated PEP role descriptions.
+    PEP STATUS:
+      type: [string, "null"]
+      description: Current PEP status.
+    SPECIAL INTEREST CATEGORIES:
+      type: [string, "null"]
+      description: Semicolon-separated provider screening labels, including Sanctions Related, PEP,
+        Adverse Media, Enforcement, Terror Related, Bribery and Corruption, and Money Laundering.
+        Mapping normalizes recognized labels into screening categories and retains unknown labels
+        separately; the source vocabulary is not restricted to this illustrative list.

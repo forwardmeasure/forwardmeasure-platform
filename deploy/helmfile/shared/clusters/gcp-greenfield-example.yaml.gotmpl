@@ -81,7 +81,6 @@ platform:
         serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
         # Set from the entity-intelligence entry of the OpenTofu bucket_names output.
         evidenceBucket: "replace-with-entity-intelligence-bucket-output"
-        ingestionInputsBucket: "replace-with-entity-intelligence-ingestion-inputs-bucket-output"
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}
