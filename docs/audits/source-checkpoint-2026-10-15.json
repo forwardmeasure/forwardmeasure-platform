@@ -4,7 +4,7 @@
   "platform_repository": {
     "name": "forwardmeasure-platform",
     "branch": "develop",
-    "parent_commit": "c24c4c981439cd5c198c5f6d546c1a1a633d15f4",
+    "parent_commit": "ee2faf4473c635957068048d233d9a6f6d64270e",
     "checkpoint_commit": "The commit containing this manifest; resolve with git log -1 --format=%H -- docs/audits/source-checkpoint-2026-10-15.json."
   },
   "repositories": [
@@ -70,6 +70,69 @@
       "commit": "2249d7ce23d50f1c6558358236e5d8b509415014",
       "remote": "origin",
       "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-agent-os",
+      "branch": "develop",
+      "commit": "2b708db8621dc24f0d672396c7a82c7859e7e6e1",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-authzen",
+      "branch": "develop",
+      "commit": "4d168931f5fac0ac297d1997c7c5dd39bb37395f",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-database-migrations",
+      "branch": "develop",
+      "commit": "b15abe2cf365915cf77d2b5ab77e7bb2c064ccbc",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-decision-engine",
+      "branch": "develop",
+      "commit": "b1af1b0812bce0b1a854e7beeb50c6b5ed76c89c",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-jpa",
+      "branch": "develop",
+      "commit": "32b04332871e8ef4b3911150b6891aadc0896814",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-nlp",
+      "branch": "develop",
+      "commit": "3da2517a804631644c7fc584da030971b8a86dfe",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-object-storage",
+      "branch": "develop",
+      "commit": "4059e24d7f4f6dd87f48e2d95f96fa00f3a34133",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-platform-operations",
+      "branch": "develop",
+      "commit": "dfe2127da47a77e82149017ea8cf7496abcb38b6",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-presentation-system",
+      "branch": "develop",
+      "commit": "12d489e492e4f47b75a79af82c777e68386a1711",
+      "remote": "origin",
+      "pushed": true
     }
   ],
   "verification": {
@@ -93,5 +156,32 @@
     "Upstream DocLang valid/invalid XML fixtures retain their original whitespace.",
     "Archived FOWF Markdown retains intentional two-space hard line breaks."
   ],
-  "release_status": "Source checkpoint only; repaired FEI images and live deployed acceptance are still required before production promotion."
+  "release_status": "Source checkpoint only; repaired FEI images and live deployed acceptance are still required before production promotion.",
+  "repository_scope": "All 16 repositories listed in reactor.xml, plus env, helm-charts and openworkflow-k8s-setup.",
+  "unrelated_checkout_excluded": {
+    "repository": "livy",
+    "reason": "Not listed in the compatibility reactor; its configured remote is Apache upstream, not a ForwardMeasure fork."
+  },
+  "existing_secondary_checkout": {
+    "repository": "forwardmeasure-openworkflow-events",
+    "reason": "Alternate checkout of the FOWF remote; its current HEAD is already an ancestor of the pushed rehabilitation/fowf-completion checkpoint."
+  },
+  "reactor_repositories": [
+    "forwardmeasure-platform",
+    "forwardmeasure-presentation-system",
+    "forwardmeasure-testcontainers",
+    "forwardmeasure-database-migrations",
+    "forwardmeasure-jpa",
+    "forwardmeasure-object-storage",
+    "forwardmeasure-document-intelligence",
+    "forwardmeasure-nlp",
+    "forwardmeasure-entity-matching",
+    "forwardmeasure-data-streaming",
+    "forwardmeasure-authzen",
+    "forwardmeasure-openworkflow",
+    "forwardmeasure-decision-engine",
+    "forwardmeasure-agent-os",
+    "forwardmeasure-entity-intelligence",
+    "forwardmeasure-platform-operations"
+  ]
 }
