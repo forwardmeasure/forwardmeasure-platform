@@ -125,6 +125,9 @@ platform:
     runtimeRoles:
       decisionEngine: decision_engine
       entityIntelligence: entityintelligence
+      # forwardmeasure-data-streaming's continuous Pekko workers: its journal schema in each tenant
+      # database (data-streaming-migrations).
+      dataStreaming: datastreaming
   identity:
     realm: {{ $keycloakRealm }}
     # The org-wide public client every product's organization/tenant-claim verification points at.
@@ -285,6 +288,9 @@ platform:
     # decision-engine's server credentials: username/password of its runtime role plus
     # db-cloud-sql-instance for its Cloud SQL Auth Proxy sidecar (one Secret, both consumers).
     decisionEngineDatabase: decision-engine-database-credentials
+    # data-streaming's journal credentials: password of its runtime role plus db-cloud-sql-instance
+    # for the Cloud SQL Auth Proxy sidecar beside each continuous Pekko worker.
+    dataStreamingDatabase: data-streaming-database-credentials
     # The shared Valkey's password (its single default ACL user), for decision-engine's fact window.
     decisionEngineValkey: decision-engine-valkey-auth
   endpoints:

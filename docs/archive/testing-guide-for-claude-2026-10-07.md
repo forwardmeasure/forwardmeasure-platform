@@ -638,13 +638,13 @@ caught the missing enrichment. The focused Spark/Kafka regression must read the 
 not a readback mapping that drops assertion fields itself. Verify both input orders, retention of
 distinct lower-trust assertions, removal of exact duplicates and unchanged scalar trust precedence.
 
-State Street's public API scenario then found a production LocalDate conversion failure that older
+the customer master's public API scenario then found a production LocalDate conversion failure that older
 direct tests concealed by installing JavaTimeModule in their own mapper. Never assume framework
 mapper defaults when a deployment supplies a custom producer: inspect the actual producer and
 worker bootstrap. The shared resolution sink now owns a configured copy; the wire regression uses
 both ISO strings and LocalDate values with an otherwise bare mapper and the real generated HTTP
 client. It asserts the emitted date string and that the caller's mapper is unchanged. This HTTP
-protocol fixture does not claim authorization or persistence; the complete State Street API test
+protocol fixture does not claim authorization or persistence; the complete Customer Master API test
 must also verify stored typed dates, identifiers, addresses and all provider fields across frameworks.
 
 

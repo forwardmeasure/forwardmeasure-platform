@@ -83,7 +83,7 @@ secretStore:
     # The OpenSearch cluster's root CA certificate - published here by the opensearch-cluster
     # release (PushSecret), read by its clients through platform-secrets.
     openSearchRootCaCertificate: platform-opensearch-root-ca-certificate
-    # FEI ingestion's storage configuration JSON (FEI_INGESTION_STORAGE_CONFIG, key config.json). No
+    # FEI ingestion's storage configuration JSON (ENTITY_INTELLIGENCE_INGESTION_STORAGE_CONFIG, key config.json). No
     # credentials on GKE (GCS via Workload Identity); a store entry so S3-style keys stay deliverable.
     entityIntelligenceIngestionStorageConfig: platform-entity-intelligence-ingestion-storage-config
     huggingFaceToken: platform-huggingface-token

@@ -1,0 +1,30 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ForwardMeasure Shared Entity Kind",
+    "version": "1.0.0",
+    "license": {
+      "name": "Apache License, Version 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+    }
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "EntityKind": {
+        "type": "string",
+        "description": "The fundamental kind of real-world thing being resolved. This is the sole canonical entity discriminator; source taxonomies, legal forms, industries, investigative roles, and screening categories are modelled separately as classifications or relationships. unknown is permitted while resolving a candidate, but a canonical resolved entity MUST have a concrete kind.",
+        "enum": [
+          "person",
+          "organization",
+          "trust",
+          "location",
+          "physical_asset",
+          "account",
+          "digital_identity",
+          "unknown"
+        ]
+      }
+    }
+  }
+}

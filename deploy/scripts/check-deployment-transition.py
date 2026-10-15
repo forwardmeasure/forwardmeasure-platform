@@ -65,7 +65,8 @@ def main():
     errors = violations(selection, releases, previous)
     if errors:
         sys.exit("Deployment transition blocked:\n- " + "\n- ".join(errors)
-                 + "\nFollow docs/deployment-configuration-and-cutover.md; no automatic state migration is performed.")
+                 + "\nFollow the namespace cutover in docs/technical-vision.md, section 5.4;"
+                 + " no automatic state migration is performed.")
     print("Deployment transition preflight passed")
 
 

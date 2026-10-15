@@ -6,8 +6,8 @@
 # prohibited without the prior written permission of
 # ForwardMeasure, Inc.
 
-# State Street customer master -> FEI SourceOfTruthRecord resolution assertions.
-# Source: state-street-customer-master-source-schema-v1.yaml in this artifact.
+# customer master -> FEI SourceOfTruthRecord resolution assertions.
+# Source: customer-master-source-schema-v1.yaml in this artifact.
 # Screening/OpenSearch mappings are a different destination contract; this is not one.
 # Explicit resolution semantics; source strings also survive in the source_data JSON assertion.
 target: schema://source-of-truth/1.0
@@ -83,7 +83,7 @@ fields:
   - target: assertions
     repeated: true
     metadata:
-      key: business_entity_record_id@STATE_STREET_CUSTOMER_MASTER
+      key: business_entity_record_id@CUSTOMER_MASTER
     transform: customer_master_record_id
     inputs:
       value: BUSINESS_ENTITY_RECORD_ID
@@ -91,10 +91,10 @@ fields:
   - target: assertions
     repeated: true
     metadata:
-      key: kyc_id@STATE_STREET_CUSTOMER_MASTER
+      key: kyc_id@CUSTOMER_MASTER
     transform: customer_master_kyc_id
     inputs:
-      value: GEMS_ID
+      value: KYC_ID
     optional: true
 
   # 3 structured location blocks, fixed key per position (registered/mailing/other), mirroring

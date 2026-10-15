@@ -14,8 +14,8 @@
   <parent><groupId>com.forwardmeasure.platform</groupId><artifactId>forwardmeasure-platform</artifactId><version>1.1.0</version></parent>
   <artifactId>forwardmeasure-platform-api-contracts</artifactId>
   <name>ForwardMeasure Platform :: Shared API Contracts</name>
-  <description>Authoritative versioned RFC 9457 schema and its generated Java models.
-    The established model package is retained for source and binary compatibility; ownership
+  <description>Authoritative versioned shared schemas (RFC 9457 Problem, EntityKind) and their generated Java models.
+    Problem keeps its established model package for source and binary compatibility; ownership
     and dependency direction are platform-neutral.</description>
   <dependencies>
     <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-annotations</artifactId></dependency>
@@ -26,6 +26,8 @@
     <dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency>
     <dependency><groupId>com.networknt</groupId><artifactId>json-schema-validator</artifactId><scope>test</scope></dependency>
     <dependency><groupId>com.fasterxml.jackson.dataformat</groupId><artifactId>jackson-dataformat-yaml</artifactId><scope>test</scope></dependency>
+    <!-- EntityKindContractTest: the resolution output contract must list the generated EntityKind. -->
+    <dependency><groupId>com.forwardmeasure.platform</groupId><artifactId>forwardmeasure-platform-data-contracts</artifactId><scope>test</scope></dependency>
   </dependencies>
   <build><plugins>
     <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId>
@@ -49,6 +51,26 @@
             <invokerPackage>com.forwardmeasure.platform.api.client</invokerPackage>
             <useJakartaEe>true</useJakartaEe><serializableModel>true</serializableModel>
             <sortModelPropertiesByRequiredFlag>true</sortModelPropertiesByRequiredFlag><openApiNullable>false</openApiNullable>
+            <useBeanValidation>true</useBeanValidation><library>native</library><serializationLibrary>jackson</serializationLibrary>
+            <dateLibrary>java8</dateLibrary><withXml>false</withXml><sourceFolder>src/main/java</sourceFolder>
+            <hideGenerationTimestamp>true</hideGenerationTimestamp>
+          </configOptions>
+        </configuration>
+      </execution>
+      <!-- The canonical EntityKind every product uses: FEI maps its API schema to this class,
+           entity-matching and FDS use it directly. A neutral package - no legacy name to keep. -->
+      <execution><id>generate-entity-kind-model</id><phase>generate-sources</phase><goals><goal>generate</goal></goals>
+        <configuration>
+          <inputSpec>${project.basedir}/src/main/resources/META-INF/forwardmeasure/openapi/entity-kind-v1.json</inputSpec>
+          <generatorName>java</generatorName><generateApis>false</generateApis><generateModels>true</generateModels>
+          <generateSupportingFiles>false</generateSupportingFiles>
+          <generateApiTests>false</generateApiTests><generateModelTests>false</generateModelTests>
+          <generateApiDocumentation>false</generateApiDocumentation><generateModelDocumentation>false</generateModelDocumentation>
+          <configOptions>
+            <modelPackage>com.forwardmeasure.platform.api.model</modelPackage>
+            <invokerPackage>com.forwardmeasure.platform.api.client</invokerPackage>
+            <useJakartaEe>true</useJakartaEe><serializableModel>true</serializableModel>
+            <openApiNullable>false</openApiNullable>
             <useBeanValidation>true</useBeanValidation><library>native</library><serializationLibrary>jackson</serializationLibrary>
             <dateLibrary>java8</dateLibrary><withXml>false</withXml><sourceFolder>src/main/java</sourceFolder>
             <hideGenerationTimestamp>true</hideGenerationTimestamp>

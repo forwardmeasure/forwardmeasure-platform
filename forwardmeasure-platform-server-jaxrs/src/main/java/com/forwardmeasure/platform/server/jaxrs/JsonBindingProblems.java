@@ -62,6 +62,14 @@ public final class JsonBindingProblems {
   }
 
   public static Problem problem(JsonProcessingException exception) {
+    UnrecognizedPropertyException wrapped = wrappedUnknownField(exception);
+    if (wrapped != null) {
+      String field =
+          exception instanceof JsonMappingException mapping && !mapping.getPath().isEmpty()
+              ? field(mapping.getPath())
+              : wrapped.getPropertyName();
+      return single(field, RequestProblems.UNKNOWN_FIELD);
+    }
     if (!isRequestFault(exception)) {
       return new Problem()
           .type("about:blank")
@@ -106,6 +114,21 @@ public final class JsonBindingProblems {
         && refused.getMessage() != null
         && ARGUMENT_NAME.matcher(refused.getMessage()).matches()) {
       return refused.getMessage();
+    }
+    return null;
+  }
+
+  /**
+   * An unknown field a model rejected itself - a closed schema's {@code @JsonAnySetter} throwing
+   * {@link UnrecognizedPropertyException} - which Jackson rethrows wrapped, without the parser, so
+   * {@link #isRequestFault} alone would call it the server's fault. Null otherwise.
+   */
+  private static UnrecognizedPropertyException wrappedUnknownField(
+      JsonProcessingException exception) {
+    if (exception instanceof UnrecognizedPropertyException) return null;
+    for (Throwable cause = exception.getCause(); cause != null; cause = cause.getCause()) {
+      if (cause instanceof UnrecognizedPropertyException unknown) return unknown;
+      if (cause == cause.getCause()) break;
     }
     return null;
   }

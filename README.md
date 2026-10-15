@@ -6,7 +6,7 @@ ForwardMeasure components. Platform Operations owns the cross-component
 operational API, dashboard source and Keycloak theme.
 
 The Java parent and BOM adoption pattern is documented in
-[`docs/java-build-platform.md`](docs/java-build-platform.md).
+[`docs/technical-vision.md`, section 22](docs/technical-vision.md#22-versions-and-the-build).
 
 ## Artifact compatibility
 

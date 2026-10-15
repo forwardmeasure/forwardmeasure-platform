@@ -107,6 +107,20 @@ class JsonBindingProblemsTest {
   }
 
   @Test
+  void anUnknownFieldAClosedModelRejectsIsTheClientsFault() {
+    JsonProcessingException failure =
+        assertThrows(
+            JsonProcessingException.class,
+            () -> SERVER_MAPPER.readValue("{\"name\":\"a\",\"extra\":1}", Closed.class));
+
+    Problem problem = JsonBindingProblems.problem(failure);
+
+    assertEquals(400, problem.getStatus());
+    assertEquals("extra", problem.getViolations().getFirst().getField());
+    assertEquals(RequestProblems.UNKNOWN_FIELD, problem.getViolations().getFirst().getMessage());
+  }
+
+  @Test
   void aModelJacksonCannotBindIsTheServersFaultNotTheClients() {
     JsonProcessingException failure =
         assertThrows(
@@ -126,6 +140,18 @@ class JsonBindingProblemsTest {
             () -> SERVER_MAPPER.writeValueAsString(new Unwritable()));
 
     assertEquals(500, JsonBindingProblems.problem(failure).getStatus());
+  }
+
+  /** A closed schema, as FEI's generated models reject what they don't declare. */
+  static final class Closed {
+    public String name;
+
+    @com.fasterxml.jackson.annotation.JsonAnySetter
+    void reject(String field, Object value)
+        throws com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException {
+      throw new com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException(
+          null, "Unrecognized field \"" + field + "\"", null, Closed.class, field, null);
+    }
   }
 
   /** Two creators - Jackson can't choose, a fault in the model rather than the request. */

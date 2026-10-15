@@ -173,7 +173,7 @@ secrets:
       - {secretKey: username, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchUsername | quote }} }
       - {secretKey: password, remoteKey: {{ .Values.secretStore.remoteKeys.openSearchPassword | quote }} }
   # FEI ingestion storage configuration (2026-10-08). The ingestion service and its dispatched source
-  # Jobs read key config.json as FEI_INGESTION_STORAGE_CONFIG; the name is fixed by FEI's
+  # Jobs read key config.json as ENTITY_INTELLIGENCE_INGESTION_STORAGE_CONFIG; the name is fixed by FEI's
   # entity-intelligence-services release and its ingestion workflow definitions.
   - name: entity-intelligence-ingestion-storage
     enabled: true
@@ -232,6 +232,12 @@ secrets:
       # key that Job's pod cannot start (non-optional secretKeyRef).
       {{- if and .Values.platform.products.decisionEngine.enabled (dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values) }}
       - {secretKey: DECISION_ENGINE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values | quote }} }
+      {{- end }}
+      # data-streaming's own runtime role (datastreaming) - its Pekko journal lives in each tenant
+      # database (schema data_streaming); forwardmeasure-openworkflow's data-streaming-migrations
+      # release creates/rotates the role with this password and grants it tenant_registry read.
+      {{- if (dig "secretStore" "remoteKeys" "dataStreamingRuntimeDatabasePassword" "" .Values) }}
+      - {secretKey: DATA_STREAMING_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingRuntimeDatabasePassword" "" .Values | quote }} }
       {{- end }}
   - name: huggingface-token
     enabled: true
@@ -304,6 +310,22 @@ secrets:
       {{- end }}
     remoteRefs:
       - {secretKey: password, remoteKey: {{ dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values | quote }} }
+  {{- end }}
+  # data-streaming's journal credentials, in its own namespace - same shape as decision-engine's
+  # above: the datastreaming runtime role's password plus db-cloud-sql-instance for the Cloud SQL
+  # Auth Proxy sidecar fowf runs beside each continuous Pekko worker.
+  {{- if (dig "secretStore" "remoteKeys" "dataStreamingRuntimeDatabasePassword" "" .Values) }}
+  - name: {{ .Values.platform.secrets.dataStreamingDatabase }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.dataStreaming }}]
+    templateData:
+      username: {{ .Values.platform.databases.runtimeRoles.dataStreaming | quote }}
+      password: '{{ "{{ .password }}" }}'
+      {{- with (dig "platform" "cloud" "gcp" "cloudSql" "instanceConnectionName" "" .Values) }}
+      db-cloud-sql-instance: {{ . | quote }}
+      {{- end }}
+    remoteRefs:
+      - {secretKey: password, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingRuntimeDatabasePassword" "" .Values | quote }} }
   {{- end }}
   # Per-tenant workflow-call secrets (call:http/call:openapi/call:grpc/call:asyncapi/etc.
   # `authentication:` blocks) - consumed by forwardmeasure-openworkflow's DirectorySecretProvider via

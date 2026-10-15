@@ -20,7 +20,7 @@ At the stop checkpoint, the worker/wire continuation had finished with exit 0; t
 |---|---|---|
 | FOWF basic runtime matrix | 9/9 cells passed | Recorded images |
 | FOWF overflow matrix | 9/9 cells, 54 scenarios passed | Recorded images |
-| FEI complete runtime matrix | 9/9 cells: Quarkus/Spring/Micronaut × Kafka/PostgreSQL, Pekko/PostgreSQL, Pekko/Cassandra | WorldCheck ingestion/screening, request overrides, two-tenant full/delta, simple/correlated resolution, State Street persistence; recorded images |
+| FEI complete runtime matrix | 9/9 cells: Quarkus/Spring/Micronaut × Kafka/PostgreSQL, Pekko/PostgreSQL, Pekko/Cassandra | WorldCheck ingestion/screening, request overrides, two-tenant full/delta, simple/correlated resolution, Customer Master persistence; recorded images |
 | FDS runtime matrices | 39/39 cells, 57 tests; 13 cells per framework | Direct, bounded and continuous flows; recorded images |
 | FDE runtime matrices | 15/15 cells | Nine workflow combinations plus six framework × embedded/external Valkey deployment cells |
 | Full WorldCheck file | 5,611,953,182 bytes; 5,818,856 rows; API through Quarkus/Pekko/PostgreSQL to OpenSearch READY, zero rejects | One full-export execution, about 14m08s; not an executed 100 GB or TB benchmark |
@@ -156,7 +156,7 @@ Existing fixes are not an excuse to claim the complete test program is finished:
 
 Those documents specify bounded dependency compilation, selected leaf image packaging/push, matching tag/digest updates, Helmfile diff and rollout/readiness checks. They are instructions for a later authorized action, not actions taken while stopped. Do not do an unnecessary full rebuild or clear `.m2`.
 
-Canonical WorldCheck/State Street contracts live in platform `forwardmeasure-platform-data-contracts/src/main/resources/contracts/`: `worldcheck-source-v1.json`, `worldcheck-mapping-v1.json`, `screening-document-v1.json`, `state-street-customer-master-source-v1.yaml`, `state-street-customer-master-resolution-mapping-v1.yaml`, and `opensearch/` mappings. Preserve shared versioned screening fields, all raw fields under `source_data`, explicit indexing of selected raw fields, and request parsing overrides. Do not create competing copies or edit generated Java directly.
+Canonical WorldCheck/Customer Master contracts live in platform `forwardmeasure-platform-data-contracts/src/main/resources/contracts/`: `worldcheck-source-v1.json`, `worldcheck-mapping-v1.json`, `screening-document-v1.json`, `customer-master-source-v1.yaml`, `customer-master-resolution-mapping-v1.yaml`, and `opensearch/` mappings. Preserve shared versioned screening fields, all raw fields under `source_data`, explicit indexing of selected raw fields, and request parsing overrides. Do not create competing copies or edit generated Java directly.
 
 ## Suggested first steps if the user explicitly resumes
 

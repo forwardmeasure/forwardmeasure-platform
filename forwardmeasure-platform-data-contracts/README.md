@@ -17,7 +17,7 @@ superseded filenames. Update configured contract URIs when adopting these names.
 | Purpose | Source schema | Mapping | Destination / index |
 |---|---|---|---|
 | WorldCheck screening | `contracts/worldcheck-source-schema-v1.yaml` | `contracts/worldcheck-opensearch-mapping-v1.yaml` | `contracts/screening-document-schema-v1.yaml`; `opensearch/reference-population-index-mapping.json` |
-| State Street customer master, resolution assertions | `contracts/state-street-customer-master-source-schema-v1.yaml` | `contracts/state-street-customer-master-resolved-entity-mapping-v1.yaml` | `contracts/resolved-entity-record-schema-v1.yaml` (the standard resolution target); FEI resolution service persistence |
+| customer master, resolution assertions | `contracts/customer-master-source-schema-v1.yaml` | `contracts/customer-master-resolved-entity-mapping-v1.yaml` | `contracts/resolved-entity-record-schema-v1.yaml` (the standard resolution target); FEI resolution service persistence |
 | WorldCheck explicit vendor-field search override | Same source and mapping | Same mapping | `opensearch/worldcheck-index-v1.json`: additionally indexes `source_data.UPDATE CATEGORY` as keyword |
 
 The default index stores unmapped `source_data` fields without indexing them. The override is an
@@ -34,7 +34,7 @@ The ledger records blank/invalid handling, duplicate headers, unknown entity typ
 matching limits and snapshot compatibility. Current execution evidence lives in the FEI repair handover.
 
 Full-file streaming/size limits and the complete framework/engine matrix remain open. The current
-State Street destination is resolution, not a second screening schema. Future screening mappings
+Customer Master destination is resolution, not a second screening schema. Future screening mappings
 must reuse this source contract and explicitly declare their different destination.
 
 FDS's `forwardmeasure-data-streaming-test-fixtures` retains historical flat-target engine fixtures.
@@ -55,7 +55,7 @@ new classpath resource names require rebuilding the consuming images.
 
 The canonical document schema is now `classpath:/contracts/screening-document-schema-v1.yaml`;
 its parsed validation rules and schema ID are unchanged by the YAML conversion. The index mapping
-remains `classpath:/opensearch/reference-population-index-mapping.json`. For State Street,
+remains `classpath:/opensearch/reference-population-index-mapping.json`. For Customer Master,
 use the source and resolution mapping paths from the table with `classpath:/` for bundled resources,
 or publish those same files to an approved HTTP/object-storage location and use the resulting URIs.
 The API freezes admitted contract bytes; do not mutate historical admitted snapshots or migrations.
@@ -81,7 +81,7 @@ fields into JSON Schema `type: [string, "null"]`. Optional fields may be absent 
 CATEGORY remain required nonempty strings. E/I accepts E, M, F, U and I plus blank/null for an
 unspecified value; unknown nonempty codes now fail source validation. No restrictive CATEGORY enum
 or single-URI constraint is imposed on provider vocabulary or multi-URL cells. The mapping's parsed
-rule structure is unchanged by the YAML conversion. Both State Street resources already use YAML:
+rule structure is unchanged by the YAML conversion. Both Customer Master resources already use YAML:
 the source contract embeds JSON Schema 2020-12, while the resolution mapping is FDS TransformSpec.
 
 When changing destinations, update the destination schema, provider mapping, index/query consumers
@@ -91,7 +91,7 @@ Do not infer all-framework or full-export readiness from compilation or the pack
 ## October 12 YAML conversion verification
 
 The supplied ten-record WorldCheck sample passes the revised source JSON Schema. The YAML mapping
-parses to exactly the previous JSON mapping structure; both State Street documents retain their
+parses to exactly the previous JSON mapping structure; both Customer Master documents retain their
 parsed content. The packaged contracts and generated FEI acceptance resources match the canonical
 YAML bytes, and the contracts JAR contains neither superseded WorldCheck JSON resource.
 

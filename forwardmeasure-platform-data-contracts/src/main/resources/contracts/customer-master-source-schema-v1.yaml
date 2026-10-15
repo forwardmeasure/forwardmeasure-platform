@@ -6,7 +6,7 @@
 # prohibited without the prior written permission of
 # ForwardMeasure, Inc.
 #
-# State Street customer master -> FEI resolution assertions. JSON Schema 2020-12 in YAML.
+# customer master -> FEI resolution assertions. JSON Schema 2020-12 in YAML.
 # output_schema below is the platform resolution target (resolved-entity-record-schema-v1.yaml)
 # and must stay identical to it; admission validates mappings against the target itself.
 # This contract replaces the unused documentation-only schema. Raw source strings are
@@ -29,8 +29,8 @@ source_schema:
   required: [ENTITYS_UNIQUE_ID, ENTITYS_FULL_NAME, ENTITYS_TYPE]
   properties:
     ENTITYS_UNIQUE_ID: { type: string, minLength: 1 }
-    BUSINESS_ENTITY_RECORD_ID: { type: string, description: Domain-scoped business_entity_record_id@STATE_STREET_CUSTOMER_MASTER identifier. }
-    GEMS_ID: { type: string, description: Domain-scoped kyc_id@STATE_STREET_CUSTOMER_MASTER identifier. }
+    BUSINESS_ENTITY_RECORD_ID: { type: string, description: Domain-scoped business_entity_record_id@CUSTOMER_MASTER identifier. }
+    KYC_ID: { type: string, description: Domain-scoped kyc_id@CUSTOMER_MASTER identifier. }
     ENTITYS_FULL_NAME: { type: string, description: Mapped to display_name. }
     ENTITY_PREFIX: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
     ENTITY_FIRST_NAME: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
@@ -76,7 +76,7 @@ output_schema:
   required: [uid, entity_kind, display_name]
   properties:
     uid: {type: string, minLength: 1}
-    entity_kind: {type: string, enum: [person, organization]}
+    entity_kind: {type: string, enum: [person, organization, trust, location, physical_asset, account, digital_identity]}
     display_name: {type: string, minLength: 1}
     primary_jurisdiction: {type: [string, 'null']}
     assertions:

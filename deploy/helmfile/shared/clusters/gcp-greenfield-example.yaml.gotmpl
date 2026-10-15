@@ -34,6 +34,7 @@
 # "entity-intelligence".
 {{- $entityIntelligenceServiceAccount := "entity-intelligence@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $decisionEngineServiceAccount := "decision-engine@forwardmeasure-production.iam.gserviceaccount.com" }}
+{{- $dataStreamingServiceAccount := "data-streaming@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "example-bank" "displayName" "Example Bank") }}
 platform:
   domain: {{ $domain | quote }}
@@ -77,6 +78,8 @@ platform:
         instanceConnectionName: {{ printf "%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
       decisionEngine:
         serviceAccount: {{ $decisionEngineServiceAccount | quote }}
+      dataStreaming:
+        serviceAccount: {{ $dataStreamingServiceAccount | quote }}
       entityIntelligence:
         serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
         # Set from the entity-intelligence entry of the OpenTofu bucket_names output.

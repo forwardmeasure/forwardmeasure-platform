@@ -8,7 +8,7 @@ are derived artifacts, not independent sources to edit.
 | Contract family | Authoritative owner | Consumers / boundary |
 |---|---|---|
 | Shared RFC 9457 `Problem` and `Violation` | `forwardmeasure-platform-api-contracts/src/main/resources/META-INF/forwardmeasure/openapi/problem-v1.json` | Platform error handlers; FEI, FDS and FOWF published API snapshots and generated bindings |
-| WorldCheck and State Street source definitions, mapping definitions, canonical screening destination and indexes | `forwardmeasure-platform-data-contracts/src/main/resources`; `contracts/catalog.json` | FEI via worker-common; FDS source-compatibility tests directly; generic runtime engines consume admitted mapping inputs |
+| WorldCheck and Customer Master source definitions, mapping definitions, canonical screening destination and indexes | `forwardmeasure-platform-data-contracts/src/main/resources`; `contracts/catalog.json` | FEI via worker-common; FDS source-compatibility tests directly; generic runtime engines consume admitted mapping inputs |
 | FDS IngestionSpec, launcher API, worker AsyncAPI, merge policy and ingestion/stop workflows | `forwardmeasure-data-streaming-api/src/main/resources` | FDS bindings and FOWF operation/workflow publication; no vendor-specific replacement schema |
 | FEI public API, domain value types and worker AsyncAPI | `forwardmeasure-entity-intelligence-api-specifications/src/main/resources` | Generated clients/models and three framework endpoints |
 | FOWF definition/execution/engine/human-task/tenant APIs | `openworkflow-api-specifications/src/main/resources/META-INF/openapi` | Generated bindings and workflow publication |
@@ -73,8 +73,8 @@ must not become newly published FEI canonical mappings. Where several transport 
 the same field rules, a later fixture composition change should remove that repetition while
 preserving independently specified expected outputs.
 
-At this initial ownership audit, WorldCheck and State Street semantics and large-file ingestion
-were incomplete. Subsequent repairs centralized the 35-field WorldCheck and 42-field State Street
+At this initial ownership audit, WorldCheck and Customer Master semantics and large-file ingestion
+were incomplete. Subsequent repairs centralized the 35-field WorldCheck and 42-field Customer Master
 dispositions and mappings; see FEI's repair handover for their exact semantic evidence. The later
 full WorldCheck export acceptance processed 5,611,953,182 bytes and 5,818,856 records through the
 real API and worker into OpenSearch. That full-file result supersedes the old acquisition and

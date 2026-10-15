@@ -330,6 +330,14 @@ variable "workload_service_accounts" {
       # by its Cloud SQL Auth Proxy sidecar.
       workload_identity_members = ["decision-engine/decision-engine"]
     }
+    data-streaming = {
+      account_id    = "data-streaming"
+      display_name  = "Data Streaming continuous workers"
+      project_roles = ["roles/cloudsql.client"]
+      # The ServiceAccount fowf runs FDS's continuous Pekko workers as; their Cloud SQL Auth Proxy
+      # sidecar reaches each tenant database's data_streaming journal.
+      workload_identity_members = ["data-streaming/data-streaming-worker"]
+    }
     entity-intelligence = {
       account_id   = "entity-intelligence"
       display_name = "Entity Intelligence workloads"

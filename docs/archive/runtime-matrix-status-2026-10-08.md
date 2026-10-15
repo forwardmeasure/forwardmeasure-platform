@@ -5,7 +5,7 @@
 
 - FOWF basic: **9/9 passed**; overflow: **9/9 passed, 54 scenarios**, on their recorded images.
 - FEI complete cells: **9/9 passed**. Every cell passed WorldCheck/screening, request overrides,
-  two-tenant full/delta, simple/correlated resolution and State Street persistence, with no
+  two-tenant full/delta, simple/correlated resolution and Customer Master persistence, with no
   failures/errors/skips. Evidence: `fei-complete-runtime-evidence-2026-10-09.json`.
 - FDE: **15/15 passed** — nine workflow runtime combinations across Quarkus, Spring and
   Micronaut, Kafka/PostgreSQL, Pekko/PostgreSQL and Pekko/Cassandra, plus six real Helmfile
@@ -190,7 +190,7 @@ the replacement failed with reserved-superuser-slots exhaustion. The failed cell
 The single test database now explicitly permits 200 connections to accommodate all real FOWF/FEI
 services, two tenant pools per service and rolling overlap. Production defaults/images were not
 changed. The fixture compiled in `fei-matrix-capacity-compile.log` (3.667s). The matrix runner now
-accepts a validated `FEI_MATRIX_START_AT=framework/engine/persistence`, skips earlier cells without
+accepts a validated `ENTITY_INTELLIGENCE_MATRIX_START_AT=framework/engine/persistence`, skips earlier cells without
 counting them as new passes, and reports only the selected count. Shell syntax passed. Attempt 13
 resumes at Spring/Pekko/PostgreSQL and will run the five outstanding FEI cells, then FDE/FDS.
 The four earlier complete passes remain valid on the same production images and retain their
@@ -209,7 +209,7 @@ FOWF basic/overflow remain 9/9 each; FDE/FDS matrices follow the FEI runner.
 Quarkus/Pekko/Cassandra passed every family in 618.0s with one test, zero failures/errors/skips.
 FEI is now **3/9 complete cells passed**, covering all three Quarkus runtime combinations.
 WorldCheck/screening, configured overrides, two-tenant full/delta, simple/correlated resolution
-and State Street persisted semantics passed in each. The runner has moved to Spring/Kafka/PostgreSQL.
+and Customer Master persisted semantics passed in each. The runner has moved to Spring/Kafka/PostgreSQL.
 Evidence and image properties are retained in `fei-complete-runtime-evidence-2026-10-09.json`;
 raw Cassandra results are `fei-complete-matrix-12/quarkus-pekko-cassandra.log/.xml`.
 
@@ -226,9 +226,9 @@ this second cell. The runner continues through FEI, then FDE and FDS, with failu
 
 **Quarkus / Kafka Streams / PostgreSQL passed all five families**: WorldCheck ingestion/screening,
 configured parsing overrides, two-tenant full/delta lifecycle, simple/correlated resolution and
-State Street customer master. The complete test executed once with zero failures, errors or skips
+customer master. The complete test executed once with zero failures, errors or skips
 in 437.1s (`fei-complete-matrix-12/quarkus-kafka-streams-postgresql.log/.xml`). This includes real
-persisted assertion union, typed dates/identifiers/addresses and all 42 State Street provider fields.
+persisted assertion union, typed dates/identifiers/addresses and all 42 Customer Master provider fields.
 The date repair is verified through the real API, beyond its focused HTTP protocol regression.
 
 FEI is **1/9 complete cells passed**. The runner advanced automatically to Quarkus/Pekko/PostgreSQL.
@@ -236,11 +236,11 @@ FOWF basic and overflow remain 9/9 each on recorded images; FDE/FDS execution fo
 readable report/log hashes are recorded in the platform `fei-complete-runtime-evidence-2026-10-09.json`.
 Earlier failed attempts below explain the repairs; they are not additional passing cells.
 
-## October 9, 12:44 EDT: correlated REST verification passed; State Street date conversion repaired
+## October 9, 12:44 EDT: correlated REST verification passed; Customer Master date conversion repaired
 
 Attempt 11 passed four of five FEI families, including simple/correlated resolution and cross-tenant
 checks. The REST response now retains the lower-trust source's description, verifying the Spark
-assertion-union repair through real persistence. State Street then failed with a precise worker
+assertion-union repair through real persistence. Customer Master then failed with a precise worker
 error: its mapper could not deserialize `DateValue.value_date` into `LocalDate`. This was missed by
 older direct fixtures that configured Java time support while assuming every worker did likewise.
 The Quarkus simple worker and all three correlated delivery workers actually supplied bare mappers.
@@ -251,7 +251,7 @@ dependency remains version-managed by the platform. Two wire regressions, using 
 client over HTTP, fail before the repair for ISO text and Java LocalDate inputs
 (`fei-resolution-date-before-fix.log/.xml`). Both pass after it; the progress callback regression
 also passes (3 tests, zero failures/errors/skips, `fei-resolution-date-after-fix.log`, 5.921s).
-These are protocol tests, not a substitute for authorized REST persistence. The full State Street
+These are protocol tests, not a substitute for authorized REST persistence. The full Customer Master
 acceptance remains required. Six simple/resolution-delivery worker images built locally as `resolution-dates-20261009-1`,
 including production/test compilation (`fei-resolution-date-worker-images.log`, 49.531s).
 The dependency reactor also rebuilt the unchanged migrations image. Attempt 12 is running with
@@ -693,7 +693,7 @@ The old 27-case count is superseded: count deployment cells and scenario familie
 
 | Suite | Current written scope | Compilation | Runtime evidence still needed |
 | --- | --- | --- | --- |
-| FEI public API | Nine disposable deployments: three frameworks × Kafka Streams, Pekko/PostgreSQL, Pekko/Cassandra. Each complete-cell entrypoint runs WorldCheck ingestion/screening, configured pipelines, two-tenant full/delta lifecycle, simple/correlated resolution, and State Street central-contract ingestion | `fixture-writing-fei-runtime-compile-02.log`, October 9 00:34 EDT | All nine **complete** cells; historical partial Quarkus/Pekko/PostgreSQL passes are retained below |
+| FEI public API | Nine disposable deployments: three frameworks × Kafka Streams, Pekko/PostgreSQL, Pekko/Cassandra. Each complete-cell entrypoint runs WorldCheck ingestion/screening, configured pipelines, two-tenant full/delta lifecycle, simple/correlated resolution, and Customer Master central-contract ingestion | `fixture-writing-fei-runtime-compile-02.log`, October 9 00:34 EDT | All nine **complete** cells; historical partial Quarkus/Pekko/PostgreSQL passes are retained below |
 | FOWF API/recovery | Nine real framework/engine/backend deployments; publication, admission, HTTP effect, authorization/tenancy, idempotency and restart | Shared fixture and three FDS leaves compiled | Nine cells |
 | FOWF overflow | Nine deployments, each with six scenarios: inline, stored response recovery, same-length corruption, missing object, maximum response rejection, real storage write failure | `fixture-writing-fds-overflow-compile-03.log`; FOWF full production/test reactor `fixture-writing-fowf-endpoint-full-compile-02.log` | Nine invocations / 54 scenario executions; neither number is a build count |
 | FDS direct | Twelve real-worker classes across all three frameworks, two providers and two executors; no curl substitute | Three launcher leaves compiled | Current worker execution for each class |
@@ -717,7 +717,7 @@ exist locally. Attempt 01 failed on an empty-registry image name; corrected to `
 No images were published and no operator deployment was changed. The final shared-fixture and
 all-three-launcher compilation passed at 00:42 EDT (`fixture-writing-fds-final-compile.log`).
 
-FEI runner: `scripts/run-public-ingestion-matrix.sh`, with `FEI_IMAGE_TAG` and `FOWF_IMAGE_TAG` set
+FEI runner: `scripts/run-public-ingestion-matrix.sh`, with `ENTITY_INTELLIGENCE_IMAGE_TAG` and `FOWF_IMAGE_TAG` set
 to current local images. It provisions one isolated cell at a time, stops at failure and writes
 per-cell logs plus CSV. Compilation and shell syntax validation passed; the script has not run.
 FOWF shared fixtures accept per-component/framework image overrides such as
@@ -734,7 +734,7 @@ they are not a claim that all their fixtures are written.
 | Work | Written | Compiled | Executed |
 | --- | --- | --- | --- |
 | FEI configured pipeline parsing, replay/conflict, owned status/index | Yes | Yes | Passed 1/1 at 23:06 EDT, before the fixture-first correction |
-| FEI State Street central-contract person/organization ingestion, exact raw/typed assertions | Yes; shared matrix plus disposable two-tenant entrypoint | Yes, `fixture-writing-fei-compile-03.log` | No |
+| FEI Customer Master central-contract person/organization ingestion, exact raw/typed assertions | Yes; shared matrix plus disposable two-tenant entrypoint | Yes, `fixture-writing-fei-compile-03.log` | No |
 | FEI two-tenant lifecycle provisioning | Written for disposable Quarkus/Pekko/PostgreSQL | Yes, `fixture-writing-fei-compile-03.log` | No |
 | FEI all nine self-provisioned runtime deployments | Incomplete | No complete harness | No complete matrix |
 | FEI correlated resolution configuration and real delivery fixture | Written: test-only pipeline configuration, REST source-profile creation, real Spark/Kafka/resolution delivery, two-tenant assertions | Yes, `fixture-writing-fei-compile-03.log` | No |
@@ -744,9 +744,9 @@ they are not a claim that all their fixtures are written.
 | FOWF deployed overflow/fault matrix | Incomplete: packaged GCS storage lacks an emulator endpoint configuration | No complete harness | Existing component evidence only |
 | FDE adapter-to-gRPC and embedded/external Valkey deployment fixtures | Incomplete | No complete harness | Existing framework evidence only |
 
-State Street adds a fourth parameterized FEI scenario; do not continue quoting the old 27-case
+Customer Master adds a fourth parameterized FEI scenario; do not continue quoting the old 27-case
 inventory as the final scope. Its checked-in 42-column person/organization inputs are synthetic,
-and it consumes the central State Street source/mapping contracts. No customer export is copied.
+and it consumes the central Customer Master source/mapping contracts. No customer export is copied.
 FDS direct fixtures now require `fds.acceptance.pekko.image` / `fds.acceptance.kafka-streams.image`
 and import the selected local image through the shared Kubernetes fixture with a real digest.
 They no longer switch to writing a fabricated OpenSearch document when registry credentials are
@@ -841,8 +841,8 @@ Exact methods and assertions:
   failure and preservation of the active baseline.
 - `simpleAndCorrelatedResolutionUseRealApiAndRemainTenantScoped`: source-feed profile creation,
   simple resolution admission, correlated pipeline trigger, workflow completion, resulting entity
-  and assertions, tenant isolation. This uses generic resolution fixtures, not the State Street
-  provider file. Provider-specific State Street public-API verification still needs wiring.
+  and assertions, tenant isolation. This uses generic resolution fixtures, not the customer-master
+  provider file. Provider-specific Customer Master public-API verification still needs wiring.
 
 These are three invocations on each of nine deployments, not 27 separate full builds. The runner
 requires endpoints, fixture hosting, tenant tokens and a preprovisioned correlated pipeline; it does

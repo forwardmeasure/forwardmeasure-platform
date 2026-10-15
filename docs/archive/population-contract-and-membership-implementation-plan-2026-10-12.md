@@ -77,7 +77,7 @@ The following were inspected during the preceding design discussion:
   implemented entity.
 - Candidates already carry source metadata and an optional resolved-entity association. These are
   useful foundations, but do not prove complete population membership or assertion provenance.
-- The State Street provider contract embeds its resolution `output_schema`. A provider-owned file
+- The Customer Master provider contract embeds its resolution `output_schema`. A provider-owned file
   currently supplies that destination definition.
 - Studio exposes independent schema/mapping URI inputs and an optional reference index URI. It does
   not expose the proposed immutable target and versioned input-definition model.
@@ -93,8 +93,8 @@ Canonical platform resources now use these names:
 - `contracts/worldcheck-source-schema-v1.yaml`
 - `contracts/worldcheck-opensearch-mapping-v1.yaml`
 - `contracts/screening-document-schema-v1.yaml`
-- `contracts/state-street-customer-master-source-schema-v1.yaml`
-- `contracts/state-street-customer-master-resolved-entity-mapping-v1.yaml`
+- `contracts/customer-master-source-schema-v1.yaml`
+- `contracts/customer-master-resolved-entity-mapping-v1.yaml`
 
 The WorldCheck transformation filename contains `opensearch`, but its content is an FDS TransformSpec,
 not an OpenSearch index creation body. The standard index body remains
@@ -180,7 +180,7 @@ Supporting arbitrary target semantics would be a separate query architecture pro
 ## 5. Monitored membership, provenance and lifecycle
 
 Introduce a first-class monitored population with a platform-fixed resolution target contract and
-versioned input definitions. Extract the provider-embedded State Street output schema into a shared
+versioned input definitions. Extract the provider-embedded Customer Master output schema into a shared
 resolution target resource; make the source provider-independent with respect to destination ownership.
 Keep the destination record shape compatible with the existing resolution service contract.
 
@@ -346,7 +346,7 @@ and persistence. Use synthetic or approved bounded fixtures with independent exp
 | R6 | Change hosted files/default input after admission; retry/replay retains original effective definitions |
 | R7 | Full activation and delta application preserve target identity; incompatible identity/baseline is rejected |
 | R8 | WorldCheck canonical YAML source/mapping through REST produces expected OpenSearch fields and preserved raw data |
-| R9 | State Street through monitored REST ingestion produces expected resolution records/assertions and membership |
+| R9 | Customer Master through monitored REST ingestion produces expected resolution records/assertions and membership |
 | R10 | Two monitored populations resolve to the same entity; memberships and assertion supports remain distinguishable |
 | R11 | Repeat ingestion with the same idempotency key; no duplicate membership/assertion support or new target |
 | R12 | Remove one support/population or complete a scoped refresh; another support/population/shared entity survives |
@@ -496,7 +496,7 @@ NOT NULL rules are `NOT VALID`; tenants are reset after rollout.
 **Configured pipelines (decision 4).** Every pipeline owns a fixed target; sources name stored
 input versions; triggers copy them and cannot route past the target. Monitored-population pipelines
 use the platform's standard resolution target, `contracts/resolved-entity-record-schema-v1.yaml`
-(extracted from the State Street contract, identical to it), and add an input version only when
+(extracted from the customer-master contract, identical to it), and add an input version only when
 submitted documents change. Correlated sources are now ordered by `sort_order`.
 
 **Transport and integrity (user decisions, October 12).**

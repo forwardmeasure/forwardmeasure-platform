@@ -65,6 +65,13 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>com.forwardmeasure.documentintelligence</groupId>
+        <artifactId>forwardmeasure-document-intelligence-bom</artifactId>
+        <version>${forwardmeasure.documentintelligence.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>com.forwardmeasure.openworkflow</groupId>
         <artifactId>openworkflow-bom</artifactId>
         <version>${forwardmeasure.openworkflow.version}</version>

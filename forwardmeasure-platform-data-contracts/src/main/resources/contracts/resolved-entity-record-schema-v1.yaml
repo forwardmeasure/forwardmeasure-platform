@@ -14,7 +14,9 @@ type: object
 required: [uid, entity_kind, display_name]
 properties:
   uid: {type: string, minLength: 1}
-  entity_kind: {type: string, enum: [person, organization]}
+  # The shared EntityKind (forwardmeasure-platform-api-contracts, entity-kind-v1.json) minus
+  # unknown - a resolved entity has a concrete kind. EntityKindContractTest enforces it.
+  entity_kind: {type: string, enum: [person, organization, trust, location, physical_asset, account, digital_identity]}
   display_name: {type: string, minLength: 1}
   primary_jurisdiction: {type: [string, 'null']}
   assertions:

@@ -24,7 +24,7 @@ New York is on EDT on these dates. The corrected schedule is historical planning
 October 11 functional goals were:
 
 1. Ingest the complete WorldCheck export through Studio and verify persisted/indexed output.
-2. Ingest the State Street customer master through Studio and inspect entities/assertions.
+2. Ingest the customer master through Studio and inspect entities/assertions.
 3. Screen the entire customer master against WorldCheck.
 4. Screen an arbitrary entity against WorldCheck.
 5. Screen an existing resolved entity against WorldCheck.

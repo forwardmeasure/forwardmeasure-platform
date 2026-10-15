@@ -58,6 +58,7 @@
     <forwardmeasure.database-migrations.version>1.1.0</forwardmeasure.database-migrations.version>
     <forwardmeasure.jpa.version>1.1.0</forwardmeasure.jpa.version>
     <forwardmeasure.objectstorage.version>1.1.0</forwardmeasure.objectstorage.version>
+    <forwardmeasure.documentintelligence.version>1.1.0</forwardmeasure.documentintelligence.version>
     <forwardmeasure.openworkflow.version>1.1.0</forwardmeasure.openworkflow.version>
     <forwardmeasure.nlp.version>1.1.0</forwardmeasure.nlp.version>
     <forwardmeasure.platform-operations.version>1.1.0</forwardmeasure.platform-operations.version>
@@ -151,6 +152,8 @@
     <jnr-constants.version>0.10.4</jnr-constants.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-text.version>1.15.0</commons-text.version>
+    <saxon.version>13.0</saxon.version>
+    <commons-compress.version>1.28.0</commons-compress.version>
     <icu4j.version>78.3</icu4j.version>
     <forwardmeasure.entitymatching.version>1.1.0</forwardmeasure.entitymatching.version>
     <jayway-json-path.version>3.0.0</jayway-json-path.version>
@@ -792,6 +795,16 @@
         <version>${httpclient5.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>${commons-compress.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.saxon</groupId>
+        <artifactId>Saxon-HE</artifactId>
+        <version>${saxon.version}</version>
+      </dependency>
+      <dependency>
         <groupId>io.apicurio</groupId>
         <artifactId>apicurio-registry-java-sdk</artifactId>
         <version>${apicurio-registry.version}</version>
@@ -1027,6 +1040,16 @@
       </dependency>
       <dependency>
         <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-source-readers</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-loader</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
         <artifactId>forwardmeasure-data-streaming-test-fixtures</artifactId>
         <version>${forwardmeasure.datastreaming.version}</version>
       </dependency>
@@ -1119,6 +1142,13 @@
       <dependency>
         <groupId>com.forwardmeasure.openworkflow</groupId>
         <artifactId>openworkflow-kubernetes-job-lifecycle</artifactId>
+        <version>${forwardmeasure.openworkflow.version}</version>
+      </dependency>
+      <dependency>
+        <!-- Tenant database/role provisioning and Cassandra changelog application, shared by
+             every product's migrations image (forwardmeasure-data-streaming-migrations). -->
+        <groupId>com.forwardmeasure.openworkflow</groupId>
+        <artifactId>openworkflow-migration</artifactId>
         <version>${forwardmeasure.openworkflow.version}</version>
       </dependency>
       <dependency>

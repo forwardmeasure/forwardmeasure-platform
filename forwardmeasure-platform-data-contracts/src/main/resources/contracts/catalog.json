@@ -10,9 +10,9 @@
       "status": "bounded-semantics-validated-runtime-matrix-pending"
     },
     {
-      "id": "state-street-customer-master-resolution-v1",
-      "source": "contracts/state-street-customer-master-source-schema-v1.yaml",
-      "mapping": "contracts/state-street-customer-master-resolved-entity-mapping-v1.yaml",
+      "id": "customer-master-resolution-v1",
+      "source": "contracts/customer-master-source-schema-v1.yaml",
+      "mapping": "contracts/customer-master-resolved-entity-mapping-v1.yaml",
       "destination": "contracts/resolved-entity-record-schema-v1.yaml",
       "status": "bounded-semantics-validated-runtime-matrix-pending"
     }

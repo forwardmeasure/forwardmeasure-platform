@@ -9,7 +9,7 @@ to the `forwardmeasure-platform` release train.
 
 This is the authoritative consolidation of the screening, OpenSearch,
 reference-population ingestion, Spark-runtime, and result-retrieval work proven
-during the State Street entity-resolution POV.
+during the customer-master entity-resolution POV.
 
 The repositories have different responsibilities:
 
@@ -473,9 +473,9 @@ strong candidates while preserving the prior 316 Firco hits.
 Detailed evidence remains in:
 
 ```text
-/home/pn/Documents/code/workfusion/implementations/state-street-er-pov/
+(customer proof-of-value repository)
 screening-results-run6-detailed-analysis.md
-/home/pn/Documents/code/workfusion/implementations/state-street-er-pov/
+(customer proof-of-value repository)
 screening_results/firco_coverage_run6/remaining-15-reconciliation.csv
 ```
 
@@ -883,7 +883,7 @@ for the original failure analysis.
 The run-7 assessment is complete at:
 
 ```text
-/home/pn/Documents/code/workfusion/implementations/state-street-er-pov/
+(customer proof-of-value repository)
 screening-results-run7-detailed-analysis.md
 ```
 
@@ -1188,11 +1188,11 @@ These five are upstream input-coverage omissions, not OpenSearch or Java
 matching failures. The final production report must preserve that distinction
 and must not silently include them in a matcher false-negative denominator.
 
-Presentation-ready acceptance material is available alongside the State Street
+Presentation-ready acceptance material is available alongside the customer-master
 analysis:
 
 ```text
-/home/pn/Documents/code/workfusion/implementations/state-street-er-pov/
+(customer proof-of-value repository)
   final-production-screening-validation-slides.md
   final-production-screening-validation.pptx
 ```
@@ -1358,8 +1358,8 @@ populate `country_code=HK` and exercise the primary path as well.
 
 Final evidence and presentation artifacts:
 
-- `/home/pn/Documents/code/workfusion/implementations/state-street-er-pov/screening-results-run9-final-analysis.md`
-- `/home/pn/Downloads/state-street-data-analysis-final.pptx`
+- (customer proof-of-value repository)
+- (customer data-analysis deck)
 - `screening_results/firco_coverage_run9/exhaustive-zero-hit-audit.csv`
 
 ### Forward port into the replacement implementation (2026-08-10)

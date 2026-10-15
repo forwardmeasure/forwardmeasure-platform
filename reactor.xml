@@ -49,6 +49,7 @@ there directly instead, and why that broke every Quarkus module's local build ec
     <module>../forwardmeasure-database-migrations</module>
     <module>../forwardmeasure-jpa</module>
     <module>../forwardmeasure-object-storage</module>
+    <module>../forwardmeasure-document-intelligence</module>
     <module>../forwardmeasure-nlp</module>
     <module>../forwardmeasure-entity-matching</module>
     <module>../forwardmeasure-data-streaming</module>

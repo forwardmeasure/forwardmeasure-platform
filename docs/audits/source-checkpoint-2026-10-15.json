@@ -1,0 +1,97 @@
+{
+  "checkpoint_date": "2026-10-15T10:31:22.328334-04:00",
+  "authorization": "Owner explicitly requested committing and pushing all current repository work.",
+  "platform_repository": {
+    "name": "forwardmeasure-platform",
+    "branch": "develop",
+    "parent_commit": "c24c4c981439cd5c198c5f6d546c1a1a633d15f4",
+    "checkpoint_commit": "The commit containing this manifest; resolve with git log -1 --format=%H -- docs/audits/source-checkpoint-2026-10-15.json."
+  },
+  "repositories": [
+    {
+      "repository": "env",
+      "branch": "master",
+      "commit": "82833992c2cb14d711e37e06a031075ffdb3d495",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-testcontainers",
+      "branch": "develop",
+      "commit": "3250669a26960f92488cf40d75f480fafeed4a82",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-entity-matching",
+      "branch": "develop",
+      "commit": "50c1e5b2258080695fce39387d6227f6071c37cc",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-document-intelligence",
+      "branch": "develop",
+      "commit": "ce4ab392834b2a74aee016e2628c1889b52f5940",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "branch": "develop",
+      "commit": "6005bf50bff6e10095b9ba921e7479d1019a3f1a",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "branch": "develop",
+      "commit": "2312891b84a6474a98b8a643af960fa6fd34d528",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "helm-charts",
+      "branch": "develop",
+      "commit": "bdc99a9bf1a528a912a2aad029a393104775becf",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "openworkflow-k8s-setup",
+      "branch": "develop",
+      "commit": "69c1c48238b8bf3e6c57ceed7b9a239f80652e8c",
+      "remote": "origin",
+      "pushed": true
+    },
+    {
+      "repository": "forwardmeasure-openworkflow",
+      "branch": "rehabilitation/fowf-completion",
+      "commit": "2249d7ce23d50f1c6558358236e5d8b509415014",
+      "remote": "origin",
+      "pushed": true
+    }
+  ],
+  "verification": {
+    "targeted_repairs": "fei-fowf-repair-validation-2026-10-15.json",
+    "fowf_source_compilation": {
+      "scope": "Full reactor, production and test compilation, both Pekko backends and all framework bindings",
+      "modules": 192,
+      "command": "scripts/build-bounded.sh -B -ntp -Dmaven.build.cache.enabled=false -DskipTests -DskipITs -Dmaven.test.skip=false test-compile",
+      "result": "PASS",
+      "exit": 0,
+      "log": "/home/pn/.local/state/forwardmeasure/validation/2026-10-15-commit-push/fowf-compile.log",
+      "tests_executed": false
+    },
+    "all_preexisting_work_behaviorally_verified": false
+  },
+  "preserved_history": [
+    "Document Intelligence local code was committed on top of the remote initial develop commit.",
+    "Helm charts were fast-forwarded to include the two newer remote commits before committing local changes."
+  ],
+  "preserved_fixture_formatting": [
+    "Upstream DocLang valid/invalid XML fixtures retain their original whitespace.",
+    "Archived FOWF Markdown retains intentional two-space hard line breaks."
+  ],
+  "release_status": "Source checkpoint only; repaired FEI images and live deployed acceptance are still required before production promotion."
+}

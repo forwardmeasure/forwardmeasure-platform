@@ -37,6 +37,17 @@ imageVersions:
   # not kubelet, was stale); a digest can't be stale. The upstream chart only
   # renders repository:tag, so releases/superset passes "<tag>@<digest>" as its
   # tag.
+  # Stock opensearchproject/opensearch:3.8.0 plus the analysis-phonetic, analysis-icu and
+  # mapper-size plugins (data-fabric-devops-utils/docker-images/opensearch). Required: FEI's and
+  # FDS's reference-population index settings use the phonetic double-metaphone name filter, and
+  # the stock image refuses those indices ("Unknown filter type [phonetic]"). Pinned by digest
+  # (sync-image-digests.sh fills it); the upstream chart renders repository:tag only, so
+  # releases/opensearch-cluster passes "<tag>@<digest>" as its tag, as releases/superset does.
+  openSearch:
+    repository: docker.io/forwardmeasure/opensearch
+    tag: "3.8.0"
+    digest: "sha256:87d1636899f632f2110d912973c226a80a09eccb680ffac83e0cbc40b5f5c05a"
+    pullPolicy: IfNotPresent
   superset:
     repository: docker.io/forwardmeasure/superset
     tag: "6.1.0"
@@ -54,7 +65,7 @@ imageVersions:
     # framework doesn't set.
     repository: docker.io/forwardmeasure/forwardmeasure-platform-operations-quarkus
     tag: "1.0.0"
-    digest: sha256:97860fa6bfe747dd53e7c8b8905ed6529c006592bc0b9bedb39243c389e2f7fb
+    digest: sha256:c6673ddf223480aecadc17d2fe317b1918c1e65da55951e35a7e13bb9b5dd2a3
     pullPolicy: Always
   modelUtilities:
     repository: docker.io/forwardmeasure/ml-model-utilities

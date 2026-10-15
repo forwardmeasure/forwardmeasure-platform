@@ -87,19 +87,20 @@ Semantics:
   longer originals still survive in `_source`. Source-data indexing remains opt-in. These fields are
   available as evidence/search data; this change does not add dedicated Studio widgets or risk filters.
 
-## State Street customer master
+## customer master
 
-Pipe-separated UTF-8, 42 distinct named columns. The existing reader's duplicate trailing headers
-are last-column-wins, including blank values; the original file remains the physical-column audit
-source. `source_data` is the logical named record, not a preservation format for duplicate positions.
+Pipe-separated UTF-8, 42 distinct named columns. The export repeats four earlier names at the end
+of the header and ends every line with a delimiter. Both readers (Pekko and Spark) read a repeated
+name from its first column and skip a column with no name (user decision, 2026-10-14); the original
+file remains the physical-column audit source. `source_data` is the logical named record, not a preservation format for duplicate positions.
 No second conflicting customer source schema is introduced. The destination here is FEI resolution
 assertions, not the screening index. A future screening destination must reuse this source definition.
 
 | Source column | Resolution disposition |
 |---|---|
 | `ENTITYS_UNIQUE_ID` | `uid`; raw `source_data` |
-| `BUSINESS_ENTITY_RECORD_ID` | `business_entity_record_id@STATE_STREET_CUSTOMER_MASTER`; raw `source_data` |
-| `GEMS_ID` | `kyc_id@STATE_STREET_CUSTOMER_MASTER`; raw `source_data` |
+| `BUSINESS_ENTITY_RECORD_ID` | `business_entity_record_id@CUSTOMER_MASTER`; raw `source_data` |
+| `KYC_ID` | `kyc_id@CUSTOMER_MASTER`; raw `source_data` |
 | `ENTITYS_FULL_NAME` | `display_name`, `name`; raw `source_data` |
 | `ENTITY_PREFIX` | `display_name`, `name_prefix`; raw `source_data` |
 | `ENTITY_FIRST_NAME` | `display_name`, `given_name`; raw `source_data` |
@@ -153,9 +154,9 @@ assertions, not the screening index. A future screening destination must reuse t
   citizenship/incorporation-jurisdiction plus country evidence. Three addresses retain their components
   and established registered/mailing/other position semantics. Unknown country names survive raw.
 - Public identifiers carry a real IdentifierScheme when recognized; otherwise domain
-  STATE_STREET_CUSTOMER_MASTER plus identifier_type. Business-record and KYC IDs are explicitly
-  domain-scoped too. The persisted keys are business_entity_record_id@STATE_STREET_CUSTOMER_MASTER,
-  kyc_id@STATE_STREET_CUSTOMER_MASTER and, for example, tin@STATE_STREET_CUSTOMER_MASTER. LEI stays lei.
+  CUSTOMER_MASTER plus identifier_type. Business-record and KYC IDs are explicitly
+  domain-scoped too. The persisted keys are business_entity_record_id@CUSTOMER_MASTER,
+  kyc_id@CUSTOMER_MASTER and, for example, tin@CUSTOMER_MASTER. LEI stays lei.
   Do not retain the old test-prefixed keys as proof that identifiers are usable by deterministic matching.
 - Position, occupation, classification, business units, servicing/booking/contracting and birthplace
   are separate assertions; the legacy combined narrative also remains. No company/location relationship

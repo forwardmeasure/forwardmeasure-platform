@@ -460,7 +460,7 @@ and discards blanks consistently with object-shaped names. Full-stack resume is 
 `/tmp/forwardmeasure-takeover-36.log`. This adds the recall adapter to the shared image impact.
 
 The live public-API/Studio suite currently lacks supplied disposable endpoints/tenant identities;
-the FEI_ACCEPTANCE token/login variables are unset. Existing self-orchestrated k3s tests can be
+the ENTITY_INTELLIGENCE_ACCEPTANCE token/login variables are unset. Existing self-orchestrated k3s tests can be
 run after their required local images are built; they do not replace the nine-cell public API matrix.
 No production deployment or publication is authorized or performed.
 

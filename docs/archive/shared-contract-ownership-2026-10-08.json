@@ -74,11 +74,11 @@
       "sha256": "58fc736ece3df09ee08dbbd3c03dfc147a97a7a8e407a1f20ef3b34d4530408a"
     },
     {
-      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/state-street-customer-master-resolution-mapping-v1.yaml",
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/customer-master-resolution-mapping-v1.yaml",
       "sha256": "ee8c77db217c85b6fc0984b51d07e008c49b033c7c0fb034cd4b2ec339259d0a"
     },
     {
-      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/state-street-customer-master-source-v1.yaml",
+      "path": "forwardmeasure-platform/forwardmeasure-platform-data-contracts/src/main/resources/contracts/customer-master-source-v1.yaml",
       "sha256": "0a6be632b6a9cbb4086ad878a7c03711afdfb54161c4e1881e037fe479d109d1"
     },
     {

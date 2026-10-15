@@ -37,6 +37,9 @@
 # "entity_intelligence" (account id truncated to 30 characters by that module).
 {{- $entityIntelligenceServiceAccount := "openworkflow-prod-entity-intel@genai-llm-393115.iam.gserviceaccount.com" }}
 {{- $decisionEngineServiceAccount := "openworkflow-prod-decision-eng@genai-llm-393115.iam.gserviceaccount.com" }}
+# data-streaming's continuous-worker identity - openworkflow-k8s-setup/terraform/gcp workload_identities
+# "data_stream".
+{{- $dataStreamingServiceAccount := "openworkflow-prod-data-stream@genai-llm-393115.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "lux" "displayName" "Lux Tenant") }}
 platform:
   domain: {{ $domain | quote }}
@@ -80,6 +83,8 @@ platform:
         instanceConnectionName: {{ printf "%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
       decisionEngine:
         serviceAccount: {{ $decisionEngineServiceAccount | quote }}
+      dataStreaming:
+        serviceAccount: {{ $dataStreamingServiceAccount | quote }}
       entityIntelligence:
         serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
         # buckets.fei_evidence in openworkflow-k8s-setup/terraform/gcp/terraform.tfvars.

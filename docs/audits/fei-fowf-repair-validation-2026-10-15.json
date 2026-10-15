@@ -1,0 +1,532 @@
+{
+  "date": "2026-10-15",
+  "timezone": "America/New_York",
+  "scope": "Focused FEI repairs and FOWF start-input acceptance; combined latest per-class results from sequential runs, not a clean full-reactor verification or deployed acceptance run.",
+  "fei": {
+    "totals": {
+      "tests": 549,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "stages": {
+      "architecture": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.ingestionservice.micronaut": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.ingestionservice.quarkus": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.ingestionservice.spring": {
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.resolutionservice.micronaut": {
+        "tests": 100,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.resolutionservice.quarkus": {
+        "tests": 99,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.resolutionservice.spring": {
+        "tests": 99,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.screeningservice.micronaut": {
+        "tests": 43,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.screeningservice.quarkus": {
+        "tests": 44,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "deployment.screeningservice.spring": {
+        "tests": 43,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "migrations": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "screeningservice.application": {
+        "tests": 34,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "findings": [
+      {
+        "finding": "Screening transform/export HTTP 500 on all frameworks",
+        "cause": "Export mapped the lazy monitored-population association after its transaction closed.",
+        "repair": "Initialize all associations needed by the run view inside the export transaction; assert monitored_population_id in every framework export test."
+      },
+      {
+        "finding": "Entity-deletion fixtures fail to load schema contracts",
+        "cause": "The migrations fixture artifact did not carry its canonical platform contract resources.",
+        "repair": "Add the platform data-contracts runtime dependency and a regression that provisions the real deletion fixture. Deletion tests now pass on all three frameworks."
+      },
+      {
+        "finding": "EntityReadIntegrationTest missing population-contract services",
+        "cause": "ManagedServiceSession test-support maps omitted the services used by shared population-contract fixtures.",
+        "repair": "Register all four services in all three framework fixtures; Quarkus required the same fix once deletion startup was restored."
+      },
+      {
+        "finding": "Missing source contracts test",
+        "cause": "The old test omitted the optional first input definition; OpenAPI permits creating a population before registering input contracts.",
+        "repair": "Retain optional population creation, cover it positively, and require 400 when a supplied input definition omits its required source contracts."
+      },
+      {
+        "finding": "Spring revision lifecycle connection refused",
+        "cause": "Two HTTP delete requests used the default client port instead of the assigned test port.",
+        "repair": "Apply the injected port to both requests."
+      },
+      {
+        "finding": "Quarkus monitored-population list test",
+        "cause": "An explicitly empty query bound to null and bypassed the generated size constraint. This was not cross-test fixture leakage.",
+        "repair": "Inspect query presence in the raw request URI and enforce the shared 1-to-200-character constraint on all hosts."
+      },
+      {
+        "finding": "FARCH-07 application dependency on repositories",
+        "cause": "A repository-owned summary type leaked through the domain service into the application listing type.",
+        "repair": "Define the summary in the domain service and map repository counts at that boundary. All eight reactor architecture tests pass."
+      }
+    ]
+  },
+  "fowf": {
+    "configurations": [
+      {
+        "selection": "quarkus/pekko/postgresql",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-definition-management-quarkus:1.1.0",
+            "sha256:da851795e1b07f47c63f048d948a3a8b25416a1ab9931353a02338e4d5f1c1e2"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-engine-pekko-quarkus:1.1.0",
+            "sha256:0be6cdeeca1d9c8a4240dceab458b687db689d9814fe01ca0d4112837f8b72cf"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-execution-management-quarkus:1.1.0",
+            "sha256:d390406b2c46982651b831cb5fac5b2f209b8b4f270da1d413888fe52cc28c0f"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-operation-adapter-pekko-quarkus:1.1.0",
+            "sha256:959e6c77882902db7386052e4b5fbf7851d827c27a3a715418baca21d5548190"
+          ]
+        ]
+      },
+      {
+        "selection": "quarkus/pekko/cassandra",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-definition-management-quarkus:1.1.0",
+            "sha256:da851795e1b07f47c63f048d948a3a8b25416a1ab9931353a02338e4d5f1c1e2"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-engine-pekko-quarkus:1.1.0",
+            "sha256:0be6cdeeca1d9c8a4240dceab458b687db689d9814fe01ca0d4112837f8b72cf"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-execution-management-quarkus:1.1.0",
+            "sha256:d390406b2c46982651b831cb5fac5b2f209b8b4f270da1d413888fe52cc28c0f"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-operation-adapter-pekko-quarkus:1.1.0",
+            "sha256:959e6c77882902db7386052e4b5fbf7851d827c27a3a715418baca21d5548190"
+          ]
+        ]
+      },
+      {
+        "selection": "quarkus/kafka-streams/postgresql",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-definition-management-quarkus:1.1.0",
+            "sha256:da851795e1b07f47c63f048d948a3a8b25416a1ab9931353a02338e4d5f1c1e2"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-engine-kafka-streams-quarkus:1.1.0",
+            "sha256:99335cdf875c6fbfd0e27bd172433ff67bb1f9aba1bac984214da3e4614bb7ce"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-execution-management-quarkus:1.1.0",
+            "sha256:d390406b2c46982651b831cb5fac5b2f209b8b4f270da1d413888fe52cc28c0f"
+          ],
+          [
+            "QUARKUS",
+            "forwardmeasure/openworkflow-operation-adapter-kafka-streams-quarkus:1.1.0",
+            "sha256:e3f2bd10ee7feed9437c26b64c686d29ea4fd9a27e0e2be3b7da32704596dec1"
+          ]
+        ]
+      },
+      {
+        "selection": "spring/pekko/postgresql",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-definition-management-spring:1.1.0",
+            "sha256:1b40b55d34363f2b6546a4d4762daa982f9f491fc85cf5b9e7f5deda0662e276"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-engine-pekko-spring:1.1.0",
+            "sha256:8ff59f66d30e034b9ca41549c3f50e0dd1388f9a154443f786dc1834301ded47"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-execution-management-spring:1.1.0",
+            "sha256:129d280dda01cca98c109e5ba770673d4b650e729311b4eb864c8a59ecae9e24"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-operation-adapter-pekko-spring:1.1.0",
+            "sha256:180a2e5bf7af9130ab53eac03594a96b4e67cd1ae7d3b466f7ac60dd0dc8498c"
+          ]
+        ]
+      },
+      {
+        "selection": "spring/pekko/cassandra",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-definition-management-spring:1.1.0",
+            "sha256:1b40b55d34363f2b6546a4d4762daa982f9f491fc85cf5b9e7f5deda0662e276"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-engine-pekko-spring:1.1.0",
+            "sha256:8ff59f66d30e034b9ca41549c3f50e0dd1388f9a154443f786dc1834301ded47"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-execution-management-spring:1.1.0",
+            "sha256:129d280dda01cca98c109e5ba770673d4b650e729311b4eb864c8a59ecae9e24"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-operation-adapter-pekko-spring:1.1.0",
+            "sha256:180a2e5bf7af9130ab53eac03594a96b4e67cd1ae7d3b466f7ac60dd0dc8498c"
+          ]
+        ]
+      },
+      {
+        "selection": "spring/kafka-streams/postgresql",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-definition-management-spring:1.1.0",
+            "sha256:1b40b55d34363f2b6546a4d4762daa982f9f491fc85cf5b9e7f5deda0662e276"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-engine-kafka-streams-spring:1.1.0",
+            "sha256:1a93e1017b4fea85d132ff61cbe7dea78c7b9bd9da8ab7993f773965a9b66251"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-execution-management-spring:1.1.0",
+            "sha256:129d280dda01cca98c109e5ba770673d4b650e729311b4eb864c8a59ecae9e24"
+          ],
+          [
+            "SPRING",
+            "forwardmeasure/openworkflow-operation-adapter-kafka-streams-spring:1.1.0",
+            "sha256:aa971b009e7b6db6ff8fbb2619779c447427f140026f4aaf016210d6e1898349"
+          ]
+        ]
+      },
+      {
+        "selection": "micronaut/pekko/postgresql",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-definition-management-micronaut:1.1.0",
+            "sha256:e80da753eea4f69d56419e6c8cc764e136d662daefc2315e9fe7b4e3c63eaa08"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-engine-pekko-micronaut:1.1.0",
+            "sha256:34f9adae8207edcc6f3fd8bd888936d01db56cb54a628713143e7ad54c956872"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-execution-management-micronaut:1.1.0",
+            "sha256:59d389d038fc882a4853dea273c7df9ac65fe3571717211dcb2d9cefbb59f2e3"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-operation-adapter-pekko-micronaut:1.1.0",
+            "sha256:9a666e822a3ed377e9bbe51927cba58467825470e900e66a5fb3ec09b6a35c21"
+          ]
+        ]
+      },
+      {
+        "selection": "micronaut/pekko/cassandra",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-definition-management-micronaut:1.1.0",
+            "sha256:e80da753eea4f69d56419e6c8cc764e136d662daefc2315e9fe7b4e3c63eaa08"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-engine-pekko-micronaut:1.1.0",
+            "sha256:34f9adae8207edcc6f3fd8bd888936d01db56cb54a628713143e7ad54c956872"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-execution-management-micronaut:1.1.0",
+            "sha256:59d389d038fc882a4853dea273c7df9ac65fe3571717211dcb2d9cefbb59f2e3"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-operation-adapter-pekko-micronaut:1.1.0",
+            "sha256:9a666e822a3ed377e9bbe51927cba58467825470e900e66a5fb3ec09b6a35c21"
+          ]
+        ]
+      },
+      {
+        "selection": "micronaut/kafka-streams/postgresql",
+        "exit": 0,
+        "counts": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "runtime_images": [
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-definition-management-micronaut:1.1.0",
+            "sha256:e80da753eea4f69d56419e6c8cc764e136d662daefc2315e9fe7b4e3c63eaa08"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-engine-kafka-streams-micronaut:1.1.0",
+            "sha256:53079893399e6714766b83b9855fb2e454ae0dded323aff1e3d2895648517cc8"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-execution-management-micronaut:1.1.0",
+            "sha256:59d389d038fc882a4853dea273c7df9ac65fe3571717211dcb2d9cefbb59f2e3"
+          ],
+          [
+            "MICRONAUT",
+            "forwardmeasure/openworkflow-operation-adapter-kafka-streams-micronaut:1.1.0",
+            "sha256:624b4f01846df5753c3d36652b6ad32a1b643b2b219de17a75b5080885e4baf4"
+          ]
+        ]
+      }
+    ],
+    "diagnosis": "Await the documented asynchronous failure projection, bounded to one minute, then require matching error code/message in persisted FAILED history and the execution result. Require validation code, /input/schema task path and non-retryable failure.",
+    "production_engine_source_changed_by_repair": false
+  },
+  "validated_repair_files": [
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/screening-service/micronaut/src/test/java/com/forwardmeasure/entityintelligence/deployment/screeningservice/micronaut/ScreeningRunTransformAndExportResourceTest.java",
+      "sha256": "a1b2f74ec175fd4260bf119c1ed2758a4571c4487fb0f99df2842e25cf11d84f"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/screening-service/spring/src/test/java/com/forwardmeasure/entityintelligence/deployment/screeningservice/spring/ScreeningRunTransformAndExportResourceTest.java",
+      "sha256": "0e1bc6f4672f8004ae7ad568952356afcf77a594c3e5ea46f122a8ccb4d8045c"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/screening-service/quarkus/src/test/java/com/forwardmeasure/entityintelligence/deployment/screeningservice/quarkus/ScreeningRunTransformAndExportResourceTest.java",
+      "sha256": "b65870025ad65afca95c07c1bb2a775a9946618f5ed94188bbbaa09a6fa02a06"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-migrations/pom.xml",
+      "sha256": "c9ef3a885bd391ad92b77dbf9130ff4cce97f7c093ea118e05af4902a2a4f922"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-migrations/src/test/java/com/forwardmeasure/entityintelligence/migrations/EntityIntelligenceChangelogTest.java",
+      "sha256": "ff09462f2270abdaaef04658b7bb732b103b59b618b1a5d23c70c7d3204987e9"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-screening-service/forwardmeasure-entity-intelligence-screening-service-application/src/main/java/com/forwardmeasure/entityintelligence/screeningservice/application/PopulationScreeningApplicationService.java",
+      "sha256": "5b43212859c85dbc3609871aff1d5420d8feca0f846637ae47a6b2663d274ee2"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-screening-service/forwardmeasure-entity-intelligence-screening-service-application/src/main/java/com/forwardmeasure/entityintelligence/screeningservice/application/PopulationScreeningExportApplicationService.java",
+      "sha256": "b734c1f2ae0c7cee264289dc9f26c1749cf75c9c49377990edd5bbaf450202fe"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/resolution-service/spring/src/test/java/com/forwardmeasure/entityintelligence/deployment/resolutionservice/spring/EntityReadIntegrationTest.java",
+      "sha256": "1140745a0eef4211a24d2570db406ff13873745fe9f837b9a4985af091968826"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/resolution-service/micronaut/src/test/java/com/forwardmeasure/entityintelligence/deployment/resolutionservice/micronaut/EntityReadIntegrationTest.java",
+      "sha256": "00857ed3eb8a84b12bec5e3e41fe41a58cf4ad5d2bd5f75c844ef12b6703ba5e"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-screening-service/forwardmeasure-entity-intelligence-screening-service-application/src/test/java/com/forwardmeasure/entityintelligence/screeningservice/application/PopulationScreeningExportApplicationServiceTest.java",
+      "sha256": "3026f7c7ff8c04827ffda89b789897f4897075fc97173b380720e61252263fab"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-domain/src/main/java/com/forwardmeasure/entityintelligence/domain/service/ReferencePopulationService.java",
+      "sha256": "792974784b86408286ba848c82a24512ba9a880ef1e1424da868972b7ca2e1f1"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-domain/src/main/java/com/forwardmeasure/entityintelligence/domain/service/impl/ReferencePopulationServiceImpl.java",
+      "sha256": "31b6abb37e15a41272a77f0e921cc08e73b97e2521b26d97cc147b02c24ae272"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-ingestion-service/forwardmeasure-entity-intelligence-ingestion-service-application/src/main/java/com/forwardmeasure/entityintelligence/ingestionservice/application/ReferencePopulationApplicationService.java",
+      "sha256": "b629c551c95a0c296bf25f5e08d082d95ee41b3493eac049dca0b845e9c9734a"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-ingestion-service/forwardmeasure-entity-intelligence-ingestion-service-jaxrs/src/main/java/com/forwardmeasure/entityintelligence/ingestionservice/jaxrs/MonitoredPopulationResource.java",
+      "sha256": "762bca11a0ce4db20f6acde04707a925d2d6046afd3a40b0da71f5d18ac30560"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/ingestion-service/spring/src/test/java/com/forwardmeasure/entityintelligence/deployment/ingestionservice/spring/ReferencePopulationRevisionLifecycleResourceTest.java",
+      "sha256": "bb7c103da8f9f41da60b8aea34525f09618bca3d9caafe696e8499b6fae0b49c"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/ingestion-service/quarkus/src/test/java/com/forwardmeasure/entityintelligence/deployment/ingestionservice/quarkus/ReferencePopulationCrudResourceTest.java",
+      "sha256": "3fda2df029193b432b4f5bc27324ace8d3c1c1ab1c2e3261ad35aa3dc3780ccb"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/ingestion-service/spring/src/test/java/com/forwardmeasure/entityintelligence/deployment/ingestionservice/spring/ReferencePopulationCrudResourceTest.java",
+      "sha256": "2492e7eb17269d49250aca3045def4feb41eeaeca95036196b497c6d7973cbad"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/ingestion-service/micronaut/src/test/java/com/forwardmeasure/entityintelligence/deployment/ingestionservice/micronaut/ReferencePopulationCrudResourceTest.java",
+      "sha256": "321fca41ff12a4b1a62ea9f54734fea021d28092f7951f08fa0f3e0cec914bfd"
+    },
+    {
+      "repository": "forwardmeasure-entity-intelligence",
+      "path": "forwardmeasure-entity-intelligence-deployments/resolution-service/quarkus/src/test/java/com/forwardmeasure/entityintelligence/deployment/resolutionservice/quarkus/EntityReadIntegrationTest.java",
+      "sha256": "a97829b7bc0d20d8de4ef7ad59b17361346bcee4210cd24b34e71d1dc3993305"
+    },
+    {
+      "repository": "forwardmeasure-data-streaming",
+      "path": "forwardmeasure-data-streaming-launcher-application/src/test/java/com/forwardmeasure/datastreaming/launcher/application/fowf/FowfStartInputRuntimeMatrixAcceptanceTest.java",
+      "sha256": "e19ba4f4b63cf2d1a0cf007714b18d47a6cb99b0e2182bc026c44334d777401a"
+    }
+  ],
+  "evidence_directory": "/home/pn/.local/state/forwardmeasure/validation",
+  "scope_limits": {
+    "full_platform_audit_completed": false,
+    "images_rebuilt_or_pushed_by_repair": false,
+    "deployment_changed_by_repair": false,
+    "live_fei_public_acceptance_run": false
+  },
+  "next_release_steps": [
+    "Build release images containing the committed repairs.",
+    "Deploy the images to the test environment.",
+    "Run the live FEI public-ingestion acceptance matrix before production promotion."
+  ]
+}

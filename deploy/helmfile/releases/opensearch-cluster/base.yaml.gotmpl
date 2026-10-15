@@ -36,6 +36,17 @@ securityConfig:
   passwordHashRemoteKey: {{ .Values.secretStore.remoteKeys.openSearchPasswordHash | quote }}
 opensearch:
   replicas: {{ .Values.openSearch.replicas }}
+  # Our image: the stock one plus analysis-phonetic (and analysis-icu, mapper-size), which the
+  # reference-population index settings need - see imageVersions.openSearch.
+  image:
+    repository: {{ .Values.imageVersions.openSearch.repository | quote }}
+    # The chart renders repository:tag only, so the digest rides on the tag ("3.8.0@sha256:...").
+    tag: {{ printf "%s%s" .Values.imageVersions.openSearch.tag (ternary (printf "@%s" .Values.imageVersions.openSearch.digest) "" (ne (.Values.imageVersions.openSearch.digest | default "") "")) | quote }}
+    pullPolicy: {{ .Values.imageVersions.openSearch.pullPolicy | quote }}
+  imagePullSecrets: [{name: docker-io-credentials}]
+  # The chart otherwise derives the major version by parsing image.tag as a version, which a
+  # "<tag>@<digest>" tag is not; same value it derived before ("3").
+  majorVersion: {{ (semver .Values.imageVersions.openSearch.tag).Major | quote }}
   opensearchJavaOpts: {{ .Values.openSearch.javaOpts | quote }}
   # Chart default (4Gi, matching -Xmx2G) OOMKilled every master node on a
   # real deploy - confirmed the hard way (Exit Code 137, "OOMKilled") -
