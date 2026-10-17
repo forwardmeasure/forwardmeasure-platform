@@ -30,7 +30,7 @@ source_schema:
   properties:
     ENTITYS_UNIQUE_ID: { type: string, minLength: 1 }
     BUSINESS_ENTITY_RECORD_ID: { type: string, description: Domain-scoped business_entity_record_id@CUSTOMER_MASTER identifier. }
-    KYC_ID: { type: string, description: Domain-scoped kyc_id@CUSTOMER_MASTER identifier. }
+    GEMS_ID: { type: string, description: Domain-scoped raw_domain_unique_id@CUSTOMER_MASTER identifier. }
     ENTITYS_FULL_NAME: { type: string, description: Mapped to display_name. }
     ENTITY_PREFIX: { type: string, description: Preserved as a typed resolution assertion and in source_data. }
     ENTITY_FIRST_NAME: { type: string, description: Preserved as a typed resolution assertion and in source_data. }

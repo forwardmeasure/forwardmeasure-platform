@@ -29,12 +29,19 @@ Options:
   --module <target>       Build only this module and what it depends on
                            (mvn -pl <target> -am). Use for a normal scoped
                            build of one module.
+  --only <targets>        Build exactly these modules (comma-separated) and
+                           nothing upstream of them (mvn -pl <targets>). Their
+                           dependencies are taken from the local repository, so
+                           they must have been installed by an earlier build.
+                           Use to redeploy one app after changing only its own
+                           modules.
   --resume-from <target>  A previous full build failed partway through;
                            continue the full reactor build starting at
                            <target> instead of rebuilding everything from
                            scratch (mvn -rf <target>). Fix the failing
                            module first, then pass it here.
   --full                  Build every module (default).
+  --threads <count>       Use this many Maven reactor threads (positive integer).
   --skip-push             Build only; don't docker push the images.
   --no-cache              Rebuild Docker layers without using the cache
                            (Docker caching is enabled by default).
@@ -55,12 +62,18 @@ Examples:
   ./build.sh --module :decision-engine-api-language-bindings-python-grpc
       Build only that module and its dependencies, then push.
 
+  ./build.sh --only :forwardmeasure-entity-intelligence-studio-webapp,:forwardmeasure-entity-intelligence-studio-quarkus-service
+      Rebuild only FEI Studio's webapp and its Quarkus image, then push.
+
   ./build.sh --resume-from :decision-engine-api-language-bindings-python-grpc
       A full build failed at that module. After fixing it, continue the
       full reactor build from there rather than starting over.
 
   ./build.sh --run-tests --coverage
       Full build with tests actually run and Jacoco coverage collected.
+
+  ./build.sh --threads 2
+      Build with two Maven reactor threads, then push images.
 EOF
 }
 
@@ -71,12 +84,19 @@ skip_tests=true
 coverage=false
 no_cache=false
 build_cache=true
+threads=
 
 while [ $# -gt 0 ]; do
 	case "$1" in
 		--module)
 			[ -n "${2:-}" ] || { echo "--module requires a value" >&2; exit 1; }
 			mode=module
+			target="$2"
+			shift 2
+			;;
+		--only)
+			[ -n "${2:-}" ] || { echo "--only requires a value" >&2; exit 1; }
+			mode=only
 			target="$2"
 			shift 2
 			;;
@@ -89,6 +109,11 @@ while [ $# -gt 0 ]; do
 		--full)
 			mode=full
 			shift
+			;;
+		--threads)
+			[[ "${2:-}" =~ ^[1-9][0-9]*$ ]] || { echo "--threads requires a positive integer" >&2; exit 1; }
+			threads="$2"
+			shift 2
 			;;
 		--skip-push)
 			push=false
@@ -122,6 +147,14 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
+if [ -n "$threads" ]; then
+	# Pass -T directly for launchers without MAVEN_ARGS support. Maven 3 takes the first -T,
+	# so prepend the same value to MAVEN_ARGS to override any inherited thread setting.
+	export MAVEN_ARGS="-T $threads${MAVEN_ARGS:+ $MAVEN_ARGS}"
+	maven_command+=(-T "$threads")
+	printf 'Maven reactor threads: %s\n' "$threads"
+fi
+
 profiles=container-image
 if [ "$coverage" = true ] || [ "$skip_tests" = false ]; then
 	profiles="$profiles,coverage"
@@ -133,6 +166,10 @@ case "$mode" in
 	module)
 		"${maven_command[@]}" -pl "$target" -am spotless:apply
 		"${maven_command[@]}" -pl "$target" -am -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -Dmaven.build.cache.enabled="$build_cache" -Dmaven.test.skip=false -DskipTests="$skip_tests" clean install
+		;;
+	only)
+		"${maven_command[@]}" -pl "$target" spotless:apply
+		"${maven_command[@]}" -pl "$target" -P"$profiles" -Drat.skip=true -Dcontainer-image.push="$push" -Ddocker.nocache="$no_cache" -Dmaven.build.cache.enabled="$build_cache" -Dmaven.test.skip=false -DskipTests="$skip_tests" clean install
 		;;
 	resume)
 		"${maven_command[@]}" -rf "$target" spotless:apply

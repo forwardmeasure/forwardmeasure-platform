@@ -49,6 +49,16 @@
       "dataStreaming" (printf "%sdata-streaming" $prefix)
       "entityIntelligence" (printf "%sentity-intelligence" $prefix)
       "decisionEngine" (printf "%sdecision-engine" $prefix) }}
+{{- /* Environment value templates render independently. Read the declared cluster facts here,
+then apply explicit state-value overrides; do not depend on another values file's load order. */}}
+{{- $clusterFile := printf "%s/clusters/%s.yaml.gotmpl" $sharedDir .Environment.Name }}
+{{- if not (isFile $clusterFile) }}{{ $clusterFile = printf "%s/clusters/base.yaml.gotmpl" $sharedDir }}{{ end }}
+{{- $cluster := tpl (readFile $clusterFile) (dict) | fromYaml }}
+{{- $database := mergeOverwrite (dig "platform" "databases" (dict) $cluster) (dig "platform" "databases" (dict) .Values) }}
+{{- $admission := exec "python3" (list (printf "%s/../../scripts/database-admission-capacity.py" $sharedDir)
+      "--instance-identity" (required "cluster platform.databases.instanceIdentity is required" (get "instanceIdentity" "" $database))
+      "--slots" (printf "%v" (get "admissionSlots" "" $database))
+      "--buckets" (printf "%v" (get "guardBuckets" "" $database))) | fromJson }}
 {{- $framework := $selection.framework }}
 {{- $engine := $selection.engine }}
 {{- $enableFde := $selection.enableFde }}
@@ -78,7 +88,20 @@ operator names its API Service <name>-app-service. */}}
       "/monitored-population-memberships" "ingestion"
       "/ingestion-pipelines" "ingestion"
       "/ingestion" "ingestion"
+      "/lifecycle-operations" "ingestion"
+      "/lifecycle-storage" "ingestion"
+      "/monitored-population-archives" "ingestion"
+      "/storage-orphans/archives" "ingestion"
+      "/storage-orphans/evidence" "resolution"
+      "/internal/reference-populations" "ingestion"
+      "/entities/{entityId}/suppress" "ingestion"
+      "/entities/{entityId}/suppression-preview" "ingestion"
+      "/lifecycle-policy" "ingestion"
+      "/source-records" "ingestion"
+      "/internal/lifecycle-operations" "ingestion"
+      "/me/permissions" "resolution"
       "/entities" "resolution"
+      "/candidate-entities" "resolution"
       "/assertions" "resolution"
       "/llm-prompts" "resolution"
       "/dossiers" "resolution"
@@ -86,7 +109,9 @@ operator names its API Service <name>-app-service. */}}
       "/screening" "screening" }}
 {{- $httpEndpointRoutes := list }}
 {{- range $path, $owner := $entityIntelligencePathOwners }}
-{{-   $httpEndpointRoutes = append $httpEndpointRoutes (printf "%s%s=%s%s" $entityIntelligenceApiUrl $path (index $entityIntelligenceBaseUrls $owner) $path) }}
+{{- /* URI-safe placeholders let older adapters parse the map during a rolling upgrade. The new matcher decodes only whole-segment template names. */}}
+{{-   $wirePath := replace "{" "%7B" $path | replace "}" "%7D" }}
+{{-   $httpEndpointRoutes = append $httpEndpointRoutes (printf "%s%s=%s%s" $entityIntelligenceApiUrl $wirePath (index $entityIntelligenceBaseUrls $owner) $wirePath) }}
 {{- end }}
 platform:
   branding:
@@ -109,6 +134,8 @@ platform:
   gatewayApi:
     version: v1.5.1
   databases:
+    lifecycleAdmission:
+      {{- toYaml $admission | nindent 6 }}
     # The platform control-plane database on the shared Postgres (Cloud SQL) instance: holds
     # tenant_registry (tenant -> tenant-database mapping) and Pekko's cluster-wide coordinator store.
     # Created by Terraform (openworkflow-k8s-setup on gcp-openworkflow-prod, k8s-infrastructure/

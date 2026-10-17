@@ -42,6 +42,11 @@
 {{- $dataStreamingServiceAccount := "openworkflow-prod-data-stream@genai-llm-393115.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "lux" "displayName" "Lux Tenant") }}
 platform:
+  databases:
+    # Shared physical-instance identity; never inferred from a service host, port or proxy.
+    instanceIdentity: {{ printf "cloudsql:%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
+    admissionSlots: 1
+    guardBuckets: 4096
   domain: {{ $domain | quote }}
   environment: production
   # Match Keycloak's advertised hostname exactly, including its configured :443.
@@ -89,6 +94,9 @@ platform:
         serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
         # buckets.fei_evidence in openworkflow-k8s-setup/terraform/gcp/terraform.tfvars.
         evidenceBucket: "genai-llm-393115-fei-evidence"
+        # entity_intelligence_population_archive.bucket_name from the selected infrastructure stack.
+        archiveBucket: "genai-llm-393115-openworkflow-prod-fei-archives-515191bd"
+        archiveKmsKey: {{ printf "projects/%s/locations/%s/keyRings/fei-archives-%s/cryptoKeys/population-archive" $gcpProjectId $gcpRegion (sha256sum $gcpClusterName | trunc 16) | quote }}
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

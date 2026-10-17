@@ -174,6 +174,20 @@ models:
     mode: cpu
     pipeline: standard
     storage: 64Gi
+    # VLM models provisioned into the bundle and allowed per request, independent
+    # of `pipeline` (kept "standard" for boot/sizing). granite-docling-258M
+    # (vlm-small) is CPU-servable; vlm-large is GPU-only. Empty list = no VLM.
+    includeVlm: [vlm-small]
+    # Per single Docling conversion (one page-range segment, 2084 pages). The
+    # whole-document envelope (16 GB / 500,000 pages / 1 day) is enforced upstream
+    # by the segmenter, not here (decision D-08). maxFileSize stays under the Java
+    # 2 GB byte[] limit in the forwardmeasure-document-intelligence read path.
+    limits:
+      maxFileSize: 2000000000
+      maxNumPages: 2084
+      maxDocumentTimeout: 7200
+      maxSourcesPerRequest: 5
+      maxImagesScale: 2
   ner:
     enabled: true
   relationshipExtraction:

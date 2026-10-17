@@ -16,11 +16,29 @@
 #
 mode: {{ .Values.models.docling.mode | quote }}
 pipeline: {{ .Values.models.docling.pipeline | quote }}
+strategy:
+  type: Recreate
 persistence:
   create: true
   existingClaim: ""
   size: {{ .Values.models.docling.storage | quote }}
-modelDownload: {enabled: true}
+limits:
+  maxFileSize: {{ .Values.models.docling.limits.maxFileSize }}
+  maxNumPages: {{ .Values.models.docling.limits.maxNumPages }}
+  maxDocumentTimeout: {{ .Values.models.docling.limits.maxDocumentTimeout }}
+  maxSourcesPerRequest: {{ .Values.models.docling.limits.maxSourcesPerRequest }}
+  maxImagesScale: {{ .Values.models.docling.limits.maxImagesScale }}
+modelDownload:
+  enabled: true
+  # VLM models provisioned into the prepared bundle and allowed per request,
+  # independent of `pipeline` (kept "standard" for boot/sizing). See
+  # environments/base.yaml.gotmpl models.docling.includeVlm.
+  # ORDERING: requires a docling-serve chart that supports modelDownload.includeVlm
+  # (post-0.0.11). Republish the chart and advance chartVersions.docling BEFORE the
+  # next docling deploy, or Helm will reject this value (modelDownload has
+  # additionalProperties:false in the published 0.0.11 schema).
+  includeVlm:
+{{- (.Values.models.docling.includeVlm | default list) | toYaml | nindent 4 }}
 hfToken: {secretName: huggingface-token, secretKey: token}
 serviceAccount:
   create: true

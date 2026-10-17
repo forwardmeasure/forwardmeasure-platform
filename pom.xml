@@ -1094,6 +1094,11 @@
         <version>${forwardmeasure.objectstorage.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.forwardmeasure.objectstorage</groupId>
+        <artifactId>forwardmeasure-object-storage-azure</artifactId>
+        <version>${forwardmeasure.objectstorage.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.forwardmeasure.openworkflow</groupId>
         <artifactId>openworkflow-authorization-api</artifactId>
         <version>${forwardmeasure.openworkflow.version}</version>

@@ -26,6 +26,11 @@
 {{- $cloudSqlInstance := "" }}
 {{- $tenants := list (dict "alias" "tenant" "displayName" "Example Tenant") }}
 platform:
+  databases:
+    # Shared physical-instance identity; never inferred from a service host, port or proxy.
+    instanceIdentity: "local:forwardmeasure-platform-postgres"
+    admissionSlots: 1
+    guardBuckets: 4096
   domain: {{ $domain | quote }}
   environment: production
   # Match Keycloak's advertised hostname exactly, including its configured :443.

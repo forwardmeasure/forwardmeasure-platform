@@ -37,6 +37,11 @@
 {{- $dataStreamingServiceAccount := "data-streaming@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "example-bank" "displayName" "Example Bank") }}
 platform:
+  databases:
+    # Shared physical-instance identity; never inferred from a service host, port or proxy.
+    instanceIdentity: {{ printf "cloudsql:%s:%s:%s" $gcpProjectId $gcpRegion $cloudSqlInstance | quote }}
+    admissionSlots: 1
+    guardBuckets: 4096
   domain: {{ $domain | quote }}
   environment: production
   # Match Keycloak's advertised hostname exactly, including its configured :443.
@@ -84,6 +89,9 @@ platform:
         serviceAccount: {{ $entityIntelligenceServiceAccount | quote }}
         # Set from the entity-intelligence entry of the OpenTofu bucket_names output.
         evidenceBucket: "replace-with-entity-intelligence-bucket-output"
+        # entity_intelligence_population_archive.bucket_name from the selected infrastructure stack.
+        archiveBucket: "replace-with-population-archive-bucket-output"
+        archiveKmsKey: {{ printf "projects/%s/locations/%s/keyRings/fei-archives-%s/cryptoKeys/population-archive" $gcpProjectId $gcpRegion (sha256sum $gcpClusterName | trunc 16) | quote }}
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

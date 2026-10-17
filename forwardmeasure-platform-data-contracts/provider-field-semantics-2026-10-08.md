@@ -100,7 +100,7 @@ assertions, not the screening index. A future screening destination must reuse t
 |---|---|
 | `ENTITYS_UNIQUE_ID` | `uid`; raw `source_data` |
 | `BUSINESS_ENTITY_RECORD_ID` | `business_entity_record_id@CUSTOMER_MASTER`; raw `source_data` |
-| `KYC_ID` | `kyc_id@CUSTOMER_MASTER`; raw `source_data` |
+| `GEMS_ID` | `raw_domain_unique_id@CUSTOMER_MASTER`; raw `source_data` |
 | `ENTITYS_FULL_NAME` | `display_name`, `name`; raw `source_data` |
 | `ENTITY_PREFIX` | `display_name`, `name_prefix`; raw `source_data` |
 | `ENTITY_FIRST_NAME` | `display_name`, `given_name`; raw `source_data` |
@@ -156,7 +156,7 @@ assertions, not the screening index. A future screening destination must reuse t
 - Public identifiers carry a real IdentifierScheme when recognized; otherwise domain
   CUSTOMER_MASTER plus identifier_type. Business-record and KYC IDs are explicitly
   domain-scoped too. The persisted keys are business_entity_record_id@CUSTOMER_MASTER,
-  kyc_id@CUSTOMER_MASTER and, for example, tin@CUSTOMER_MASTER. LEI stays lei.
+  raw_domain_unique_id@CUSTOMER_MASTER and, for example, tin@CUSTOMER_MASTER. LEI stays lei.
   Do not retain the old test-prefixed keys as proof that identifiers are usable by deterministic matching.
 - Position, occupation, classification, business units, servicing/booking/contracting and birthplace
   are separate assertions; the legacy combined narrative also remains. No company/location relationship

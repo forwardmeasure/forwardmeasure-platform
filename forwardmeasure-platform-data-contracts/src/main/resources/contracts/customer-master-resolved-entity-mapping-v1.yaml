@@ -11,6 +11,10 @@
 # Screening/OpenSearch mappings are a different destination contract; this is not one.
 # Explicit resolution semantics; source strings also survive in the source_data JSON assertion.
 target: schema://source-of-truth/1.0
+identity:
+  entity_identifiers:
+    - raw_domain_unique_id@CUSTOMER_MASTER
+    - business_entity_record_id@CUSTOMER_MASTER
 fields:
   - target: uid
     source: ENTITYS_UNIQUE_ID
@@ -91,10 +95,10 @@ fields:
   - target: assertions
     repeated: true
     metadata:
-      key: kyc_id@CUSTOMER_MASTER
-    transform: customer_master_kyc_id
+      key: raw_domain_unique_id@CUSTOMER_MASTER
+    transform: customer_master_raw_domain_unique_id
     inputs:
-      value: KYC_ID
+      value: GEMS_ID
     optional: true
 
   # 3 structured location blocks, fixed key per position (registered/mailing/other), mirroring
