@@ -105,6 +105,7 @@
     <!-- Spatial4j's optional JSON parser, needed for GeoJSON shapes. -->
     <noggit.version>0.8</noggit.version>
     <junit-pioneer.version>2.3.0</junit-pioneer.version>
+    <commons-math3.version>3.6.1</commons-math3.version>
     <checkerframework.version>3.55.1</checkerframework.version>
     <commons.io.version>2.22.0</commons.io.version>
     <grpc.version>1.83.1</grpc.version>
@@ -570,6 +571,11 @@
         <groupId>org.junit-pioneer</groupId>
         <artifactId>junit-pioneer</artifactId>
         <version>${junit-pioneer.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math3</artifactId>
+        <version>${commons-math3.version}</version>
       </dependency>
       <dependency>
         <groupId>org.hdrhistogram</groupId>
