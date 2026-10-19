@@ -2102,6 +2102,11 @@
         <artifactId>forwardmeasure-platform-policy-maven-plugin</artifactId>
         <executions><execution><id>platform-version-policy</id><phase>validate</phase>
           <goals><goal>check</goal></goals>
+        </execution>
+        <!-- License headers in the files Apache RAT classifies as binary and never checks
+             (shell and Windows scripts, Dockerfiles, Helm and Helmfile templates, .github). -->
+        <execution><id>license-headers</id><phase>verify</phase>
+          <goals><goal>check-headers</goal></goals>
         </execution></executions>
       </plugin></plugins></build>
     </profile>
