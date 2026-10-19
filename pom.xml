@@ -505,6 +505,13 @@
         <groupId>org.apache.tinkerpop</groupId>
         <artifactId>gremlin-server</artifactId>
         <version>${tinkerpop.version}</version>
+        <exclusions>
+          <!-- Dropwizard Metrics 3 under its old groupId: same packages as the managed io.dropwizard.metrics 4.x, older API. -->
+          <exclusion>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.tinkerpop</groupId>
@@ -515,6 +522,17 @@
         <groupId>org.apache.tinkerpop</groupId>
         <artifactId>gremlin-test</artifactId>
         <version>${tinkerpop.version}</version>
+        <exclusions>
+          <!-- JUnit 4 and a Kerberos test KDC that the Itineris suites do not use. -->
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.kerby</groupId>
+            <artifactId>kerb-simplekdc</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.carrotsearch</groupId>
