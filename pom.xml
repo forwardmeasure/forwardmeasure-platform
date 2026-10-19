@@ -2046,6 +2046,14 @@
         <artifactId>apache-rat-plugin</artifactId>
         <version>${apache.rat.version}</version>
         <configuration>
+          <!-- RAT's standard CVS exclusions contain **/core (CVS ignores Unix core dumps, which are
+               files named "core"). The pattern also matches directories, so every package or folder
+               named "core" was skipped without a report. Including the directories explicitly
+               brings their files back under the check; RAT gives explicit includes precedence. -->
+          <inputIncludes>
+            <inputInclude>**/core</inputInclude>
+            <inputInclude>**/core/**</inputInclude>
+          </inputIncludes>
           <inputExcludes>
             <!-- JSON has no comment syntax to carry a header. -->
             <inputExclude>deploy/helmfile/charts/platform-dashboard/values.schema.json</inputExclude>
