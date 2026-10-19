@@ -102,6 +102,8 @@
     <commons-configuration2.version>2.15.1</commons-configuration2.version>
     <jts.version>1.18.0</jts.version>
     <spatial4j.version>0.8</spatial4j.version>
+    <!-- Spatial4j's optional JSON parser, needed for GeoJSON shapes. -->
+    <noggit.version>0.8</noggit.version>
     <junit-pioneer.version>2.3.0</junit-pioneer.version>
     <checkerframework.version>3.55.1</checkerframework.version>
     <commons.io.version>2.22.0</commons.io.version>
@@ -558,6 +560,11 @@
         <groupId>org.locationtech.spatial4j</groupId>
         <artifactId>spatial4j</artifactId>
         <version>${spatial4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.noggit</groupId>
+        <artifactId>noggit</artifactId>
+        <version>${noggit.version}</version>
       </dependency>
       <dependency>
         <groupId>org.junit-pioneer</groupId>
