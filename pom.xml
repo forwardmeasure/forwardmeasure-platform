@@ -94,6 +94,8 @@
     <camel.version>4.22.1</camel.version>
     <spark.version>4.2.0</spark.version>
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
+    <!-- Compile-time API annotations omitted transitively by Cassandra's provided dependency. -->
+    <jcip.annotations.version>1.0-1</jcip.annotations.version>
     <!-- Itineris graph engine (forwardmeasure-itineris). TinkerPop moves to 4.0 with the engine's
          TinkerPop 4 migration. -->
     <tinkerpop.version>3.8.2</tinkerpop.version>
@@ -857,6 +859,11 @@
         <groupId>org.apache.cassandra</groupId>
         <artifactId>java-driver-core</artifactId>
         <version>${cassandra.java.driver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.stephenc.jcip</groupId>
+        <artifactId>jcip-annotations</artifactId>
+        <version>${jcip.annotations.version}</version>
       </dependency>
       <dependency>
         <groupId>org.checkerframework</groupId>
