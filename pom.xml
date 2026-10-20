@@ -96,6 +96,8 @@
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
     <!-- Compile-time API annotations omitted transitively by Cassandra's provided dependency. -->
     <jcip.annotations.version>1.0-1</jcip.annotations.version>
+    <!-- Keep optional engine reporters aligned with the existing Dropwizard 4.x core. -->
+    <dropwizard.metrics.version>4.2.40</dropwizard.metrics.version>
     <!-- Itineris graph engine (forwardmeasure-itineris). TinkerPop moves to 4.0 with the engine's
          TinkerPop 4 migration. -->
     <tinkerpop.version>3.8.2</tinkerpop.version>
@@ -426,6 +428,13 @@
         <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform-quarkus-security</artifactId>
         <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-bom</artifactId>
+        <version>${dropwizard.metrics.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>io.grpc</groupId>
