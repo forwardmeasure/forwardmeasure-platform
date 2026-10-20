@@ -471,6 +471,12 @@
         </exclusions>
       </dependency>
       <dependency>
+        <!-- Cluster-manager runtime required by the Itineris distributed analytics worker. -->
+        <groupId>org.apache.spark</groupId>
+        <artifactId>spark-kubernetes_${scala.binary.version}</artifactId>
+        <version>${spark.version}</version>
+      </dependency>
+      <dependency>
         <!-- Spark's own native kafka DataFrame format
         (forwardmeasure-data-streaming-executor-spark's
              SourceSpec/SinkSpec connector generalization, 2026-09-13) - a real consumer, not a
@@ -1114,6 +1120,11 @@
       <dependency>
         <groupId>com.forwardmeasure.datastreaming</groupId>
         <artifactId>forwardmeasure-data-streaming-api</artifactId>
+        <version>${forwardmeasure.datastreaming.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.datastreaming</groupId>
+        <artifactId>forwardmeasure-data-streaming-spark-runtime</artifactId>
         <version>${forwardmeasure.datastreaming.version}</version>
       </dependency>
       <dependency>
