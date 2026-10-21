@@ -109,6 +109,18 @@
     <spark.hk2.version>3.0.6</spark.hk2.version>
     <spark.javassist.version>3.30.2-GA</spark.javassist.version>
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
+    <!-- Itineris graph engine (forwardmeasure-itineris). TinkerPop moves to 4.0 with the engine's
+         TinkerPop 4 migration. -->
+    <tinkerpop.version>3.8.2</tinkerpop.version>
+    <hppc.version>0.10.0</hppc.version>
+    <vavr.version>1.0.1</vavr.version>
+    <commons-configuration2.version>2.15.1</commons-configuration2.version>
+    <jts.version>1.18.0</jts.version>
+    <spatial4j.version>0.8</spatial4j.version>
+    <!-- Spatial4j's optional JSON parser, needed for GeoJSON shapes. -->
+    <noggit.version>0.8</noggit.version>
+    <junit-pioneer.version>2.3.0</junit-pioneer.version>
+    <commons-math3.version>3.6.1</commons-math3.version>
     <checkerframework.version>4.3.1</checkerframework.version>
     <commons.io.version>2.22.0</commons.io.version>
     <grpc.version>1.81.0</grpc.version>
@@ -1083,6 +1095,14 @@
         <artifactId>apache-rat-plugin</artifactId>
         <version>${apache.rat.version}</version>
         <configuration>
+          <!-- RAT's standard CVS exclusions contain **/core (CVS ignores Unix core dumps, which are
+               files named "core"). The pattern also matches directories, so every package or folder
+               named "core" was skipped without a report. Including the directories explicitly
+               brings their files back under the check; RAT gives explicit includes precedence. -->
+          <inputIncludes>
+            <inputInclude>**/core</inputInclude>
+            <inputInclude>**/core/**</inputInclude>
+          </inputIncludes>
           <inputExcludes>
             <!-- Shared proprietary-license RAT definition for the super-reactor build (resolved by
                  proprietary repos via ${maven.multiModuleProjectDirectory}); it carries the
@@ -1136,6 +1156,11 @@
         <artifactId>forwardmeasure-platform-policy-maven-plugin</artifactId>
         <executions><execution><id>platform-version-policy</id><phase>validate</phase>
           <goals><goal>check</goal></goals>
+        </execution>
+        <!-- License headers in the files Apache RAT classifies as binary and never checks
+             (shell and Windows scripts, Dockerfiles, Helm and Helmfile templates, .github). -->
+        <execution><id>license-headers</id><phase>verify</phase>
+          <goals><goal>check-headers</goal></goals>
         </execution></executions>
       </plugin></plugins></build>
     </profile>
