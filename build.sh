@@ -46,7 +46,10 @@ Options:
   --no-cache              Rebuild Docker layers without using the cache
                            (Docker caching is enabled by default).
   --no-build-cache       Disable Maven build-cache reuse for this invocation.
-  --run-tests             Run tests and enforce coverage (tests skipped by default).
+  --run-tests             Run unit tests and enforce coverage (tests skipped by default).
+                           Integration tests (*IT) do not run; use --full-suite.
+  --full-suite            Run unit and integration tests (the "full-suite" profile).
+                           Implies --run-tests.
   --coverage              Collect Jacoco code coverage via the "coverage"
                            profile (disabled by default).
   -h, --help              Show this help and exit.
@@ -81,6 +84,7 @@ mode=full
 target=
 push=true
 skip_tests=true
+full_suite=false
 coverage=false
 no_cache=false
 build_cache=true
@@ -123,6 +127,11 @@ while [ $# -gt 0 ]; do
 			skip_tests=false
 			shift
 			;;
+		--full-suite)
+			skip_tests=false
+			full_suite=true
+			shift
+			;;
 		--no-cache)
 			no_cache=true
 			shift
@@ -158,6 +167,9 @@ fi
 profiles=container-image
 if [ "$coverage" = true ] || [ "$skip_tests" = false ]; then
 	profiles="$profiles,coverage"
+fi
+if [ "$full_suite" = true ]; then
+	profiles="$profiles,full-suite"
 fi
 
 build_started=$(date +%s)

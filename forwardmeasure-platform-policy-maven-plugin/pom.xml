@@ -20,12 +20,26 @@
     <parent>
         <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform</artifactId>
-        <version>1.1.0</version>
+        <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>forwardmeasure-platform-policy-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>ForwardMeasure Platform :: Policy Maven Plugin</name>
+    <!-- The one framework-neutral module that is NOT under forwardmeasure-platform-neutral-parent:
+         every module in the reactor runs this plugin, the neutral parent included, so having it as
+         this plugin's parent is a reactor cycle. It imports the libraries BOM itself instead. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-libraries-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency><groupId>org.ow2.asm</groupId><artifactId>asm</artifactId></dependency>
         <dependency><groupId>org.codehaus.plexus</groupId><artifactId>plexus-xml</artifactId><scope>provided</scope></dependency>

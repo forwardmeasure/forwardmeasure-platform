@@ -35,6 +35,7 @@
 {{- $entityIntelligenceServiceAccount := "entity-intelligence@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $decisionEngineServiceAccount := "decision-engine@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $dataStreamingServiceAccount := "data-streaming@forwardmeasure-production.iam.gserviceaccount.com" }}
+{{- $indexicalServiceAccount := "indexical@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "example-bank" "displayName" "Example Bank") }}
 platform:
   databases:
@@ -92,6 +93,10 @@ platform:
         # entity_intelligence_population_archive.bucket_name from the selected infrastructure stack.
         archiveBucket: "replace-with-population-archive-bucket-output"
         archiveKmsKey: {{ printf "projects/%s/locations/%s/keyRings/fei-archives-%s/cryptoKeys/population-archive" $gcpProjectId $gcpRegion (sha256sum $gcpClusterName | trunc 16) | quote }}
+      indexical:
+        serviceAccount: {{ $indexicalServiceAccount | quote }}
+        # Set from the indexical entry of the OpenTofu bucket_names output.
+        documentsBucket: "replace-with-indexical-documents-bucket-output"
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

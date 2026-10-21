@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform</artifactId>
-        <version>1.1.0</version>
+        <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,12 +30,26 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Deliberate: no compile-time serializer generation. Micronaut Serde 3.2.x generates
+                 "simple shape" serializers (an optimisation) whose code uses raw types and unchecked
+                 calls, which fails -Xlint:all -Werror. Without the Java source generator on the
+                 processor path, Serde uses its standard introspection-based serializers. -->
             <dependency>
-                <groupId>com.forwardmeasure.platform</groupId>
-                <artifactId>forwardmeasure-platform-core-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>io.micronaut.serde</groupId>
+                <artifactId>micronaut-serde-processor</artifactId>
+                <version>${micronaut.serde.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.micronaut.sourcegen</groupId>
+                        <artifactId>micronaut-sourcegen-generator-java</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- Deliberate override (see json.schema.validator.version): stay on the Jackson 2 line. -->
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${json.schema.validator.version}</version>
             </dependency>
             <!--
                 Imported explicitly and BEFORE micronaut-platform below, on purpose: io.micronaut.jaxrs:*
@@ -56,9 +70,31 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>io.micronaut.serde</groupId>
+                <artifactId>micronaut-serde-bom</artifactId>
+                <version>${micronaut.serde.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>io.micronaut.platform</groupId>
                 <artifactId>micronaut-platform</artifactId>
                 <version>${micronaut.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-core-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- After the framework BOM: fills only what the framework does not manage. -->
+            <dependency>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-libraries-bom</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

@@ -27,6 +27,20 @@
     <artifactId>plain-java-consumer</artifactId>
     <name>ForwardMeasure Platform :: Contract :: Plain Java</name>
 
+    <!-- The platform parent manages no third-party versions; a framework-neutral consumer takes
+         them from the libraries BOM, as a framework consumer takes them from its framework BOM. -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-libraries-bom</artifactId>
+                <version>${forwardmeasure.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

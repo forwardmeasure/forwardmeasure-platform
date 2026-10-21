@@ -37,6 +37,7 @@ namespaces:
   dataStreaming: {{ $common.namespaces.dataStreaming }}
   entityIntelligence: {{ $common.namespaces.entityIntelligence }}
   decisionEngine: {{ $common.namespaces.decisionEngine }}
+  agentEnsemble: {{ $common.namespaces.agentEnsemble }}
 
 gatewayApi:
   version: {{ $common.gatewayApi.version }}
@@ -69,6 +70,10 @@ tenants:
     did: {{ .did | quote }}
     code: {{ .alias | quote }}
     name: {{ .displayName | quote }}
+    # Workflow-call secrets the operation adapter mounts for this tenant: Indexical's model
+    # provider key (one platform credential; any value for a model server without auth).
+    workflowSecrets:
+      - {secretKey: indexical-model-api-key, remoteKey: platform-indexical-model-api-key}
   {{- end }}
 {{- $bootstrapTenant := index $cluster.tenants 0 }}
 bootstrapIdentity:

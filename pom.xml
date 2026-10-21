@@ -59,6 +59,7 @@
     <forwardmeasure.jpa.version>1.1.0</forwardmeasure.jpa.version>
     <forwardmeasure.objectstorage.version>1.1.0</forwardmeasure.objectstorage.version>
     <forwardmeasure.documentintelligence.version>1.1.0</forwardmeasure.documentintelligence.version>
+    <forwardmeasure.entityintelligence.version>1.1.0</forwardmeasure.entityintelligence.version>
     <forwardmeasure.openworkflow.version>1.1.0</forwardmeasure.openworkflow.version>
     <forwardmeasure.nlp.version>1.1.0</forwardmeasure.nlp.version>
     <forwardmeasure.platform-operations.version>1.1.0</forwardmeasure.platform-operations.version>
@@ -68,49 +69,66 @@
     <project.build.outputTimestamp>1980-01-01T00:00:02Z</project.build.outputTimestamp>
     <maven.compiler.release>25</maven.compiler.release>
 
-    <jackson.version>2.22.2</jackson.version>
+    <jackson.version>2.21.5</jackson.version>
     <slf4j.version>2.0.18</slf4j.version>
-    <junit.version>6.1.2</junit.version>
+    <junit.version>6.0.3</junit.version>
     <rest-assured.version>6.0.1</rest-assured.version>
     <testcontainers.version>2.0.5</testcontainers.version>
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
     <jakarta.persistence.version>3.2.0</jakarta.persistence.version>
     <jakarta.cdi.version>4.1.0</jakarta.cdi.version>
-    <jakarta.annotation.version>3.0.0</jakarta.annotation.version>
-    <jakarta.ws.rs.version>4.0.0</jakarta.ws.rs.version>
+    <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
+    <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
     <jakarta.transaction.version>2.0.1</jakarta.transaction.version>
     <jakarta.validation.version>3.1.1</jakarta.validation.version>
     <postgresql.version>42.7.13</postgresql.version>
-    <keycloak.version>26.7.4</keycloak.version>
+    <keycloak.version>26.8.1</keycloak.version>
     <hibernate.version>7.4.5.Final</hibernate.version>
     <scala.binary.version>2.13</scala.binary.version>
-    <scala.version>2.13.18</scala.version>
-    <typesafe.config.version>1.4.6</typesafe.config.version>
-    <pekko.version>1.7.0</pekko.version>
+    <scala.version>2.13.16</scala.version>
+    <typesafe.config.version>1.4.9</typesafe.config.version>
+    <pekko.version>1.7.1</pekko.version>
     <pekko.projection.version>1.1.0</pekko.projection.version>
     <pekko.management.version>1.2.1</pekko.management.version>
     <pekko.persistence.jdbc.version>1.3.0</pekko.persistence.jdbc.version>
     <pekko.persistence.cassandra.version>1.1.0</pekko.persistence.cassandra.version>
-    <camel.version>4.22.1</camel.version>
+    <camel.version>4.23.0</camel.version>
     <spark.version>4.2.0</spark.version>
+    <!-- Spark is the runtime for Spark modules, like a framework: forwardmeasure-platform-spark-bom
+         pins, ahead of the libraries BOM, the families Spark 4.2.0 is built and tested against
+         (values from org.apache.spark:spark-parent_2.13:4.2.0). Spark publishes no BOM, and its
+         parent POM cannot be imported as one (it marks Guava/Protobuf/Jetty provided and JDBC
+         drivers test-scoped for its own assembly). Update these with spark.version. -->
+    <spark.netty.version>4.2.13.Final</spark.netty.version>
+    <spark.jackson.version>2.21.2</spark.jackson.version>
+    <spark.jersey.version>3.1.11</spark.jersey.version>
+    <spark.scala.version>2.13.18</spark.scala.version>
+    <spark.antlr4.version>4.13.1</spark.antlr4.version>
+    <!-- Jersey 3.1.11 is built on HK2 3.x ([3.0,4)) and this Javassist; the libraries BOM's HK2 4
+         follows the frameworks' Jersey 4. Values from org.glassfish.jersey:project:3.1.11. -->
+    <spark.hk2.version>3.0.6</spark.hk2.version>
+    <spark.javassist.version>3.30.2-GA</spark.javassist.version>
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
-    <checkerframework.version>3.55.1</checkerframework.version>
+    <checkerframework.version>4.3.1</checkerframework.version>
     <commons.io.version>2.22.0</commons.io.version>
-    <grpc.version>1.83.1</grpc.version>
-    <protobuf.version>4.35.1</protobuf.version>
+    <grpc.version>1.81.0</grpc.version>
+    <protobuf.version>4.34.1</protobuf.version>
     <protoc.jar.version>3.11.4</protoc.jar.version>
-    <guava.version>33.6.0-android</guava.version>
+    <guava.version>33.6.0-jre</guava.version>
     <gson.version>2.13.2</gson.version>
     <errorprone.annotations.version>2.50.0</errorprone.annotations.version>
-    <lz4.java.version>1.10.4</lz4.java.version>
-    <jnats.version>2.25.3</jnats.version>
-    <bouncycastle.version>1.84</bouncycastle.version>
+    <lz4.java.version>1.11.4</lz4.java.version>
+    <jnats.version>2.26.4</jnats.version>
+    <bouncycastle.version>1.86</bouncycastle.version>
     <paho.mqtt.version>1.2.5</paho.mqtt.version>
-    <rabbitmq.version>5.31.0</rabbitmq.version>
-    <qpid.jms.version>2.10.0</qpid.jms.version>
-    <lettuce.version>7.6.0.RELEASE</lettuce.version>
-    <pulsar.version>4.2.2</pulsar.version>
-    <aws.sdk.version>2.50.2</aws.sdk.version>
+    <rabbitmq.version>5.30.0</rabbitmq.version>
+    <qpid.jms.version>2.11.0</qpid.jms.version>
+    <!-- Baseline = the lowest runtime: Quarkus manages no Lettuce, so forwardmeasure-platform-quarkus-bom
+         pins lettuce.quarkus.version (6.x, the line that runs on Quarkus's Netty 4.1); Spring and
+         Micronaut ship 7.x. -->
+    <lettuce.version>6.5.5.RELEASE</lettuce.version>
+    <pulsar.version>4.2.4</pulsar.version>
+    <aws.sdk.version>2.54.3</aws.sdk.version>
     <!-- google.pubsub.version (a standalone pin) removed 2026-09-14: this and
          forwardmeasure-object-storage-gcs's own separately-imported com.google.cloud:libraries-bom
          (26.79.0) pinned google-cloud-pubsub and google-cloud-storage independently, which never
@@ -122,55 +140,59 @@
          google-cloud-bom 0.260.0 -> google-cloud-pubsub-bom 1.150.0 / google-cloud-storage-bom
          2.64.1) before applying - pubsub moves from 1.152.0 to 1.150.0, a two-patch-version
          difference, not a real compatibility risk. -->
-    <google.cloud.libraries.version>26.79.0</google.cloud.libraries.version>
-    <google.common.protos.version>2.73.0</google.common.protos.version>
+    <google.cloud.libraries.version>26.90.0</google.cloud.libraries.version>
+    <google.common.protos.version>2.71.0</google.common.protos.version>
     <opentelemetry.version>1.62.0</opentelemetry.version>
-    <asm.version>9.9.1</asm.version>
-    <ibm.mq.version>9.4.5.1</ibm.mq.version>
-    <solace.jms.version>10.30.1</solace.jms.version>
-    <cloudevents.version>5.0.0</cloudevents.version>
+    <asm.version>9.10.1</asm.version>
+    <ibm.mq.version>10.0.1.0</ibm.mq.version>
+    <solace.jms.version>10.30.2</solace.jms.version>
+    <cloudevents.version>5.1.0</cloudevents.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <hikaricp.version>7.1.0</hikaricp.version>
+    <hikaricp.version>7.0.2</hikaricp.version>
     <hdrhistogram.version>2.2.2</hdrhistogram.version>
+    <spotbugs-annotations.version>4.10.3</spotbugs-annotations.version>
     <!--
-    Real, confirmed live 2026-09-24: netty.version is the shared default every framework in every
-    consuming repo inherits via this pom's own netty-bom import below - set to the latest 4.2.x
-    line (matching what micronaut-platform:5.1.5 and spark-parent_2.13:4.2.0 both already need),
-    since Quarkus 4.x (expected within the next month or so) converges onto this same line too -
-    Quarkus 3.x is the one, temporary exception until then. quarkus.netty.version names and pins
-    that exception explicitly, for any Quarkus module in any consuming repo that needs to
-    override the shared default back down - see forwardmeasure-openworkflow's own
-    openworkflow-engine-pekko-quarkus pom for a real example of applying it. Remove
-    quarkus.netty.version (and every consuming override of it) once every Quarkus module in every
-    repo has moved to Quarkus 4.x and no longer needs it.
+    Version properties for libraries a framework also manages (Netty, Jackson, gRPC, Hibernate, …)
+    are the NEUTRAL BASELINE: the lowest version among the three framework BOMs. They feed only
+    forwardmeasure-platform-libraries-bom (framework-neutral modules, and gap-filling after a
+    framework's own BOM). Framework modules always run their framework's own version.
     -->
-    <netty.version>4.2.18.Final</netty.version>
-    <quarkus.netty.version>4.1.138.Final</quarkus.netty.version>
+    <netty.version>4.1.139.Final</netty.version>
     <reactive-streams.version>1.0.4</reactive-streams.version>
-    <kafka.version>4.3.1</kafka.version>
-    <jnr-ffi.version>2.2.17</jnr-ffi.version>
-    <jnr-constants.version>0.10.4</jnr-constants.version>
+    <kafka.version>4.2.1</kafka.version>
+    <jnr-ffi.version>2.3.3</jnr-ffi.version>
+    <jnr-constants.version>0.11.2</jnr-constants.version>
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-text.version>1.15.0</commons-text.version>
-    <saxon.version>13.0</saxon.version>
+    <saxon.version>13.1</saxon.version>
     <commons-compress.version>1.28.0</commons-compress.version>
     <icu4j.version>78.3</icu4j.version>
     <forwardmeasure.entitymatching.version>1.1.0</forwardmeasure.entitymatching.version>
-    <jayway-json-path.version>3.0.0</jayway-json-path.version>
-    <httpclient5.version>5.6.3</httpclient5.version>
+    <jayway-json-path.version>2.10.0</jayway-json-path.version>
+    <httpclient5.version>5.6.4</httpclient5.version>
     <!-- Apicurio Registry Java SDK; matches the platform's registry (environments/image-versions.yaml). -->
-    <apicurio-registry.version>3.3.1</apicurio-registry.version>
+    <apicurio-registry.version>3.3.3</apicurio-registry.version>
     <!-- Align HK2 with the existing Jersey 4.0.2 parent; Spark also declares HK2 directly. -->
-    <hk2.version>4.0.0-M3</hk2.version>
+    <hk2.version>4.0.3</hk2.version>
     <jersey.version>4.0.2</jersey.version>
     <jboss.logging.version>3.6.3.Final</jboss.logging.version>
     <jakarta.xml.bind.version>4.0.5</jakarta.xml.bind.version>
+    <hibernate-validator.version>9.1.3.Final</hibernate-validator.version>
+    <expressly.version>6.0.0</expressly.version>
+    <!-- Families that only the framework BOMs used to manage (back when the platform parent
+         imported all three); now managed for neutral modules explicitly. Baselines as elsewhere. -->
+    <jackson3.version>3.1.5</jackson3.version>
+    <httpcore5.version>5.4.3</httpcore5.version>
+    <commons-collections4.version>4.6.0</commons-collections4.version>
+    <kiota.version>1.10.2</kiota.version>
+    <!-- Baseline = Quarkus's Vert.x (the only framework that manages it). -->
+    <vertx.version>4.5.35</vertx.version>
     <jakarta.el.version>6.0.1</jakarta.el.version>
     <lombok.version>1.18.48</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-    <commons.codec.version>1.22.1</commons.codec.version>
-    <quarkus.platform.version>3.39.4</quarkus.platform.version>
+    <commons.codec.version>1.21.0</commons.codec.version>
+    <quarkus.platform.version>3.40.1.1</quarkus.platform.version>
     <quarkus.bootstrap.workspace-discovery>false</quarkus.bootstrap.workspace-discovery>
     <!--
     quarkus.bootstrap.effective-model-builder=true was tried here to fix a real, documented Quarkus
@@ -205,7 +227,7 @@
     project specifically against this new 5.1.5 + explicit-jaxrs-BOM combination before considering
     this closed.
     -->
-    <micronaut.platform.version>5.1.5</micronaut.platform.version>
+    <micronaut.platform.version>5.2.2</micronaut.platform.version>
     <!--
     io.micronaut.jaxrs:* (micronaut-jaxrs-bom/-server/-server-security/-processor/-common/-client)
     managed as its own explicit, separately-versioned property - confirmed via Maven Central
@@ -213,21 +235,36 @@
     micronaut.platform.version above. Bump only when a newer io.micronaut.jaxrs:micronaut-jaxrs-bom
     is actually confirmed published - do not assume it tracks micronaut.platform.version.
     -->
+    <!-- Micronaut Serde newer than micronaut-platform ships: 3.2.4 generates serializers with raw
+         types (fails -Xlint:all -Werror). Imported ahead of micronaut-platform in the Micronaut BOM. -->
+    <micronaut.serde.version>3.2.5</micronaut.serde.version>
     <micronaut.jaxrs.version>5.1.0</micronaut.jaxrs.version>
 
     <maven.clean.version>3.5.0</maven.clean.version>
-    <maven.compiler.version>3.15.0</maven.compiler.version>
-    <maven.resources.version>3.3.1</maven.resources.version>
-    <maven.surefire.version>3.5.4</maven.surefire.version>
-    <maven.failsafe.version>3.5.4</maven.failsafe.version>
-    <maven.jar.version>3.5.0</maven.jar.version>
-    <maven.install.version>3.1.4</maven.install.version>
-    <maven.deploy.version>3.1.4</maven.deploy.version>
+    <maven.compiler.version>3.16.0</maven.compiler.version>
+    <maven.resources.version>3.5.0</maven.resources.version>
+    <maven.surefire.version>3.6.0</maven.surefire.version>
+    <maven.failsafe.version>3.6.0</maven.failsafe.version>
+    <!--
+    Test tiers, identical in every repo (profiles below):
+      default / -Punit-tests-only : unit tests only - integration tests (*IT, Failsafe) do not run.
+      -Pfull-suite                : unit and integration tests. Repos may attach more to full-suite
+                                    (e.g. decision-engine's live conformance tests).
+    -DskipTests skips everything in both. (Failsafe 3.6.0 no longer reads skipTests itself, so
+    full-suite makes skipITs follow it.) Set as a property, not an activeByDefault profile: Maven
+    drops a parent's activeByDefault profile whenever any other profile of it is active (e.g.
+    -Pcontainer-image), which would silently change the tier.
+    -->
+    <skipTests>false</skipTests>
+    <skipITs>true</skipITs>
+    <maven.jar.version>3.5.1</maven.jar.version>
+    <maven.install.version>3.2.0</maven.install.version>
+    <maven.deploy.version>3.2.0</maven.deploy.version>
     <maven.site.version>3.22.0</maven.site.version>
     <maven.source.version>3.4.0</maven.source.version>
     <maven.javadoc.version>3.12.0</maven.javadoc.version>
     <maven.enforcer.version>3.6.3</maven.enforcer.version>
-    <maven.dependency.version>3.9.0</maven.dependency.version>
+    <maven.dependency.version>3.11.0</maven.dependency.version>
     <jacoco.version>0.8.15</jacoco.version>
     <!-- Shared Java coverage policy. Products with aggregate checks use these same thresholds. -->
     <jacoco.minimum.line.coverage>0.85</jacoco.minimum.line.coverage>
@@ -235,22 +272,28 @@
     <jacoco.maximum.missed.classes>0</jacoco.maximum.missed.classes>
     <jacoco.module.check.skip>false</jacoco.module.check.skip>
     <flatten.version>1.8.0</flatten.version>
-    <spotless.version>3.9.0</spotless.version>
-    <google-java-format.version>1.29.0</google-java-format.version>
-    <cyclonedx.version>2.9.2</cyclonedx.version>
+    <spotless.version>3.10.4</spotless.version>
+    <!-- 1.37.0 is the latest release, but spotless-maven-plugin (3.10.4, latest) cannot drive it yet:
+         every file fails with InvocationTargetException. 1.36.0 is the newest release that works. -->
+    <google-java-format.version>1.36.0</google-java-format.version>
+    <cyclonedx.version>2.9.3</cyclonedx.version>
     <jib.version>3.5.2</jib.version>
     <jandex.version>3.6.0</jandex.version>
-    <maven.shade.version>3.6.1</maven.shade.version>
+    <maven.shade.version>3.6.2</maven.shade.version>
     <maven-plugin-api.version>3.9.16</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
-    <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
-    <openapi-generator.version>7.25.0</openapi-generator.version>
-    <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
-    <fabric8.docker.version>0.46.0</fabric8.docker.version>
+    <maven-plugin-plugin.version>3.16.0</maven-plugin-plugin.version>
+    <maven-plugin-annotations.version>3.16.0</maven-plugin-annotations.version>
+    <openapi-generator.version>7.26.0</openapi-generator.version>
+    <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
+    <fabric8.docker.version>0.49.0</fabric8.docker.version>
     <apache.rat.version>0.18</apache.rat.version>
-    <nodejs.version>v22.22.0</nodejs.version>
+    <nodejs.version>v24.22.0</nodejs.version>
     <osgi.annotation.bundle.version>2.0.0</osgi.annotation.bundle.version>
-    <keycloak.image.digest>sha256:7523ccfbd950f59783504cdf5a0138dae48746dfe36075bbfccdb5a9ee245ee2</keycloak.image.digest>
+    <!-- Base of forwardmeasure-platform-operations/operations-keycloak-theme: the platform's deployed
+         Keycloak image docker.io/forwardmeasure/keycloak:${keycloak.version}-authz (built by
+         helm-charts/charts/keycloak-helm-chart/build-and-push-image.sh), pinned by its pushed digest.
+         Keep in step with deploy/helmfile/environments/image-versions.yaml keycloak.digest. -->
+    <keycloak.authz.image.digest>sha256:64c47e576176e87067f3475f2c0ed5f051e7a7325066480c9e1c05a2a989dd84</keycloak.authz.image.digest>
     <container-image.registry>docker.io</container-image.registry>
     <container-image.group>forwardmeasure</container-image.group>
     <container-image.tag>${project.version}</container-image.tag>
@@ -261,59 +304,62 @@
       eclipse-temurin:25-jre-ubi10-minimal@sha256:35f47084a4c1e34636fc8842780d5ca1e85b1b74de139723d1a541137932ddf2
     </container-image.base-jre>
     <!-- Shared product, library and plugin versions; consuming POMs inherit these pins. -->
-    <a2a-java-sdk.version>1.1.0.Final</a2a-java-sdk.version>
+    <a2a-java-sdk.version>1.4.0.Final</a2a-java-sdk.version>
     <aircompressor.version>2.0.3</aircompressor.version>
-    <animal-sniffer-annotations.version>1.27</animal-sniffer-annotations.version>
-    <animal.sniffer.annotations.version>1.27</animal.sniffer.annotations.version>
+    <animal-sniffer-annotations.version>1.28</animal-sniffer-annotations.version>
+    <animal.sniffer.annotations.version>1.28</animal.sniffer.annotations.version>
     <annotations-api.version>6.0.53</annotations-api.version>
     <antlr4-runtime.version>4.13.2</antlr4-runtime.version>
-    <archunit.version>1.4.1</archunit.version>
-    <azure-sdk.version>1.3.7</azure-sdk.version>
-    <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
-    <byte-buddy.version>1.18.11</byte-buddy.version>
+    <archunit.version>1.5.1</archunit.version>
+    <azure-sdk.version>1.3.9</azure-sdk.version>
+    <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
+    <byte-buddy.version>1.18.8</byte-buddy.version>
     <commons-csv.version>1.14.1</commons-csv.version>
     <commons-logging.version>1.3.6</commons-logging.version>
-    <dependency.check.version>12.2.2</dependency.check.version>
+    <dependency.check.version>13.0.0</dependency.check.version>
     <drools.version>10.2.0</drools.version>
     <duplicate.finder.version>2.0.1</duplicate.finder.version>
-    <exec-maven-plugin.version>3.6.2</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.6.4</exec-maven-plugin.version>
     <forwardmeasure.authzen.version>1.1.0</forwardmeasure.authzen.version>
     <forwardmeasure.datastreaming.version>1.1.0</forwardmeasure.datastreaming.version>
     <forwardmeasure.decisionengine.version>1.1.0</forwardmeasure.decisionengine.version>
     <hadoop-client.version>3.5.0</hadoop-client.version>
-    <jackson.jq.version>1.6.2</jackson.jq.version>
+    <jackson.jq.version>1.6.5</jackson.jq.version>
     <jakarta.activation-api.version>2.1.4</jakarta.activation-api.version>
     <jakarta.json-api.version>2.1.3</jakarta.json-api.version>
-    <jaxb-runtime.version>4.0.7</jaxb-runtime.version>
-    <json.schema.validator.version>2.0.4</json.schema.validator.version>
+    <jaxb-runtime.version>4.0.9</jaxb-runtime.version>
+    <!-- Deliberate: json-schema-validator 3.x is built on Jackson 3 (tools.jackson) and only accepts
+         Jackson 3 nodes; our code (openworkflow-definition, FEI worker-common, schema tests) is on
+         Jackson 2. Kept on the 2.x line everywhere; forwardmeasure-platform-micronaut-bom pins it
+         over Micronaut's 3.x (nothing here uses Micronaut's own JSON Schema module). -->
+    <json.schema.validator.version>2.0.8</json.schema.validator.version>
     <jsr305.version>3.0.2</jsr305.version>
-    <kotlin-stdlib.version>1.9.10</kotlin-stdlib.version>
+    <kotlin-stdlib.version>2.3.21</kotlin-stdlib.version>
     <kubernetes.client.version>7.8.0</kubernetes.client.version>
     <!-- Explicit compatibility pins; consuming overrides must give their reason. -->
-    <quarkus.rest-assured.version>5.5.6</quarkus.rest-assured.version>
     <lettuce.quarkus.version>6.5.5.RELEASE</lettuce.quarkus.version>
-    <liquibase.cassandra.version>5.0.3</liquibase.cassandra.version>
-    <liquibase.version>5.0.3</liquibase.version>
-    <logback.version>1.6.1</logback.version>
-    <mcp-java-sdk.version>2.0.0</mcp-java-sdk.version>
+    <liquibase.cassandra.version>5.0.4</liquibase.cassandra.version>
+    <liquibase.version>4.33.0</liquibase.version>
+    <logback.version>1.5.37</logback.version>
+    <mcp-java-sdk.version>2.0.1</mcp-java-sdk.version>
     <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
     <opencsv.version>5.12.0</opencsv.version>
-    <opensearch-java.version>3.10.0</opensearch-java.version>
+    <opensearch-java.version>3.9.0</opensearch-java.version>
     <opensearch-testcontainers.version>4.1.0</opensearch-testcontainers.version>
     <osgi-resource-locator.version>3.0.0</osgi-resource-locator.version>
     <paranamer.version>2.8.3</paranamer.version>
     <parsson.version>1.1.9</parsson.version>
-    <pekko.connectors.kafka.version>1.1.0</pekko.connectors.kafka.version>
-    <plexus-xml.version>3.0.2</plexus-xml.version>
-    <plexus-utils.version>4.0.3</plexus-utils.version>
+    <pekko.connectors.kafka.version>1.2.0</pekko.connectors.kafka.version>
+    <plexus-xml.version>3.1.0</plexus-xml.version>
+    <plexus-utils.version>4.1.0</plexus-utils.version>
     <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
-    <serverlessworkflow.sdk.version>7.29.0.Final</serverlessworkflow.sdk.version>
-    <snakeyaml.version>2.6</snakeyaml.version>
-    <snappy-java.version>1.1.10.8</snappy-java.version>
+    <serverlessworkflow.sdk.version>7.35.3.Final</serverlessworkflow.sdk.version>
+    <snakeyaml.version>2.4</snakeyaml.version>
+    <snappy-java.version>1.1.10.11</snappy-java.version>
     <swagger-annotations.version>1.6.16</swagger-annotations.version>
     <xz.version>1.12</xz.version>
-    <zookeeper.version>3.9.5</zookeeper.version>
-    <zstd-jni.version>1.5.7-7</zstd-jni.version>
+    <zookeeper.version>3.9.6</zookeeper.version>
+    <zstd-jni.version>1.5.7-16</zstd-jni.version>
   </properties>
 
   <!--
@@ -351,14 +397,21 @@
   is not anyone's parent, so Quarkus's workspace walk never reaches it.
   -->
   <modules>
+    <module>parents/quarkus</module>
+    <module>parents/spring</module>
+    <module>parents/micronaut</module>
+    <module>parents/neutral</module>
     <module>forwardmeasure-platform-core-bom</module>
     <module>forwardmeasure-platform-data-contracts</module>
     <module>forwardmeasure-platform-api-contracts</module>
+    <module>forwardmeasure-platform-libraries-bom</module>
     <module>forwardmeasure-platform-quarkus-bom</module>
     <module>forwardmeasure-platform-spring-bom</module>
     <module>forwardmeasure-platform-micronaut-bom</module>
+    <module>forwardmeasure-platform-spark-bom</module>
     <module>forwardmeasure-platform-policy-maven-plugin</module>
     <module>forwardmeasure-platform-server-jaxrs</module>
+    <module>forwardmeasure-platform-kubernetes</module>
     <module>forwardmeasure-platform-micronaut-validation</module>
     <module>forwardmeasure-platform-spring-security</module>
     <module>forwardmeasure-platform-quarkus-security</module>
@@ -369,6 +422,11 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Third-party versions are NOT managed here. Framework modules get them from their
+           framework BOM (forwardmeasure-platform-{quarkus,spring,micronaut}-bom); framework-neutral
+           modules from forwardmeasure-platform-libraries-bom. Managing them in this parent made
+           every module inherit them, which overrode the framework BOMs (and Quarkus's test
+           bootstrap resolved them differently from Maven). Only ForwardMeasure artifacts stay. -->
       <dependency>
         <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform-api-contracts</artifactId>
@@ -398,6 +456,11 @@
       </dependency>
       <dependency>
         <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-kubernetes</artifactId>
+        <version>${forwardmeasure.platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform-micronaut-validation</artifactId>
         <version>${forwardmeasure.platform.version}</version>
       </dependency>
@@ -410,578 +473,6 @@
         <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform-quarkus-security</artifactId>
         <version>${forwardmeasure.platform.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-bom</artifactId>
-        <version>${grpc.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.kafka</groupId>
-        <artifactId>kafka-streams</artifactId>
-        <version>${kafka.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.kafka</groupId>
-        <artifactId>kafka-clients</artifactId>
-        <version>${kafka.version}</version>
-      </dependency>
-      <dependency>
-        <!-- Spark publishes no proper BOM - individual artifacts are managed directly here,
-             matching data-fabric's own real pin (org.apache.spark.version) exactly. Add further
-             spark-* artifacts here as real consumers need them, rather than pre-declaring every
-             one data-fabric happens to use. -->
-        <groupId>org.apache.spark</groupId>
-        <artifactId>spark-core_${scala.binary.version}</artifactId>
-        <version>${spark.version}</version>
-        <exclusions>
-          <!-- Jersey 4's servlet artifact owns these classes. Spark still requests the separate
-               Jersey 3 servlet-core artifact, which otherwise creates a mixed-version runtime. -->
-          <exclusion>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.spark</groupId>
-        <artifactId>spark-sql_${scala.binary.version}</artifactId>
-        <version>${spark.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <!-- Spark's own native kafka DataFrame format
-        (forwardmeasure-data-streaming-executor-spark's
-             SourceSpec/SinkSpec connector generalization, 2026-09-13) - a real consumer, not a
-             pre-declared guess, per this block's own comment above. -->
-        <groupId>org.apache.spark</groupId>
-        <artifactId>spark-sql-kafka-0-10_${scala.binary.version}</artifactId>
-        <version>${spark.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.hdrhistogram</groupId>
-        <artifactId>HdrHistogram</artifactId>
-        <version>${hdrhistogram.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>at.yawk.lz4</groupId>
-        <artifactId>lz4-java</artifactId>
-        <version>${lz4.java.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.nats</groupId>
-        <artifactId>jnats</artifactId>
-        <version>${jnats.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk18on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.paho</groupId>
-        <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
-        <version>${paho.mqtt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.paho</groupId>
-        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-        <version>${paho.mqtt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.rabbitmq</groupId>
-        <artifactId>amqp-client</artifactId>
-        <version>${rabbitmq.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.qpid</groupId>
-        <artifactId>qpid-jms-client</artifactId>
-        <version>${qpid.jms.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.lettuce</groupId>
-        <artifactId>lettuce-core</artifactId>
-        <version>${lettuce.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pulsar</groupId>
-        <artifactId>pulsar-client</artifactId>
-        <version>${pulsar.version}</version>
-      </dependency>
-      <!-- The whole AWS SDK at one version: sns/sqs/secretsmanager here, s3 in
-           forwardmeasure-object-storage, and the sdk-core/http-client/auth modules they share. -->
-      <dependency>
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>bom</artifactId>
-        <version>${aws.sdk.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <!-- Manages google-cloud-pubsub's version (and everything it shares transitively with
-           forwardmeasure-object-storage-gcs's own google-cloud-storage - proto-google-iam-v1,
-           gax-httpjson, api-common, google-auth-library-credentials) from one consistent chain
-           instead of two independently-pinned families - see the property comment above for the
-           real convergence failure this fixes and how it was verified. Same version
-           forwardmeasure-object-storage already imports. -->
-      <dependency>
-        <groupId>com.google.cloud</groupId>
-        <artifactId>libraries-bom</artifactId>
-        <version>${google.cloud.libraries.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.google.api.grpc</groupId>
-        <artifactId>proto-google-common-protos</artifactId>
-        <version>${google.common.protos.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.opentelemetry</groupId>
-        <artifactId>opentelemetry-api</artifactId>
-        <version>${opentelemetry.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.opentelemetry</groupId>
-        <artifactId>opentelemetry-common</artifactId>
-        <version>${opentelemetry.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.opentelemetry</groupId>
-        <artifactId>opentelemetry-context</artifactId>
-        <version>${opentelemetry.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm-commons</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm-analysis</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm-tree</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm-util</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.ibm.mq</groupId>
-        <artifactId>com.ibm.mq.allclient</artifactId>
-        <version>${ibm.mq.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.solacesystems</groupId>
-        <artifactId>sol-jms-jakarta</artifactId>
-        <version>${solace.jms.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.kafka</groupId>
-        <artifactId>kafka-streams-test-utils</artifactId>
-        <version>${kafka.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-bom</artifactId>
-        <version>${netty.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.reactivestreams</groupId>
-        <artifactId>reactive-streams</artifactId>
-        <version>${reactive-streams.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
-        <version>${hikaricp.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.cloudevents</groupId>
-        <artifactId>cloudevents-core</artifactId>
-        <version>${cloudevents.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.cronutils</groupId>
-        <artifactId>cron-utils</artifactId>
-        <version>${cron-utils.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-bom_${scala.binary.version}</artifactId>
-        <version>${pekko.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-bom</artifactId>
-        <version>${camel.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-projection-eventsourced_${scala.binary.version}</artifactId>
-        <version>${pekko.projection.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-projection-jdbc_${scala.binary.version}</artifactId>
-        <version>${pekko.projection.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-projection-cassandra_${scala.binary.version}</artifactId>
-        <version>${pekko.projection.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-netty-shaded</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-protobuf</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-stub</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-core</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-util</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-inprocess</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java</artifactId>
-        <version>${protobuf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java-util</artifactId>
-        <version>${protobuf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.os72</groupId>
-        <artifactId>protoc-jar</artifactId>
-        <version>${protoc.jar.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${guava.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>${gson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.errorprone</groupId>
-        <artifactId>error_prone_annotations</artifactId>
-        <version>${errorprone.annotations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-management_${scala.binary.version}</artifactId>
-        <version>${pekko.management.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-management-cluster-bootstrap_${scala.binary.version}</artifactId>
-        <version>${pekko.management.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-persistence-jdbc_${scala.binary.version}</artifactId>
-        <version>${pekko.persistence.jdbc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-persistence-cassandra_${scala.binary.version}</artifactId>
-        <version>${pekko.persistence.cassandra.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.cassandra</groupId>
-        <artifactId>java-driver-core</artifactId>
-        <version>${cassandra.java.driver.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.checkerframework</groupId>
-        <artifactId>checker-qual</artifactId>
-        <version>${checkerframework.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons.io.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-library</artifactId>
-        <version>${scala.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.typesafe</groupId>
-        <artifactId>config</artifactId>
-        <version>${typesafe.config.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.logging</groupId>
-        <artifactId>jboss-logging</artifactId>
-        <version>${jboss.logging.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.xml.bind</groupId>
-        <artifactId>jakarta.xml.bind-api</artifactId>
-        <version>${jakarta.xml.bind.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.el</groupId>
-        <artifactId>jakarta.el-api</artifactId>
-        <version>${jakarta.el.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.annotation</groupId>
-        <artifactId>jakarta.annotation-api</artifactId>
-        <version>${jakarta.annotation.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.ws.rs</groupId>
-        <artifactId>jakarta.ws.rs-api</artifactId>
-        <version>${jakarta.ws.rs.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.httpcomponents.client5</groupId>
-        <artifactId>httpclient5</artifactId>
-        <version>${httpclient5.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-compress</artifactId>
-        <version>${commons-compress.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>net.sf.saxon</groupId>
-        <artifactId>Saxon-HE</artifactId>
-        <version>${saxon.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.apicurio</groupId>
-        <artifactId>apicurio-registry-java-sdk</artifactId>
-        <version>${apicurio-registry.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.apicurio</groupId>
-        <artifactId>apicurio-registry-java-sdk-adapter-jdk</artifactId>
-        <version>${apicurio-registry.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-common</artifactId>
-        <version>${jersey.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>${jackson.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-bom</artifactId>
-        <version>${slf4j.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit</groupId>
-        <artifactId>junit-bom</artifactId>
-        <version>${junit.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers-bom</artifactId>
-        <version>${testcontainers.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.inject</groupId>
-        <artifactId>jakarta.inject-api</artifactId>
-        <version>${jakarta.inject.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.persistence</groupId>
-        <artifactId>jakarta.persistence-api</artifactId>
-        <version>${jakarta.persistence.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.enterprise</groupId>
-        <artifactId>jakarta.enterprise.cdi-api</artifactId>
-        <version>${jakarta.cdi.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.transaction</groupId>
-        <artifactId>jakarta.transaction-api</artifactId>
-        <version>${jakarta.transaction.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.validation</groupId>
-        <artifactId>jakarta.validation-api</artifactId>
-        <version>${jakarta.validation.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${commons-lang3.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-text</artifactId>
-        <version>${commons-text.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.ibm.icu</groupId>
-        <artifactId>icu4j</artifactId>
-        <version>${icu4j.version}</version>
-      </dependency>
-      <dependency>
-        <!-- entity-intelligence-resolution's real recall/matching scorer, reused directly by
-             forwardmeasure-data-streaming's own screen_against_worldcheck_reference transform - one
-             production-validated matcher, not two independent implementations. -->
-        <groupId>com.forwardmeasure.entitymatching</groupId>
-        <artifactId>forwardmeasure-entity-matching-core</artifactId>
-        <version>${forwardmeasure.entitymatching.version}</version>
-      </dependency>
-      <dependency>
-        <!-- JSONPath evaluation for application-layer, externally-authored transform specs (e.g.
-             fei's transformPopulationScreeningRun) - unrelated to CNCF Serverless Workflow's own
-             jq expression language, which fowf's engine evaluates for workflow-YAML-internal data
-             flow; this is a different tool for a different layer (interpreting a user-supplied
-             transform-spec document at the application layer, no workflow engine involved). -->
-        <groupId>com.jayway.jsonpath</groupId>
-        <artifactId>json-path</artifactId>
-        <version>${jayway-json-path.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.jnr</groupId>
-        <artifactId>jnr-ffi</artifactId>
-        <version>${jnr-ffi.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.jnr</groupId>
-        <artifactId>jnr-constants</artifactId>
-        <version>${jnr-constants.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${hibernate.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mapstruct</groupId>
-        <artifactId>mapstruct</artifactId>
-        <version>${mapstruct.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.mapstruct</groupId>
-        <artifactId>mapstruct-processor</artifactId>
-        <version>${mapstruct.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-mapstruct-binding</artifactId>
-        <version>${lombok-mapstruct-binding.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons.codec.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.annotation.bundle</artifactId>
-        <version>${osgi.annotation.bundle.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logback.version}</version>
-      </dependency>
-      <!-- Classic and Core must share a release; imported framework BOMs otherwise split them. -->
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-        <version>${logback.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.azure</groupId>
-        <artifactId>azure-sdk-bom</artifactId>
-        <version>${azure-sdk.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.forwardmeasure.authzen</groupId>
@@ -1114,12 +605,6 @@
         <version>${forwardmeasure.openworkflow.version}</version>
       </dependency>
       <dependency>
-        <!-- Test scope only: OKS topic provisioning for test fixtures (no service creates topics). -->
-        <groupId>com.forwardmeasure.openworkflow</groupId>
-        <artifactId>openworkflow-kafka-streams-testkit</artifactId>
-        <version>${forwardmeasure.openworkflow.version}</version>
-      </dependency>
-      <dependency>
         <groupId>com.forwardmeasure.openworkflow</groupId>
         <artifactId>openworkflow-definition-management-client-apachehttp</artifactId>
         <version>${forwardmeasure.openworkflow.version}</version>
@@ -1147,13 +632,6 @@
       <dependency>
         <groupId>com.forwardmeasure.openworkflow</groupId>
         <artifactId>openworkflow-kubernetes-job-lifecycle</artifactId>
-        <version>${forwardmeasure.openworkflow.version}</version>
-      </dependency>
-      <dependency>
-        <!-- Tenant database/role provisioning and Cassandra changelog application, shared by
-             every product's migrations image (forwardmeasure-data-streaming-migrations). -->
-        <groupId>com.forwardmeasure.openworkflow</groupId>
-        <artifactId>openworkflow-migration</artifactId>
         <version>${forwardmeasure.openworkflow.version}</version>
       </dependency>
       <dependency>
@@ -1227,361 +705,6 @@
         <version>${forwardmeasure.testcontainers.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.github.luben</groupId>
-        <artifactId>zstd-jni</artifactId>
-        <version>${zstd-jni.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>jsr305</artifactId>
-        <version>${jsr305.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.networknt</groupId>
-        <artifactId>json-schema-validator</artifactId>
-        <version>${json.schema.validator.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.nimbusds</groupId>
-        <artifactId>nimbus-jose-jwt</artifactId>
-        <version>${nimbus-jose-jwt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.opencsv</groupId>
-        <artifactId>opencsv</artifactId>
-        <version>${opencsv.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.thoughtworks.paranamer</groupId>
-        <artifactId>paranamer</artifactId>
-        <version>${paranamer.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.tngtech.archunit</groupId>
-        <artifactId>archunit-junit5</artifactId>
-        <version>${archunit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>${commons-logging.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.airlift</groupId>
-        <artifactId>aircompressor</artifactId>
-        <version>${aircompressor.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>kubernetes-client</artifactId>
-        <version>${kubernetes.client.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.fabric8</groupId>
-        <artifactId>kubernetes-server-mock</artifactId>
-        <version>${kubernetes.client.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-api</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-context</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.grpc</groupId>
-        <artifactId>grpc-services</artifactId>
-        <version>${grpc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.micronaut.jaxrs</groupId>
-        <artifactId>micronaut-jaxrs-bom</artifactId>
-        <version>${micronaut.jaxrs.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.micronaut.platform</groupId>
-        <artifactId>micronaut-platform</artifactId>
-        <version>${micronaut.platform.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.modelcontextprotocol.sdk</groupId>
-        <artifactId>mcp-core</artifactId>
-        <version>${mcp-java-sdk.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.modelcontextprotocol.sdk</groupId>
-        <artifactId>mcp-json-jackson2</artifactId>
-        <version>${mcp-java-sdk.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.quarkus.platform</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${quarkus.platform.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.rest-assured</groupId>
-        <artifactId>rest-assured</artifactId>
-        <version>${rest-assured.version}</version>
-      </dependency>
-      <!-- The agent tests inject into JVMs they start in containers or clusters (KubernetesTestContainer#withJacocoCoverage). -->
-      <dependency>
-        <groupId>org.jacoco</groupId>
-        <artifactId>org.jacoco.agent</artifactId>
-        <version>${jacoco.version}</version>
-        <classifier>runtime</classifier>
-      </dependency>
-      <dependency>
-        <groupId>io.rest-assured</groupId>
-        <artifactId>rest-assured-bom</artifactId>
-        <version>${rest-assured.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.serverlessworkflow</groupId>
-        <artifactId>serverlessworkflow-bom</artifactId>
-        <version>${serverlessworkflow.sdk.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-annotations</artifactId>
-        <version>${swagger-annotations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.activation</groupId>
-        <artifactId>jakarta.activation-api</artifactId>
-        <version>${jakarta.activation-api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.json</groupId>
-        <artifactId>jakarta.json-api</artifactId>
-        <version>${jakarta.json-api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>net.bytebuddy</groupId>
-        <artifactId>byte-buddy</artifactId>
-        <version>${byte-buddy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>net.thisptr</groupId>
-        <artifactId>jackson-jq</artifactId>
-        <version>${jackson.jq.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.a2aproject.sdk</groupId>
-        <artifactId>a2a-java-sdk-server-common</artifactId>
-        <version>${a2a-java-sdk.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.a2aproject.sdk</groupId>
-        <artifactId>a2a-java-sdk-spec</artifactId>
-        <version>${a2a-java-sdk.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.a2aproject.sdk</groupId>
-        <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
-        <version>${a2a-java-sdk.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4-runtime</artifactId>
-        <version>${antlr4-runtime.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-csv</artifactId>
-        <version>${commons-csv.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-client-api</artifactId>
-        <version>${hadoop-client.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-client-runtime</artifactId>
-        <version>${hadoop-client.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven.plugin-tools</groupId>
-        <artifactId>maven-plugin-annotations</artifactId>
-        <version>${maven-plugin-annotations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-core</artifactId>
-        <version>${maven-plugin-api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-plugin-api</artifactId>
-        <version>${maven-plugin-api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pekko</groupId>
-        <artifactId>pekko-connectors-kafka_${scala.binary.version}</artifactId>
-        <version>${pekko.connectors.kafka.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>annotations-api</artifactId>
-        <version>${annotations-api.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.zookeeper</groupId>
-        <artifactId>zookeeper</artifactId>
-        <version>${zookeeper.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>animal-sniffer-annotations</artifactId>
-        <version>${animal-sniffer-annotations.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-        <version>${plexus-utils.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.drools</groupId>
-        <artifactId>drools-compiler</artifactId>
-        <version>${drools.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.drools</groupId>
-        <artifactId>drools-core</artifactId>
-        <version>${drools.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.drools</groupId>
-        <artifactId>drools-mvel</artifactId>
-        <version>${drools.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.parsson</groupId>
-        <artifactId>parsson</artifactId>
-        <version>${parsson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.hk2</groupId>
-        <artifactId>osgi-resource-locator</artifactId>
-        <version>${osgi-resource-locator.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jaxb</groupId>
-        <artifactId>jaxb-runtime</artifactId>
-        <version>${jaxb-runtime.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-platform</artifactId>
-        <version>${hibernate.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-stdlib</artifactId>
-        <version>${kotlin-stdlib.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>${junit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.kie</groupId>
-        <artifactId>kie-api</artifactId>
-        <version>${drools.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.liquibase.ext</groupId>
-        <artifactId>liquibase-cassandra</artifactId>
-        <version>${liquibase.cassandra.version}</version>
-        <exclusions>
-          <!-- Optional cloud-provider integrations are published as mandatory transitives by the
-               Cassandra JDBC wrapper. The AWS SigV4 plugin also drags in the retired
-               com.datastax.oss:java-driver-core 4.17, which duplicates (with different classes)
-               the org.apache.cassandra:java-driver-core every product uses - caught by
-               duplicate-finder in FEI's K3s module, which reaches this through FOWF's migrations.
-               Ordinary Cassandra credentials are used here; provider-specific authentication
-               belongs in a separate deployment binding. Moved here from FOWF's root pom so every
-               consumer gets it, not only FOWF's own reactor. -->
-          <exclusion>
-            <groupId>software.aws.mcs</groupId>
-            <artifactId>aws-sigv4-auth-cassandra-java-driver-plugin</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>secretsmanager</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.liquibase</groupId>
-        <artifactId>liquibase-core</artifactId>
-        <version>${liquibase.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.opensearch.client</groupId>
-        <artifactId>opensearch-java</artifactId>
-        <version>${opensearch-java.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.opensearch</groupId>
-        <artifactId>opensearch-testcontainers</artifactId>
-        <version>${opensearch-testcontainers.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers-k3s</artifactId>
-        <version>${testcontainers.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.tukaani</groupId>
-        <artifactId>xz</artifactId>
-        <version>${xz.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.xerial.snappy</groupId>
-        <artifactId>snappy-java</artifactId>
-        <version>${snappy-java.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.yaml</groupId>
-        <artifactId>snakeyaml</artifactId>
-        <version>${snakeyaml.version}</version>
-      </dependency>
-      <!-- Plexus Utils 4 split Xpp3Dom into plexus-xml; Maven model configuration uses it. -->
-      <dependency><groupId>org.codehaus.plexus</groupId><artifactId>plexus-xml</artifactId><version>${plexus-xml.version}</version></dependency>
-      <dependency><groupId>org.glassfish.hk2</groupId><artifactId>hk2-locator</artifactId><version>${hk2.version}</version></dependency>
-      <dependency><groupId>org.glassfish.hk2</groupId><artifactId>hk2-api</artifactId><version>${hk2.version}</version></dependency>
-      <dependency><groupId>org.glassfish.hk2</groupId><artifactId>hk2-utils</artifactId><version>${hk2.version}</version></dependency>
-      <dependency><groupId>org.glassfish.hk2.external</groupId><artifactId>aopalliance-repackaged</artifactId><version>${hk2.version}</version></dependency>
-      <dependency>
         <groupId>com.forwardmeasure.objectstorage</groupId>
         <artifactId>forwardmeasure-object-storage-gcs</artifactId>
         <version>${forwardmeasure.objectstorage.version}</version>
@@ -1625,6 +748,10 @@
             <release>${maven.compiler.release}</release>
             <parameters>true</parameters>
             <showWarnings>true</showWarnings>
+            <!-- Resolve annotation-processor paths (and their transitive dependencies) through the
+                 module's dependency management: a versionless processor then runs at the version its
+                 framework/libraries BOM manages, with that BOM's matching core libraries. -->
+            <annotationProcessorPathsUseDepMgmt>true</annotationProcessorPathsUseDepMgmt>
             <annotationProcessorPaths>
               <path>
                 <groupId>org.projectlombok</groupId>
@@ -1666,12 +793,28 @@
               <quarkus.jacoco.reuse-data-file>true</quarkus.jacoco.reuse-data-file>
               <quarkus.jacoco.report>false</quarkus.jacoco.report>
             </systemPropertyVariables>
+            <!--
+              Tests must never reach the developer's real cluster. Fabric8 (new ConfigBuilder(),
+              new KubernetesClientBuilder().build()) auto-loads $KUBECONFIG / ~/.kube/config and
+              runs its exec credential plugin (gcloud) even when a test overrides the master URL.
+              Point it at a file that does not exist; tests that need a cluster set the `kubeconfig`
+              system property (which takes precedence) to their own K3s/fixture kubeconfig.
+            -->
+            <environmentVariables>
+              <KUBECONFIG>${project.build.directory}/no-kubeconfig</KUBECONFIG>
+            </environmentVariables>
           </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${maven.failsafe.version}</version>
+          <configuration>
+            <!-- Same isolation as surefire above. -->
+            <environmentVariables>
+              <KUBECONFIG>${project.build.directory}/no-kubeconfig</KUBECONFIG>
+            </environmentVariables>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1941,6 +1084,11 @@
         <version>${apache.rat.version}</version>
         <configuration>
           <inputExcludes>
+            <!-- Shared proprietary-license RAT definition for the super-reactor build (resolved by
+                 proprietary repos via ${maven.multiModuleProjectDirectory}); it carries the
+                 ForwardMeasure proprietary notice, not an Apache header, so the platform's own
+                 Apache license-check skips it. -->
+            <inputExclude>src/rat/**</inputExclude>
             <!-- JSON has no comment syntax to carry a header. -->
             <inputExclude>deploy/helmfile/charts/platform-dashboard/values.schema.json</inputExclude>
             <inputExclude>.git/**</inputExclude>
@@ -2002,6 +1150,20 @@
     this pom's own default (false) all the way down, since Maven properties are resolved per
     module from its own ancestry, not shared globally across a reactor.
     -->
+    <profile>
+      <!-- Unit tests only: the default tier, named for explicit use. -->
+      <id>unit-tests-only</id>
+      <properties>
+        <skipITs>true</skipITs>
+      </properties>
+    </profile>
+    <profile>
+      <!-- Unit and integration tests. -->
+      <id>full-suite</id>
+      <properties>
+        <skipITs>${skipTests}</skipITs>
+      </properties>
+    </profile>
     <profile>
       <id>container-image</id>
       <properties>

@@ -36,7 +36,8 @@
 # wins over a stale product-local copy of the same key.
 {{- $sharedDir := .Values | get "deploymentSharedDir" "." }}
 {{- $selection := exec "python3" (list (printf "%s/../../scripts/deployment-selection.py" $sharedDir) "--environment" .Environment.Name) | fromJson }}
-{{- $prefix := ternary "forwardmeasure-" "" (eq $selection.namespaceLayout "standard") }}
+{{- /* Every product namespace carries the forwardmeasure- prefix (docs/technical-vision.md 5.4). */}}
+{{- $prefix := "forwardmeasure-" }}
 {{- $namespaces := dict
       "platform" "forwardmeasure-platform"
       "istio" "istio-system"
@@ -48,7 +49,8 @@
       "valkey" "valkey"
       "dataStreaming" (printf "%sdata-streaming" $prefix)
       "entityIntelligence" (printf "%sentity-intelligence" $prefix)
-      "decisionEngine" (printf "%sdecision-engine" $prefix) }}
+      "decisionEngine" (printf "%sdecision-engine" $prefix)
+      "agentEnsemble" (printf "%sagent-ensemble" $prefix) }}
 {{- /* Environment value templates render independently. Read the declared cluster facts here,
 then apply explicit state-value overrides; do not depend on another values file's load order. */}}
 {{- $clusterFile := printf "%s/clusters/%s.yaml.gotmpl" $sharedDir .Environment.Name }}
@@ -116,7 +118,6 @@ operator names its API Service <name>-app-service. */}}
 platform:
   branding:
     displayName: {{ $selection.displayName | quote }}
-  namespaceLayout: {{ $selection.namespaceLayout }}
   products:
     decisionEngine:
       enabled: {{ $enableFde }}
@@ -155,6 +156,9 @@ platform:
       # forwardmeasure-data-streaming's continuous Pekko workers: its journal schema in each tenant
       # database (data-streaming-migrations).
       dataStreaming: datastreaming
+      # forwardmeasure-agent-ensemble's agents (Indexical's extraction registry): its
+      # agent_ensemble schema in each tenant database (agent-ensemble-migrations).
+      agentEnsemble: agent_ensemble
   identity:
     realm: {{ $keycloakRealm }}
     # The org-wide public client every product's organization/tenant-claim verification points at.
@@ -283,6 +287,44 @@ platform:
         - fei-screening-worker-caller
         - entity-intelligence-worker
         capabilityPack: entity-intelligence
+      # forwardmeasure-agent-ensemble's Indexical: its AuthZEN resource server (the indexical
+      # resources/scopes/permissions of its capability pack, reconciled per tenant by fowf's tenant
+      # administration) and the identity the service evaluates decisions with.
+      indexical:
+        clientId: indexical
+        name: Indexical Resource Server
+        secretKey: INDEXICAL_CLIENT_SECRET
+        secretRemoteKey: platform-indexical-client-secret
+        authorizationServicesEnabled: true
+        organizationClaim: true
+        enabled: true
+      # Indexical's FEI caller: the workflow's admitResults step calls FEI's admitInformationExtraction
+      # with a token the operation adapter mints for this client (indexical-fei-admission-token).
+      # A member of FEI's capability pack holding only indexical-evidence-admission-caller.
+      indexicalEvidenceAdmission:
+        clientId: indexical-evidence-admission
+        name: Indexical Evidence Admission
+        secretKey: INDEXICAL_EVIDENCE_ADMISSION_CLIENT_SECRET
+        secretRemoteKey: platform-indexical-evidence-admission-client-secret
+        organizationClaim: true
+        authorizationServicesEnabled: false
+        enabled: true
+        tenantRoles:
+        - indexical-evidence-admission-caller
+        capabilityPack: entity-intelligence
+      # Indexical's OpenWorkflow caller: starts and observes its extraction executions in every
+      # tenant (workflow-operator), like FEI's launcher.
+      indexicalLauncher:
+        clientId: indexical-launcher
+        name: Indexical Launcher
+        secretKey: INDEXICAL_LAUNCHER_CLIENT_SECRET
+        secretRemoteKey: platform-indexical-launcher-client-secret
+        organizationClaim: true
+        tenantRoles:
+        - workflow-operator
+        authorizationServicesEnabled: false
+        enabled: true
+        capabilityPack: openworkflow
     # The platform's own DID method (did:<didMethod>:...) - the only place it is named. Products
     # read it as FORWARDMEASURE_DID_METHOD (forwardmeasure-jpa's PlatformDids): workflow bundles are
     # did:<method>:bundle:<domain> and their documents DID URLs under that; resolved entities are
@@ -318,6 +360,8 @@ platform:
     # data-streaming's journal credentials: password of its runtime role plus db-cloud-sql-instance
     # for the Cloud SQL Auth Proxy sidecar beside each continuous Pekko worker.
     dataStreamingDatabase: data-streaming-database-credentials
+    # forwardmeasure-agent-ensemble's server credentials (agent_ensemble role + Cloud SQL instance).
+    agentEnsembleDatabase: agent-ensemble-database-credentials
     # The shared Valkey's password (its single default ACL user), for decision-engine's fact window.
     decisionEngineValkey: decision-engine-valkey-auth
   endpoints:
@@ -347,6 +391,7 @@ platform:
       # java-microservice Services listen on port 80 (targetPort 8080), hence no port.
       executionBaseUrl: {{ printf "http://openworkflow-execution-management.%s.svc.cluster.local" $namespaces.openworkflow }}
       definitionBaseUrl: {{ printf "http://openworkflow-definition-management.%s.svc.cluster.local" $namespaces.openworkflow }}
+      humanTaskBaseUrl: {{ printf "http://openworkflow-human-task-management.%s.svc.cluster.local" $namespaces.openworkflow }}
     # fei's REST services - deployed by forwardmeasure-entity-intelligence; apiUrl is the logical
     # address its OpenAPI document names, routed to these by httpEndpointRoutes below.
     entityIntelligence:

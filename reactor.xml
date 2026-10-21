@@ -17,8 +17,8 @@
 -->
 <!--
 Standalone compatibility-verification reactor for the whole ForwardMeasure stack: the
-Apache-licensed repositories plus the proprietary forwardmeasure-entity-intelligence
-(see README.md's "Artifact compatibility" section and .github/workflows/platform-verify.yml,
+Apache-licensed repositories plus the proprietary forwardmeasure-entity-intelligence and
+forwardmeasure-agent-ensemble (see README.md's "Artifact compatibility" section and .github/workflows/platform-verify.yml,
 which builds this file's module list, not pom.xml's). Deliberately not named pom.xml and
 deliberately not a parent of anything and has no parent of its own - the whole point is that
 nothing ever discovers this file by walking a <parent> chain. Run with:
@@ -58,6 +58,7 @@ there directly instead, and why that broke every Quarkus module's local build ec
     <module>../forwardmeasure-decision-engine</module>
     <module>../forwardmeasure-agent-os</module>
     <module>../forwardmeasure-entity-intelligence</module>
+    <module>../forwardmeasure-agent-ensemble</module>
     <module>../forwardmeasure-platform-operations</module>
   </modules>
 

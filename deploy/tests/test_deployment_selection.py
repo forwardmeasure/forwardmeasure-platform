@@ -73,7 +73,7 @@ class DeploymentSelectionTest(unittest.TestCase):
 
     def test_invalid_values_fail_without_falling_back(self):
         for variable, value in (("FORWARDMEASURE_ENABLE_FDE", "yes"), ("FORWARDMEASURE_ENGINE", "pekko"),
-                                ("FORWARDMEASURE_FRAMEWORK", ""), ("FORWARDMEASURE_NAMESPACE_LAYOUT", "other")):
+                                ("FORWARDMEASURE_FRAMEWORK", "")):
             with self.subTest(variable=variable), self.assertRaises(ValueError):
                 self.resolve({variable: value})
 

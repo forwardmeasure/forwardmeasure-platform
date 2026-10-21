@@ -14,41 +14,15 @@
 
     <parent>
         <groupId>com.forwardmeasure.platform</groupId>
-        <artifactId>forwardmeasure-platform</artifactId>
-        <version>1.1.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <artifactId>forwardmeasure-platform-quarkus-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../parents/quarkus/pom.xml</relativePath>
     </parent>
 
     <artifactId>forwardmeasure-platform-quarkus-security</artifactId>
 
     <name>ForwardMeasure Platform :: Quarkus Security</name>
 
-    <!--
-    A request Quarkus security turns away - no valid bearer token (401) or a caller it doesn't allow
-    (403) - as the same RFC 9457 problem forwardmeasure-platform-server-jaxrs gives every other HTTP
-    error, with WWW-Authenticate: Bearer on a 401, as on Spring and Micronaut. Security stays at the
-    HTTP layer (quarkus.http.auth.permission policies, proactive authentication), before routing,
-    as Spring's filter chain is:
-    - ProblemChallengeMechanism writes every 401 the HTTP layer sends (no token, or one that fails
-      validation); quarkus-oidc's own challenge has an empty body.
-    - The ExceptionMappers cover the same exceptions when they're raised inside JAX-RS
-      (@Authenticated/@RolesAllowed, and Quarkus REST hands an HTTP-layer
-      AuthenticationFailedException to a custom mapper for it).
-    The Spring counterpart is forwardmeasure-platform-spring-security; the Micronaut one is
-    forwardmeasure-platform-micronaut-validation's MicronautAuthorizationProblemHandler. Quarkus finds
-    all of it through this jar's Jandex index.
-    -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.forwardmeasure.platform</groupId>
-                <artifactId>forwardmeasure-platform-quarkus-bom</artifactId>
-                <version>${forwardmeasure.platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>

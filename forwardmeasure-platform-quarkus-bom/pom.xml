@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.forwardmeasure.platform</groupId>
         <artifactId>forwardmeasure-platform</artifactId>
-        <version>1.1.0</version>
+        <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -30,6 +30,47 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Deliberate override: Quarkus manages plexus-utils 3.x, which still carries the
+                 org.codehaus.plexus.util.xml classes that plexus-xml (libraries BOM) also ships ->
+                 duplicate classes. 4.x dropped them in favour of plexus-xml, as Maven 3.9 itself does. -->
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus-utils.version}</version>
+            </dependency>
+            <!-- Deliberate override: Quarkus manages opensearch-testcontainers 2.x, which has no
+                 org.opensearch.testcontainers.OpenSearchContainer; our OpenSearch test support uses 4.x. -->
+            <dependency>
+                <groupId>org.opensearch</groupId>
+                <artifactId>opensearch-testcontainers</artifactId>
+                <version>${opensearch-testcontainers.version}</version>
+            </dependency>
+            <!-- Deliberate override: Quarkus manages an older Apicurio SDK (3.1.x); the SDK matches the
+                 deployed registry (3.3.x), so every runtime uses apicurio-registry.version. -->
+            <dependency>
+                <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-java-sdk</artifactId>
+                <version>${apicurio-registry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.apicurio</groupId>
+                <artifactId>apicurio-registry-java-sdk-adapter-jdk</artifactId>
+                <version>${apicurio-registry.version}</version>
+            </dependency>
+            <!-- Deliberate override: Quarkus manages no Lettuce, so the libraries BOM would fill in a
+                 7.x Lettuce that needs Netty 4.2, while Quarkus runs Netty 4.1. Pin the 6.x line. -->
+            <dependency>
+                <groupId>io.lettuce</groupId>
+                <artifactId>lettuce-core</artifactId>
+                <version>${lettuce.quarkus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkus.platform</groupId>
+                <artifactId>quarkus-bom</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>com.forwardmeasure.platform</groupId>
                 <artifactId>forwardmeasure-platform-core-bom</artifactId>
@@ -37,10 +78,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- After the framework BOM: fills only what the framework does not manage. -->
             <dependency>
-                <groupId>io.quarkus.platform</groupId>
-                <artifactId>quarkus-bom</artifactId>
-                <version>${quarkus.platform.version}</version>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-libraries-bom</artifactId>
+                <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
