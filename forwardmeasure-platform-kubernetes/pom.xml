@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+  agreements. See the NOTICE file distributed with this work for additional information regarding
+  copyright ownership. The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with the License. You may obtain
+  a copy of the License at https://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable
+  law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
+  BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+  for the specific language governing permissions and limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.forwardmeasure.platform</groupId>
+        <artifactId>forwardmeasure-platform-neutral-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../parents/neutral/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>forwardmeasure-platform-kubernetes</artifactId>
+
+    <name>ForwardMeasure Platform :: Kubernetes</name>
+
+    <!--
+    The one way any service in this ecosystem builds a Fabric8 Kubernetes client (2026-10-20):
+    from an explicitly chosen connection - the pod's own service account, or a named kubeconfig
+    file - never from Fabric8's auto-configuration ($KUBECONFIG, ~/.kube/config, system
+    properties, environment overrides). Auto-configuration let tests on a developer machine run
+    the gcloud credential plugin for the developer's production cluster, and left production
+    classes able to act on whichever cluster the JVM happened to see.
+    -->
+    <properties>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

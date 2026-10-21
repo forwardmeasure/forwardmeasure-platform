@@ -21,34 +21,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.forwardmeasure.platform</groupId>
-    <artifactId>forwardmeasure-platform</artifactId>
-    <version>1.1.0</version>
-    <relativePath>../pom.xml</relativePath>
+    <artifactId>forwardmeasure-platform-micronaut-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../parents/micronaut/pom.xml</relativePath>
   </parent>
   <artifactId>forwardmeasure-platform-micronaut-validation</artifactId>
   <name>ForwardMeasure Platform :: Micronaut Validation</name>
-  <!--
-  Moved here from forwardmeasure-openworkflow's own openworkflow-micronaut-validation (2026-10-01)
-  - shared RFC 9457 models now belong to platform-api-contracts, so this library and its JAX-RS
-  counterpart have no dependency on a product's generated-model artifact.
-
-  A request that breaks the API contract - a bean-validation failure, a body that doesn't bind, a
-  required argument left out - and any other unmapped failure, as the RFC 9457 problem Quarkus and
-  Spring return (forwardmeasure-platform-server-jaxrs), for every Micronaut service in any product.
-  Separate from any one product's own persistence-stack binding module, so a service without that
-  module (e.g. forwardmeasure-openworkflow's tenant-administration) still gets identical behavior.
-  -->
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.forwardmeasure.platform</groupId>
-        <artifactId>forwardmeasure-platform-micronaut-bom</artifactId>
-        <version>${forwardmeasure.platform.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>com.forwardmeasure.platform</groupId>

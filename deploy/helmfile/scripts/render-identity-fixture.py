@@ -26,6 +26,8 @@ def render(decision_engine_enabled=None):
     values["secretStore"]["remoteKeys"].update({
         "openworkflowRuntimeDatabasePassword": "fixture-fowf-runtime",
         "openworkflowAdministratorDatabasePassword": "fixture-admin",
+        "openworkflowTenantAccessDatabasePassword": "fixture-fowf-tenant-access",
+        "agentEnsembleRuntimeDatabasePassword": "fixture-agent-ensemble-runtime",
         "entityIntelligenceRuntimeDatabasePassword": "fixture-fei-runtime"})
     chart = WORKSPACE / "helm-charts/charts/platform-secrets-helm-chart/helm-chart-sources"
     with tempfile.TemporaryDirectory(prefix="identity-render-") as directory:

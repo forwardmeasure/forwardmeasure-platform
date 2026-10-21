@@ -700,7 +700,6 @@ One selection applies to a whole installation, held in `deploy/helmfile/shared/d
 | `engine` | `FORWARDMEASURE_ENGINE` | `kafka-streams`, `pekko-postgresql`, `pekko-cassandra` | `kafka-streams` |
 | `enableFde` | `FORWARDMEASURE_ENABLE_FDE` | `true`, `false` | `true` |
 | `displayName` | `FORWARDMEASURE_DISPLAY_NAME` | platform display name | `kriyagentic` |
-| `namespaceLayout` | `FORWARDMEASURE_NAMESPACE_LAYOUT` | `standard`, `legacy` | `standard` for new environments |
 
 Rules:
 
@@ -737,34 +736,21 @@ from the installer does not uninstall it". Drain or retire it explicitly first.
 
 ### 5.4 Namespaces
 
-| Product | Legacy layout | Standard layout |
-|---|---|---|
-| FOWF | `forwardmeasure-openworkflow` | unchanged |
-| Platform | `forwardmeasure-platform` | unchanged |
-| FDS | `data-streaming` | `forwardmeasure-data-streaming` |
-| FEI | `entity-intelligence` | `forwardmeasure-entity-intelligence` |
-| FDE | `decision-engine` | `forwardmeasure-decision-engine` |
+| Product | Namespace |
+|---|---|
+| FOWF | `forwardmeasure-openworkflow` |
+| Platform | `forwardmeasure-platform` |
+| FDS | `forwardmeasure-data-streaming` |
+| FEI | `forwardmeasure-entity-intelligence` |
+| FDE | `forwardmeasure-decision-engine` |
+| Agent ensemble (Indexical, Studio) | `forwardmeasure-agent-ensemble` |
 
-- New environments use the standard layout. Service, database, schema and tenant identities do not
-  change with the layout.
-- FOWF-hosted migration and workflow-bundle Jobs stay in the FOWF namespace.
-- Changing a Helm namespace alone does not update IAM: workload-identity bindings must be added for
-  new namespace and service-account pairs before cutover. Never delete namespaces or PVCs as a
-  shortcut, and never run old and new worker consumers at the same time assuming deduplication
-  makes it harmless. Neither the installer nor any runbook claims an automatic cross-engine or
-  stateful namespace migration.
-- A namespace cutover of an existing environment follows this order: inventory releases, replicas,
-  active Jobs, volume ownership, Kafka consumer identities, external persistence and workload-identity
-  bindings; record image digests and values through the protected backup process; choose a
-  maintenance window and stop new FOWF executions from dispatching to FDS, FEI and FDE; drain
-  in-flight work; add the new workload-identity bindings while keeping the old ones; stop old workers,
-  launchers and services and retire old releases while preserving state; switch the layout; review
-  Secrets and ExternalSecrets, RBAC, worker dispatch grants, internal URLs, network policy and tenant
-  routes; remove the old recorded selection ConfigMap as an explicit acknowledgement (never during a
-  routine install); run the full installer; validate workload identity, API access and worker
-  dispatch before allowing new executions; keep old resources and IAM for the rollback period.
-- Rollback: stop the new workers first, account for writes, restore the old selection, releases,
-  digests and routing, verify the old IAM, then resume.
+- Every product namespace carries the `forwardmeasure-` prefix; there is no other layout. Service,
+  database, schema and tenant identities do not depend on the namespace.
+- FOWF-hosted migration and workflow-bundle Jobs (including FEI's, FDS's, FDE's and the agent
+  ensemble's migrations) run in the FOWF namespace.
+- Workload-identity bindings name these namespaces exactly (openworkflow-k8s-setup's
+  `workload_identities`).
 
 ### 5.5 Images
 
@@ -2408,11 +2394,15 @@ canonical OpenAPI document, not a frozen count.
   optimistic locking) and `OwnedEntity` (adds a required owner `Actor`).
 - **Actors.** An `Actor` is `HUMAN` or `SERVICE`, identified by identity provider and subject (OIDC
   issuer plus subject). Actors are provisioned deliberately; there is no automatic user creation on
-  first login, and an unknown actor is a security error. (FOWF definition and execution management
-  currently create an actor for an unknown subject, contrary to this rule; tracked as
-  [FOWF backlog F-17](../../forwardmeasure-openworkflow/docs/implementation-status.md#9-remaining-functional-work-and-completion-backlog),
-  decided 2026-10-13: actors are provisioned when tenant access is granted and by the tenant
-  reconciler, engines' runtime identities at onboarding; not yet built.)
+  first login, and an unknown or disabled actor is a security error (403).
+- **One actor table per tenant.** Each tenant database holds its actors once, in the platform-owned
+  `identity` schema (`identity.actor`), shared by every product; no product schema has an actor
+  table of its own. Every product's foreign keys to actors point at `identity.actor`, and products'
+  runtime roles may only read it. FOWF's tenant-access role alone writes it: a person's `HUMAN`
+  actor is created when tenant access is granted (and by the tenant-access reconciliation for
+  people added directly in Keycloak), and disabled, never deleted, when access is removed;
+  engines' runtime identities are `SERVICE` actors created at onboarding. See
+  `forwardmeasure-jpa/docs/migrations.md` and FOWF `docs/actor-provisioning-plan.md`.
 - **Queries** use the Criteria API over the JPA static metamodel (`Entity_`). String JPQL/HQL, native
   SQL and raw JDBC are allowed only where JPA cannot practically be used (for example database and
   role provisioning DDL), each justified in place. This replaces the manifesto's earlier "JPA/JPQL"

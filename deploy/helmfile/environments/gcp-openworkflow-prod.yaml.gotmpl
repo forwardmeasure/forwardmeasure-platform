@@ -62,9 +62,13 @@ secretStore:
     dockerRegistryAuth: platform-container-registry-auth
     openworkflowRuntimeDatabasePassword: platform-openworkflow-database-password
     openworkflowAdministratorDatabasePassword: platform-openworkflow-database-administrator-password
+    # The tenant-access role that alone writes identity.actor (actor provisioning on tenant access).
+    openworkflowTenantAccessDatabasePassword: platform-openworkflow-tenant-access-database-password
     # Runtime roles provisioned by forwardmeasure-openworkflow's entity-intelligence-migrations /
     # decision-engine-migrations Jobs (delivered into openworkflowCredentialsSecret).
     entityIntelligenceRuntimeDatabasePassword: platform-entity-intelligence-runtime-database-password
     decisionEngineRuntimeDatabasePassword: platform-decision-engine-runtime-database-password
     # forwardmeasure-data-streaming's Pekko journal role, created by data-streaming-migrations.
     dataStreamingRuntimeDatabasePassword: platform-data-streaming-runtime-database-password
+    # forwardmeasure-agent-ensemble's runtime role, created by agent-ensemble-migrations.
+    agentEnsembleRuntimeDatabasePassword: platform-agent-ensemble-runtime-database-password

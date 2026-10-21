@@ -25,8 +25,8 @@ imageVersions:
   # real registry, not copied from a local build.
   keycloak:
     repository: docker.io/forwardmeasure/keycloak
-    tag: "26.7.4-authz"
-    digest: "sha256:1357281a173ca170f0e8d611ab43d08571097bb64b8c4327337ac6fde6673b3a"
+    tag: "26.8.1-authz"
+    digest: "sha256:64c47e576176e87067f3475f2c0ed5f051e7a7325066480c9e1c05a2a989dd84"
     pullPolicy: IfNotPresent
   # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
   # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own
@@ -82,16 +82,16 @@ imageVersions:
   # bump is a one-line change in this repo, no helm-charts touch needed.
   apicurioOperator:
     repository: quay.io/apicurio/apicurio-registry-3-operator
-    tag: "3.3.1"
+    tag: "3.3.3"
   apicurioRegistryApp:
     repository: quay.io/apicurio/apicurio-registry
-    tag: "3.3.1"
+    tag: "3.3.3"
   apicurioRegistryUi:
     repository: quay.io/apicurio/apicurio-registry-ui
-    tag: "3.3.1"
+    tag: "3.3.3"
   apicurioRegistryGitopsSync:
     repository: quay.io/apicurio/apicurio-registry-gitops-sync
-    tag: "3.3.1"
+    tag: "3.3.3"
   # Upstream OPA project's own Docker Hub org, same as every other
   # third-party image here - not rehosted. Digest confirmed via two
   # independent `docker pull` + `docker inspect` runs (2026-08-28).

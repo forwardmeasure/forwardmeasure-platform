@@ -21,8 +21,8 @@ import sys
 
 selection = json.loads(os.environ["FORWARDMEASURE_RESOLVED_SELECTION"])
 if sys.argv[1:] == ["namespaces"]:
-    prefix = "forwardmeasure-" if selection["namespaceLayout"] == "standard" else ""
-    names = [prefix + name for name in ("data-streaming", "entity-intelligence", "decision-engine")]
+    names = ["forwardmeasure-" + name
+             for name in ("data-streaming", "entity-intelligence", "decision-engine", "agent-ensemble")]
     print(json.dumps(dict(apiVersion="v1", kind="List", items=[
         dict(apiVersion="v1", kind="Namespace", metadata=dict(name=name)) for name in names])))
 elif sys.argv[1:] == ["record"]:

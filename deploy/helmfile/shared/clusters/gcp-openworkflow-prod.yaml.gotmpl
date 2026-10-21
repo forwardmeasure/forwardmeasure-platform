@@ -40,6 +40,10 @@
 # data-streaming's continuous-worker identity - openworkflow-k8s-setup/terraform/gcp workload_identities
 # "data_stream".
 {{- $dataStreamingServiceAccount := "openworkflow-prod-data-stream@genai-llm-393115.iam.gserviceaccount.com" }}
+# forwardmeasure-agent-ensemble's Indexical service and its migrations Job - openworkflow-k8s-setup/
+# terraform/gcp workload_identities "indexical" (Cloud SQL client, the indexical_documents bucket,
+# and signing its own presigned URLs).
+{{- $indexicalServiceAccount := "openworkflow-prod-indexical@genai-llm-393115.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "lux" "displayName" "Lux Tenant") }}
 platform:
   databases:
@@ -97,6 +101,10 @@ platform:
         # entity_intelligence_population_archive.bucket_name from the selected infrastructure stack.
         archiveBucket: "genai-llm-393115-openworkflow-prod-fei-archives-515191bd"
         archiveKmsKey: {{ printf "projects/%s/locations/%s/keyRings/fei-archives-%s/cryptoKeys/population-archive" $gcpProjectId $gcpRegion (sha256sum $gcpClusterName | trunc 16) | quote }}
+      indexical:
+        serviceAccount: {{ $indexicalServiceAccount | quote }}
+        # buckets.indexical_documents in openworkflow-k8s-setup/terraform/gcp/terraform.tfvars.
+        documentsBucket: "genai-llm-393115-indexical-documents"
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}

@@ -14,36 +14,15 @@
 
     <parent>
         <groupId>com.forwardmeasure.platform</groupId>
-        <artifactId>forwardmeasure-platform</artifactId>
-        <version>1.1.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <artifactId>forwardmeasure-platform-spring-parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../parents/spring/pom.xml</relativePath>
     </parent>
 
     <artifactId>forwardmeasure-platform-spring-security</artifactId>
 
     <name>ForwardMeasure Platform :: Spring Security</name>
 
-    <!--
-    A request Spring Security turns away - no valid bearer token (401) or a caller the chain doesn't
-    allow (403) - as the same RFC 9457 problem forwardmeasure-platform-server-jaxrs gives every other
-    HTTP error, with WWW-Authenticate: Bearer on a 401, as on Quarkus and Micronaut. Spring Security
-    answers before Jersey runs, so no JAX-RS mapper can reach these; each SecurityFilterChain passes
-    ProblemAuthenticationEntryPoint/ProblemAccessDeniedHandler to both .exceptionHandling(...) and
-    .oauth2ResourceServer(...). The Micronaut counterpart is forwardmeasure-platform-micronaut-
-    validation's MicronautAuthorizationProblemHandler; the Quarkus one is
-    forwardmeasure-platform-quarkus-security.
-    -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.forwardmeasure.platform</groupId>
-                <artifactId>forwardmeasure-platform-spring-bom</artifactId>
-                <version>${forwardmeasure.platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>

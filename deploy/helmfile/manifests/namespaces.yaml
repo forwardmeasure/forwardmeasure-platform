@@ -24,7 +24,9 @@ metadata: {name: forwardmeasure-platform}
 ---
 apiVersion: v1
 kind: Namespace
-metadata: {name: forwardmeasure-openworkflow}
+# Its operation adapters call the NER model (Indexical's detectMentions step); the NER
+# NetworkPolicy admits only namespaces carrying this label.
+metadata: {name: forwardmeasure-openworkflow, labels: {forwardmeasure.com/ner-client: "true"}}
 ---
 apiVersion: v1
 kind: Namespace

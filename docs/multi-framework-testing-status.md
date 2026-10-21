@@ -355,7 +355,7 @@ FOWF changes that span engines or frameworks need the full production/test react
 
 **Cold repository** (VC):
 1. Run nonrecursive `-N -f <pom> clean install` in this order: platform parent, core BOM, Quarkus BOM, Spring BOM, Micronaut BOM.
-2. Then run `build.sh --resume-from :forwardmeasure-jpa-spring --skip-push --run-tests`, with `MAVEN_ARGS` including `-DskipITs=false -Pfull-suite`, over the complete `reactor.xml`.
+2. Then run `build.sh --resume-from :forwardmeasure-jpa-spring --skip-push --full-suite` over the complete `reactor.xml` (`--full-suite` runs unit and integration tests in every repo).
 - `platform.policy.bootstrap` is for bootstrap installs only. Bootstrap goals "do not substitute for license or packaging gates".
 
 ### 5.3 Required JVM flags

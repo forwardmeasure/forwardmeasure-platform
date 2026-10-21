@@ -103,8 +103,9 @@ if [[ "${ENVIRONMENT}" != "base" ]]; then
   grep -q 'name: forwardmeasure-platform-dashboard' "${OUTPUT}"
   grep -q 'value: /platform' "${OUTPUT}"
   # forwardmeasure/keycloak: stock quay.io/keycloak/keycloak plus the organization-role policy
-  # provider (see environments/image-versions.yaml), with the built-in keycloak.v2 theme - not the
-  # never-built custom-themed forwardmeasure/forwardmeasure-keycloak image.
+  # provider (see environments/image-versions.yaml), with the built-in keycloak.v2 theme - not yet
+  # forwardmeasure/keycloak-login-theme (that image plus the ForwardMeasure login theme,
+  # built by forwardmeasure-platform-operations/operations-keycloak-theme).
   grep -q 'docker.io/forwardmeasure/keycloak' "${OUTPUT}"
   grep -q 'name: REALM_LOGIN_THEME' "${OUTPUT}"
   grep -q 'value: "keycloak.v2"' "${OUTPUT}"
