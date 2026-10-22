@@ -39,6 +39,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Framework BOMs override these only for the coordinates they actually manage. -->
+            <dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-bom</artifactId><version>${log4j.version}</version><type>pom</type><scope>import</scope></dependency>
+            <dependency><groupId>com.github.ben-manes.caffeine</groupId><artifactId>caffeine</artifactId><version>${caffeine.version}</version></dependency>
+            <dependency><groupId>org.jctools</groupId><artifactId>jctools-core</artifactId><version>${jctools.version}</version></dependency>
+            <dependency><groupId>org.opensearch.client</groupId><artifactId>opensearch-rest-client</artifactId><version>${opensearch-rest-client.version}</version></dependency>
+            <dependency><groupId>org.apache.cassandra</groupId><artifactId>java-driver-query-builder</artifactId><version>${cassandra.java.driver.version}</version></dependency>
             <!-- Align the optional graph reporters with the platform-owned Metrics core. -->
             <dependency>
               <groupId>io.dropwizard.metrics</groupId>

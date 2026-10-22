@@ -109,6 +109,12 @@
     <spark.hk2.version>3.0.6</spark.hk2.version>
     <spark.javassist.version>3.30.2-GA</spark.javassist.version>
     <cassandra.java.driver.version>4.19.3</cassandra.java.driver.version>
+    <!-- Neutral gap-fill pins from the current framework BOMs: Caffeine/JCTools from Quarkus,
+         lowest Log4j family from Spring, and OpenSearch REST from Micronaut. -->
+    <caffeine.version>3.2.4</caffeine.version>
+    <jctools.version>4.0.5</jctools.version>
+    <log4j.version>2.25.5</log4j.version>
+    <opensearch-rest-client.version>3.7.0</opensearch-rest-client.version>
     <!-- Compile-time API annotations omitted transitively by Cassandra's provided dependency. -->
     <jcip.annotations.version>1.0-1</jcip.annotations.version>
     <!-- Keep optional engine reporters aligned with the existing Dropwizard 4.x core. -->
