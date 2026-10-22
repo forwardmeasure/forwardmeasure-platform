@@ -26,7 +26,7 @@ imageVersions:
   keycloak:
     repository: docker.io/forwardmeasure/keycloak
     tag: "26.8.1-authz"
-    digest: "sha256:64c47e576176e87067f3475f2c0ed5f051e7a7325066480c9e1c05a2a989dd84"
+    digest: "sha256:ee914acf276f47520a634a5d931b08a9114ae0e7c6bb0b6aa7fef042a77a0aad"
     pullPolicy: IfNotPresent
   # Bakes in psycopg2-binary/authlib at build time (data-fabric-devops-utils/
   # docker-images/superset) - see releases/superset/base.yaml.gotmpl's own

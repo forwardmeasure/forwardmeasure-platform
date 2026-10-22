@@ -62,6 +62,17 @@ there directly instead, and why that broke every Quarkus module's local build ec
     <module>../forwardmeasure-platform-operations</module>
   </modules>
 
+  <profiles>
+    <!-- Itineris joins the reactor only on request (the build.sh with-itineris option): it is part of the
+         platform, but most builds do not touch it and it is the slowest product to build. -->
+    <profile>
+      <id>itineris</id>
+      <modules>
+        <module>../forwardmeasure-itineris</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <build>
     <plugins>
       <plugin>

@@ -52,6 +52,8 @@ Options:
                            Implies --run-tests.
                            Both need DOCKER_HUB_USERNAME and DOCKER_HUB_TOKEN set
                            (a test pulls a real private image).
+  --with-itineris         Also build forwardmeasure-itineris (the reactor's itineris profile);
+                           off by default because most builds do not touch it.
   --coverage              Collect Jacoco code coverage via the "coverage"
                            profile (disabled by default).
   -h, --help              Show this help and exit.
@@ -88,6 +90,7 @@ push=true
 skip_tests=true
 full_suite=false
 coverage=false
+with_itineris=false
 no_cache=false
 build_cache=true
 threads=
@@ -146,6 +149,10 @@ while [ $# -gt 0 ]; do
 			coverage=true
 			shift
 			;;
+		--with-itineris)
+			with_itineris=true
+			shift
+			;;
 		-h|--help)
 			usage
 			exit 0
@@ -183,6 +190,9 @@ if [ "$coverage" = true ] || [ "$skip_tests" = false ]; then
 fi
 if [ "$full_suite" = true ]; then
 	profiles="$profiles,full-suite"
+fi
+if [ "$with_itineris" = true ]; then
+	profiles="$profiles,itineris"
 fi
 
 build_started=$(date +%s)
