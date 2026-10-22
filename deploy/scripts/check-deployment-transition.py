@@ -35,10 +35,9 @@ MARKER = "forwardmeasure-deployment-selection"
 def violations(selection, releases, previous):
     errors = []
     if previous:
-        for key in ("engine", "namespaceLayout"):
-            if previous.get(key) != selection[key]:
-                errors.append(f"Recorded {key}={previous.get(key)} differs from requested {selection[key]}")
-    prefix = "forwardmeasure-" if selection["namespaceLayout"] == "standard" else ""
+        if previous.get("engine") != selection["engine"]:
+            errors.append(f"Recorded engine={previous.get('engine')} differs from requested {selection['engine']}")
+    prefix = "forwardmeasure-"
     for release in releases:
         name, namespace = release["name"], release["namespace"]
         if name in ENGINE_RELEASES and ENGINE_RELEASES[name] != selection["engine"]:

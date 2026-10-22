@@ -36,3 +36,7 @@ if [[ "${FORWARDMEASURE_ENABLE_FDE}" == true ]]; then
   PRODUCT_SUMMARY+=" + decision-engine"
   DIGEST_SELECTION_ARGS=()
 fi
+# forwardmeasure-agent-ensemble (Indexical + the agent-ensemble Studio) last: Indexical admits
+# into FEI and runs on FOWF.
+PRODUCT_REPOSITORIES+=(forwardmeasure-agent-ensemble)
+PRODUCT_SUMMARY+=" + agent-ensemble"

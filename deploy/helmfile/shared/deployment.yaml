@@ -19,10 +19,3 @@ framework: quarkus
 engine: kafka-streams
 enableFde: true
 displayName: kriyagentic
-namespaceLayout: standard
-
-# Keep the existing cluster addressable until its explicit namespace cutover is completed.
-# Remove this override after following the cutover in docs/technical-vision.md, section 5.4.
-environments:
-  gcp-openworkflow-prod:
-    namespaceLayout: legacy

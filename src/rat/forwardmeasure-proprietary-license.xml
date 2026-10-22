@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2026 ForwardMeasure, Inc. All rights reserved.
+
+  This file is part of the ForwardMeasure platform build and is
+  proprietary and confidential. Unauthorized copying, modification,
+  distribution or use of this file, via any medium, is strictly
+  prohibited without the prior written permission of
+  ForwardMeasure, Inc.
+-->
+<!--
+  Shared Apache RAT proprietary-license definition for the SUPER-REACTOR build.
+
+  Proprietary repos (FEI, Agent Ensemble, entity-matching, ...) point their RAT check at
+  ${maven.multiModuleProjectDirectory}/src/rat/forwardmeasure-proprietary-license.xml. Built
+  standalone, maven.multiModuleProjectDirectory is that repo's own root and RAT resolves the copy
+  shipped there. Built through forwardmeasure-platform/reactor.xml, maven.multiModuleProjectDirectory
+  is the platform root (the directory holding .mvn), so every proprietary module resolves THIS copy.
+
+  The <text> matcher below is therefore the header TAIL common to every ForwardMeasure proprietary
+  repo - everything after the per-repo product name ("... Entity Intelligence and is", "... Agent
+  Ensemble and is") - so this one definition approves all of them while still denying Apache headers.
+  The platform root pom excludes src/rat/** from its own AL license-check (this file carries the
+  proprietary notice, not an Apache header).
+-->
+<rat-config>
+	<families>
+		<family id="FMPROP" name="ForwardMeasure Proprietary" />
+	</families>
+	<licenses>
+		<license family="FMPROP" id="FMPROP" name="ForwardMeasure Proprietary License">
+			<text>proprietary and confidential. Unauthorized copying, modification,
+				distribution or use of this file, via any medium, is strictly
+				prohibited without the prior written permission of
+				ForwardMeasure, Inc.</text>
+		</license>
+	</licenses>
+</rat-config>

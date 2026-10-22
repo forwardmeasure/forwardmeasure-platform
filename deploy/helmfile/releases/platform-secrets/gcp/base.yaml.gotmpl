@@ -48,6 +48,9 @@ secrets:
       {{- if .Values.platform.products.decisionEngine.enabled }}
       - {{ .Values.namespaces.decisionEngine }}
       {{- end }}
+      # forwardmeasure-agent-ensemble's private images: the Indexical service, its migrations Job
+      # and the agent-ensemble Studio, all in the one agent-ensemble product namespace.
+      - {{ .Values.namespaces.agentEnsemble }}
     {{- if and (dig "secretStore" "remoteKeys" "dockerRegistryServer" "" .Values) (dig "secretStore" "remoteKeys" "dockerRegistryAuth" "" .Values) }}
     # The store holds the registry's parts separately (gcp-openworkflow-prod's, since 2026-09-16):
     # External Secrets composes .dockerconfigjson from them at sync time ({{ "{{ .server }}" }} and
@@ -88,6 +91,7 @@ secrets:
   # decision-engine is disabled; these credentials never enter workflow input/history.
   {{- $operationClients := printf "dict \"entity-intelligence-ingestion-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .ingestionWorkerSecret)" .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.clientId }}
   {{- $operationClients = printf "%s \"entity-intelligence-screening-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .screeningWorkerSecret)" $operationClients .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.entityIntelligenceScreeningWorker.clientId }}
+  {{- $operationClients = printf "%s \"indexical-fei-admission-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .indexicalEvidenceAdmissionSecret)" $operationClients .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.indexicalEvidenceAdmission.clientId }}
   {{- if .Values.platform.products.decisionEngine.enabled }}
   {{- $operationClients = printf "%s \"decision-engine-token\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .evaluatorSecret)" $operationClients .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.decisionEngineEvaluator.clientId }}
   {{- end }}
@@ -100,6 +104,7 @@ secrets:
     remoteRefs:
       - {secretKey: ingestionWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.secretRemoteKey | quote }}}
       - {secretKey: screeningWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceScreeningWorker.secretRemoteKey | quote }}}
+      - {secretKey: indexicalEvidenceAdmissionSecret, remoteKey: {{ .Values.platform.identity.serviceClients.indexicalEvidenceAdmission.secretRemoteKey | quote }}}
       {{- if .Values.platform.products.decisionEngine.enabled }}
       - {secretKey: evaluatorSecret, remoteKey: {{ .Values.platform.identity.serviceClients.decisionEngineEvaluator.secretRemoteKey | quote }}}
       {{- end }}
@@ -129,6 +134,19 @@ secrets:
       - {secretKey: launcherSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceLauncher.secretRemoteKey | quote }}}
       - {secretKey: ingestionWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceIngestionWorker.secretRemoteKey | quote }}}
       - {secretKey: screeningWorkerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.entityIntelligenceScreeningWorker.secretRemoteKey | quote }}}
+  # forwardmeasure-agent-ensemble's Indexical service (the indexical-service release reads it by this
+  # name): keycloak-client-secret is the indexical resource server's (AuthZEN PDP calls),
+  # fowf-keycloak-client-secret the indexical-launcher's (OpenWorkflow calls) - FEI's shape.
+  - name: indexical-credentials
+    identityClientCredentials: true
+    enabled: {{ and .Values.platform.identity.serviceClients.indexical.enabled .Values.platform.identity.serviceClients.indexicalLauncher.enabled }}
+    namespaces: [{{ .Values.namespaces.agentEnsemble }}]
+    templateData:
+      keycloak-client-secret: {{ "{{ .resourceServerSecret }}" | quote }}
+      fowf-keycloak-client-secret: {{ "{{ .launcherSecret }}" | quote }}
+    remoteRefs:
+      - {secretKey: resourceServerSecret, remoteKey: {{ .Values.platform.identity.serviceClients.indexical.secretRemoteKey | quote }}}
+      - {secretKey: launcherSecret, remoteKey: {{ .Values.platform.identity.serviceClients.indexicalLauncher.secretRemoteKey | quote }}}
   - name: {{ .Values.identity.databaseSecret }}
     enabled: true
     namespaces: [{{ .Values.namespaces.keycloak }}]
@@ -222,6 +240,13 @@ secrets:
       # since none had provisioned it yet) - same missing-key-strictness class of bug as
       # .Values.tenants elsewhere in this repo pair. `dig` with a default makes the omission
       # actually optional, matching what the comment already promised.
+      # OpenWorkflow's tenant-access role (actor provisioning): the only role that writes each
+      # tenant database's identity.actor. The migrations Job creates it and grants it provisioning;
+      # the tenant-access reconciliation Job connects as it. Optional per environment, like fei's
+      # key below, so an environment without it still renders.
+      {{- if (dig "secretStore" "remoteKeys" "openworkflowTenantAccessDatabasePassword" "" .Values) }}
+      - {secretKey: OPENWORKFLOW_TENANT_ACCESS_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "openworkflowTenantAccessDatabasePassword" "" .Values | quote }} }
+      {{- end }}
       {{- if (dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values) }}
       - {secretKey: ENTITY_INTELLIGENCE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "entityIntelligenceRuntimeDatabasePassword" "" .Values | quote }} }
       {{- end }}
@@ -236,6 +261,12 @@ secrets:
       # data-streaming's own runtime role (datastreaming) - its Pekko journal lives in each tenant
       # database (schema data_streaming); forwardmeasure-openworkflow's data-streaming-migrations
       # release creates/rotates the role with this password and grants it tenant_registry read.
+      # forwardmeasure-agent-ensemble's runtime role (agent_ensemble): its agent-ensemble-migrations
+      # Job runs in the openworkflow namespace as the same migration identity as fei's, creates/
+      # rotates the role with this password and grants it tenant_registry read.
+      {{- if (dig "secretStore" "remoteKeys" "agentEnsembleRuntimeDatabasePassword" "" .Values) }}
+      - {secretKey: AGENT_ENSEMBLE_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "agentEnsembleRuntimeDatabasePassword" "" .Values | quote }} }
+      {{- end }}
       {{- if (dig "secretStore" "remoteKeys" "dataStreamingRuntimeDatabasePassword" "" .Values) }}
       - {secretKey: DATA_STREAMING_RUNTIME_DATABASE_PASSWORD, remoteKey: {{ dig "secretStore" "remoteKeys" "dataStreamingRuntimeDatabasePassword" "" .Values | quote }} }
       {{- end }}
@@ -310,6 +341,22 @@ secrets:
       {{- end }}
     remoteRefs:
       - {secretKey: password, remoteKey: {{ dig "secretStore" "remoteKeys" "decisionEngineRuntimeDatabasePassword" "" .Values | quote }} }
+  {{- end }}
+  # forwardmeasure-agent-ensemble's server credentials, in its own namespace - same shape as
+  # entity-intelligence's above: the agent_ensemble runtime role plus db-cloud-sql-instance for the
+  # Indexical service's Cloud SQL Auth Proxy sidecar.
+  {{- if (dig "secretStore" "remoteKeys" "agentEnsembleRuntimeDatabasePassword" "" .Values) }}
+  - name: {{ .Values.platform.secrets.agentEnsembleDatabase }}
+    enabled: true
+    namespaces: [{{ .Values.namespaces.agentEnsemble }}]
+    templateData:
+      username: {{ .Values.platform.databases.runtimeRoles.agentEnsemble | quote }}
+      password: '{{ "{{ .password }}" }}'
+      {{- with (dig "platform" "cloud" "gcp" "cloudSql" "instanceConnectionName" "" .Values) }}
+      db-cloud-sql-instance: {{ . | quote }}
+      {{- end }}
+    remoteRefs:
+      - {secretKey: password, remoteKey: {{ dig "secretStore" "remoteKeys" "agentEnsembleRuntimeDatabasePassword" "" .Values | quote }} }
   {{- end }}
   # data-streaming's journal credentials, in its own namespace - same shape as decision-engine's
   # above: the datastreaming runtime role's password plus db-cloud-sql-instance for the Cloud SQL

@@ -12,8 +12,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.forwardmeasure.platform</groupId>
-    <artifactId>forwardmeasure-platform</artifactId>
-    <version>1.1.0</version>
+    <artifactId>forwardmeasure-platform-neutral-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../parents/neutral/pom.xml</relativePath>
   </parent>
   <artifactId>forwardmeasure-platform-data-contracts</artifactId>
   <name>ForwardMeasure Platform :: Data Contracts</name>

@@ -19,5 +19,12 @@
 # Optional product selection: export FORWARDMEASURE_ENABLE_FDE=true
 # Optional operator-owned egress policy (unset means no extra destinations):
 # export OPENWORKFLOW_EXTERNAL_EGRESS_CIDR=<approved-cidr>
-# export OPENWORKFLOW_HTTP_EGRESS_ALLOWLIST='<tenant-identity>=<approved-host>'
+# Extra destinations only - every tenant may already call the platform's own services (the
+# ml-serving stage and every language-model profile's host). Keyed by the tenant's DID (or its id),
+# never a bare alias:
+# export OPENWORKFLOW_HTTP_EGRESS_ALLOWLIST='did:web:<alias>.<domain>=<approved-host>|<host>'
+# Indexical's extraction model is the language-model profile shared/clusters/
+# gcp-openworkflow-prod.yaml.gotmpl assigns it (platform.llmProfileAssignments.indexicalExtraction):
+# set that profile's url, wireFormat and modelId there, and its API key as the platform
+# credential platform-llm-<profile>-api-key. Its host is allowed for every tenant automatically.
 # The platform's registry/identity resource hosts are derived from shared configuration.

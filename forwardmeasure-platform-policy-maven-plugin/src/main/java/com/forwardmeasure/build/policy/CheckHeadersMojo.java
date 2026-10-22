@@ -43,7 +43,9 @@ import org.apache.maven.plugins.annotations.Parameter;
  * the approved header texts within its first lines.
  *
  * <p>Each module checks the files under its own directory; directories of child modules (those
- * holding a {@code pom.xml}) are left to the child.
+ * holding a {@code pom.xml}) are left to the child. Files git ignores - local credentials files,
+ * generated output - are not the repository's sources and are left alone; a tracked file is always
+ * checked, whatever the ignore rules say. Outside a git work tree every matching file is checked.
  */
 @Mojo(name = "check-headers", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public final class CheckHeadersMojo extends AbstractMojo {
@@ -87,6 +89,10 @@ public final class CheckHeadersMojo extends AbstractMojo {
   @Parameter(defaultValue = "40")
   int headerLines = 40;
 
+  /** Whether files git ignores (and does not track) are left unchecked. */
+  @Parameter(defaultValue = "true")
+  boolean skipGitIgnored = true;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     if (!basedir.isDirectory()) return;
@@ -98,6 +104,7 @@ public final class CheckHeadersMojo extends AbstractMojo {
     int checked = 0;
     try {
       List<Path> candidates = candidates(root, included, excluded);
+      if (skipGitIgnored) candidates.removeAll(gitIgnored(root, candidates));
       for (Path file : candidates) {
         checked++;
         if (!hasApprovedHeader(file, approved, headerLines))
@@ -150,6 +157,55 @@ public final class CheckHeadersMojo extends AbstractMojo {
         });
     files.sort(null);
     return files;
+  }
+
+  /**
+   * The candidates git ignores, asked of {@code git check-ignore} - which never reports a tracked
+   * file. Nothing when the module is not in a git work tree or git is not installed.
+   */
+  private List<Path> gitIgnored(Path root, List<Path> candidates) throws IOException {
+    if (candidates.isEmpty()) return List.of();
+    Process git;
+    try {
+      git =
+          new ProcessBuilder("git", "-C", root.toString(), "check-ignore", "--stdin", "-z")
+              .redirectError(ProcessBuilder.Redirect.DISCARD)
+              .start();
+    } catch (IOException notInstalled) {
+      getLog().debug("git is not available; checking every matching file", notInstalled);
+      return List.of();
+    }
+    var feeder =
+        Thread.ofVirtual()
+            .start(
+                () -> {
+                  try (var stdin = git.getOutputStream()) {
+                    for (Path file : candidates) {
+                      stdin.write(
+                          root.relativize(file).toString().getBytes(StandardCharsets.UTF_8));
+                      stdin.write(0);
+                    }
+                  } catch (IOException ignoredClosed) {
+                    // git exited early (not a work tree); its exit status says so below.
+                  }
+                });
+    byte[] output = git.getInputStream().readAllBytes();
+    int status;
+    try {
+      feeder.join();
+      status = git.waitFor();
+    } catch (InterruptedException interrupted) {
+      Thread.currentThread().interrupt();
+      git.destroyForcibly();
+      throw new IOException("Interrupted while asking git which files it ignores", interrupted);
+    }
+    // 0: some are ignored; 1: none are; anything else (128: not a work tree) - check them all.
+    if (status != 0) return List.of();
+    List<Path> ignored = new ArrayList<>();
+    for (String relative : new String(output, StandardCharsets.UTF_8).split("\0")) {
+      if (!relative.isEmpty()) ignored.add(root.resolve(relative));
+    }
+    return ignored;
   }
 
   private static boolean matchesAny(List<PathMatcher> matchers, Path path) {

@@ -126,9 +126,27 @@ class SynchronizationTest(unittest.TestCase):
                                         lambda: cluster.clock, cluster.sleep,
                                         cluster.helm, cluster.reported.append))
         self.assertEqual([("entity-intelligence", "entity-intelligence-opensearch-ca")], cluster.deleted)
-        self.assertEqual(1, len(cluster.reported))
+        self.assertTrue(any(message.startswith("Removed ") for message in cluster.reported))
         self.assertIn("entity-intelligence/entity-intelligence-opensearch-ca", cluster.reported[0])
         self.assertEqual({"keycloak", "data-streaming", "entity-intelligence"}, set(cluster.markers))
+
+    def test_stuck_orphan_deletion_is_reported_and_bounded_before_synchronization(self):
+        cluster = FakeCluster(accept=True)
+        cluster.items.append(platform_item("deleted-namespace", "orphan"))
+
+        def command(*args, **kwargs):
+            if "delete" in args:
+                self.assertIn("--timeout=3s", args)
+                self.assertIn("deleted-namespace/orphan", cluster.reported[-1])
+                self.assertTrue(cluster.reported[-1].startswith("Removing "))
+                raise RuntimeError("error: timed out waiting for the condition")
+            return cluster.command(*args, **kwargs)
+
+        with self.assertRaisesRegex(RuntimeError, "deleted-namespace/orphan; check its finalizers"):
+            module.sync("fake-secret-store", 3, command, lambda: cluster.clock, cluster.sleep,
+                        cluster.helm, cluster.reported.append)
+        self.assertEqual({}, cluster.markers)
+        self.assertFalse(any(message.startswith("Removed ") for message in cluster.reported))
 
     def test_objects_of_other_releases_are_never_removed(self):
         cluster = FakeCluster(accept=True)

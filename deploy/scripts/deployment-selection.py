@@ -26,13 +26,11 @@ import yaml
 CONFIG = Path(__file__).resolve().parents[1] / "helmfile/shared/deployment.yaml"
 SNAPSHOT = "FORWARDMEASURE_RESOLVED_SELECTION"
 DEFAULTS = dict(framework="quarkus", engine="kafka-streams", enableFde=True,
-                displayName="kriyagentic", namespaceLayout="standard")
+                displayName="kriyagentic")
 OVERRIDES = dict(framework="FORWARDMEASURE_FRAMEWORK", engine="FORWARDMEASURE_ENGINE",
-                 enableFde="FORWARDMEASURE_ENABLE_FDE", displayName="FORWARDMEASURE_DISPLAY_NAME",
-                 namespaceLayout="FORWARDMEASURE_NAMESPACE_LAYOUT")
+                 enableFde="FORWARDMEASURE_ENABLE_FDE", displayName="FORWARDMEASURE_DISPLAY_NAME")
 CHOICES = dict(framework=("quarkus", "spring", "micronaut"),
-               engine=("kafka-streams", "pekko-postgresql", "pekko-cassandra"),
-               namespaceLayout=("standard", "legacy"))
+               engine=("kafka-streams", "pekko-postgresql", "pekko-cassandra"))
 
 
 def validate(selection):

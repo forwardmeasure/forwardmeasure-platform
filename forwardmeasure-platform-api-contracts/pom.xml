@@ -11,7 +11,12 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <parent><groupId>com.forwardmeasure.platform</groupId><artifactId>forwardmeasure-platform</artifactId><version>1.1.0</version></parent>
+  <parent>
+    <groupId>com.forwardmeasure.platform</groupId>
+    <artifactId>forwardmeasure-platform-neutral-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../parents/neutral/pom.xml</relativePath>
+  </parent>
   <artifactId>forwardmeasure-platform-api-contracts</artifactId>
   <name>ForwardMeasure Platform :: Shared API Contracts</name>
   <description>Authoritative versioned shared schemas (RFC 9457 Problem, EntityKind) and their generated Java models.

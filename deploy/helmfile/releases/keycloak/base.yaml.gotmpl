@@ -140,6 +140,7 @@ bootstrapAdminUser:
     viewer: platform-viewer
     accessAdmin: platform-access-admin
     platformAdmin: platform-admin
-readinessProbe: {path: /health/ready}
+# The startup probe gates readiness until Keycloak is healthy; no fixed startup delay is needed.
+readinessProbe: {path: /health/ready, initialDelaySeconds: 0}
 livenessProbe: {path: /health/live}
-startupProbe: {path: /health/ready}
+startupProbe: {enabled: true, path: /health/ready}

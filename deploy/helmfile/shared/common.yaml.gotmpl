@@ -36,7 +36,8 @@
 # wins over a stale product-local copy of the same key.
 {{- $sharedDir := .Values | get "deploymentSharedDir" "." }}
 {{- $selection := exec "python3" (list (printf "%s/../../scripts/deployment-selection.py" $sharedDir) "--environment" .Environment.Name) | fromJson }}
-{{- $prefix := ternary "forwardmeasure-" "" (eq $selection.namespaceLayout "standard") }}
+{{- /* Every product namespace carries the forwardmeasure- prefix (docs/technical-vision.md 5.4). */}}
+{{- $prefix := "forwardmeasure-" }}
 {{- $namespaces := dict
       "platform" "forwardmeasure-platform"
       "istio" "istio-system"
@@ -48,7 +49,10 @@
       "valkey" "valkey"
       "dataStreaming" (printf "%sdata-streaming" $prefix)
       "entityIntelligence" (printf "%sentity-intelligence" $prefix)
-      "decisionEngine" (printf "%sdecision-engine" $prefix) }}
+      "decisionEngine" (printf "%sdecision-engine" $prefix)
+      "agentEnsemble" (printf "%sagent-ensemble" $prefix)
+      "docling" "docling-serve"
+      "modelServing" "kserve-serving" }}
 {{- /* Environment value templates render independently. Read the declared cluster facts here,
 then apply explicit state-value overrides; do not depend on another values file's load order. */}}
 {{- $clusterFile := printf "%s/clusters/%s.yaml.gotmpl" $sharedDir .Environment.Name }}
@@ -107,16 +111,62 @@ operator names its API Service <name>-app-service. */}}
       "/dossiers" "resolution"
       "/investigations" "resolution"
       "/screening" "screening" }}
+{{- /* The platform's ml-serving stage (helmfiles/50-ml-serving.yaml.gotmpl): docling-serve's
+<release>-<chart> Service on 5001, and the named-entity-recognition release's KServe predictor
+(releases/named-entity-recognition/model.values.yaml names the model). */}}
+{{- $doclingConvertUrl := printf "http://docling-docling-serve.%s.svc.cluster.local:5001/v1/convert/source" $namespaces.docling }}
+{{- $nerExtractionsUrl := printf "http://ner-gliner-medium-v2-1-predictor.%s.svc.cluster.local/api/v1/named-entity-recognition/extractions" $namespaces.modelServing }}
+{{- /* Language-model profiles - each a model configuration this environment offers - are cluster
+facts (clusters/<env>.yaml.gotmpl platform.llmProfiles); each product uses the one named in
+platform.llmProfileAssignments. Every profile's API key is the platform credential
+platform-llm-<profile>-api-key. wireFormat is the API the url speaks: openai-chat-completions (any
+OpenAI-compatible chat/completions endpoint, the default) or anthropic-messages (Anthropic's
+Messages API, with structured outputs). */}}
+{{- $wireFormats := list "openai-chat-completions" "anthropic-messages" }}
+{{- $llmProfiles := dict }}
+{{- range $name, $profile := (dig "platform" "llmProfiles" (dict) $cluster) }}
+{{-   $wireFormat := dig "wireFormat" "openai-chat-completions" $profile }}
+{{-   if not (has $wireFormat $wireFormats) }}
+{{-     fail (printf "platform.llmProfiles.%s.wireFormat %q is not one of %s" $name $wireFormat (join ", " $wireFormats)) }}
+{{-   end }}
+{{-   $_ := set $llmProfiles $name (dict
+        "url" (dig "url" "" $profile)
+        "wireFormat" $wireFormat
+        "modelId" (dig "modelId" "" $profile)
+        "requestParameters" (dig "requestParameters" (dict) $profile)
+        "apiKeyCredential" (printf "platform-llm-%s-api-key" $name)) }}
+{{- end }}
+{{- $llmProfileAssignments := dig "platform" "llmProfileAssignments" (dict) $cluster }}
+{{- range $use, $name := $llmProfileAssignments }}
+{{-   if not (hasKey $llmProfiles $name) }}
+{{-     fail (printf "platform.llmProfileAssignments.%s names llm profile %q, which platform.llmProfiles does not define" $use $name) }}
+{{-   end }}
+{{- end }}
+{{- /* Every tenant's workflows may call the platform's own services: the ml-serving stage, the
+model of every profile and (below) every service a logical API address is routed to. fowf's operation
+adapter allows these hosts for every tenant (OPENWORKFLOW_HTTP_EGRESS_ALLOWLIST, keyed by the tenant's
+DID); an operator's own destinations are added per tenant on top. */}}
+{{- $workflowEgressHosts := list (urlParse $doclingConvertUrl).hostname (urlParse $nerExtractionsUrl).hostname }}
+{{- range $name, $profile := $llmProfiles }}
+{{-   if $profile.url }}
+{{-     $workflowEgressHosts = append $workflowEgressHosts (urlParse $profile.url).hostname }}
+{{-   end }}
+{{- end }}
 {{- $httpEndpointRoutes := list }}
 {{- range $path, $owner := $entityIntelligencePathOwners }}
 {{- /* URI-safe placeholders let older adapters parse the map during a rolling upgrade. The new matcher decodes only whole-segment template names. */}}
 {{-   $wirePath := replace "{" "%7B" $path | replace "}" "%7D" }}
 {{-   $httpEndpointRoutes = append $httpEndpointRoutes (printf "%s%s=%s%s" $entityIntelligenceApiUrl $wirePath (index $entityIntelligenceBaseUrls $owner) $wirePath) }}
 {{- end }}
+{{- /* The adapter routes a logical API address first and then checks the real destination against the
+allowlist, so every routed service is a platform host too (fei's services, for workflows calling fei's
+API - Indexical's admission among them). */}}
+{{- range $route := $httpEndpointRoutes }}
+{{-   $workflowEgressHosts = append $workflowEgressHosts (urlParse (index (splitList "=" $route) 1)).hostname }}
+{{- end }}
 platform:
   branding:
     displayName: {{ $selection.displayName | quote }}
-  namespaceLayout: {{ $selection.namespaceLayout }}
   products:
     decisionEngine:
       enabled: {{ $enableFde }}
@@ -155,6 +205,9 @@ platform:
       # forwardmeasure-data-streaming's continuous Pekko workers: its journal schema in each tenant
       # database (data-streaming-migrations).
       dataStreaming: datastreaming
+      # forwardmeasure-agent-ensemble's agents (Indexical's extraction registry): its
+      # agent_ensemble schema in each tenant database (agent-ensemble-migrations).
+      agentEnsemble: agent_ensemble
   identity:
     realm: {{ $keycloakRealm }}
     # The org-wide public client every product's organization/tenant-claim verification points at.
@@ -283,6 +336,44 @@ platform:
         - fei-screening-worker-caller
         - entity-intelligence-worker
         capabilityPack: entity-intelligence
+      # forwardmeasure-agent-ensemble's Indexical: its AuthZEN resource server (the indexical
+      # resources/scopes/permissions of its capability pack, reconciled per tenant by fowf's tenant
+      # administration) and the identity the service evaluates decisions with.
+      indexical:
+        clientId: indexical
+        name: Indexical Resource Server
+        secretKey: INDEXICAL_CLIENT_SECRET
+        secretRemoteKey: platform-indexical-client-secret
+        authorizationServicesEnabled: true
+        organizationClaim: true
+        enabled: true
+      # Indexical's FEI caller: the workflow's admitResults step calls FEI's admitInformationExtraction
+      # with a token the operation adapter mints for this client (indexical-fei-admission-token).
+      # A member of FEI's capability pack holding only indexical-evidence-admission-caller.
+      indexicalEvidenceAdmission:
+        clientId: indexical-evidence-admission
+        name: Indexical Evidence Admission
+        secretKey: INDEXICAL_EVIDENCE_ADMISSION_CLIENT_SECRET
+        secretRemoteKey: platform-indexical-evidence-admission-client-secret
+        organizationClaim: true
+        authorizationServicesEnabled: false
+        enabled: true
+        tenantRoles:
+        - indexical-evidence-admission-caller
+        capabilityPack: entity-intelligence
+      # Indexical's OpenWorkflow caller: starts and observes its extraction executions in every
+      # tenant (workflow-operator), like FEI's launcher.
+      indexicalLauncher:
+        clientId: indexical-launcher
+        name: Indexical Launcher
+        secretKey: INDEXICAL_LAUNCHER_CLIENT_SECRET
+        secretRemoteKey: platform-indexical-launcher-client-secret
+        organizationClaim: true
+        tenantRoles:
+        - workflow-operator
+        authorizationServicesEnabled: false
+        enabled: true
+        capabilityPack: openworkflow
     # The platform's own DID method (did:<didMethod>:...) - the only place it is named. Products
     # read it as FORWARDMEASURE_DID_METHOD (forwardmeasure-jpa's PlatformDids): workflow bundles are
     # did:<method>:bundle:<domain> and their documents DID URLs under that; resolved entities are
@@ -318,6 +409,8 @@ platform:
     # data-streaming's journal credentials: password of its runtime role plus db-cloud-sql-instance
     # for the Cloud SQL Auth Proxy sidecar beside each continuous Pekko worker.
     dataStreamingDatabase: data-streaming-database-credentials
+    # forwardmeasure-agent-ensemble's server credentials (agent_ensemble role + Cloud SQL instance).
+    agentEnsembleDatabase: agent-ensemble-database-credentials
     # The shared Valkey's password (its single default ACL user), for decision-engine's fact window.
     decisionEngineValkey: decision-engine-valkey-auth
   endpoints:
@@ -347,6 +440,7 @@ platform:
       # java-microservice Services listen on port 80 (targetPort 8080), hence no port.
       executionBaseUrl: {{ printf "http://openworkflow-execution-management.%s.svc.cluster.local" $namespaces.openworkflow }}
       definitionBaseUrl: {{ printf "http://openworkflow-definition-management.%s.svc.cluster.local" $namespaces.openworkflow }}
+      humanTaskBaseUrl: {{ printf "http://openworkflow-human-task-management.%s.svc.cluster.local" $namespaces.openworkflow }}
     # fei's REST services - deployed by forwardmeasure-entity-intelligence; apiUrl is the logical
     # address its OpenAPI document names, routed to these by httpEndpointRoutes below.
     entityIntelligence:
@@ -354,6 +448,34 @@ platform:
       ingestionBaseUrl: {{ $entityIntelligenceBaseUrls.ingestion }}
       resolutionBaseUrl: {{ $entityIntelligenceBaseUrls.resolution }}
       screeningBaseUrl: {{ $entityIntelligenceBaseUrls.screening }}
+    # decision-engine's gRPC service, as workflows name it (`call: grpc`, `with.service.host`) and as
+    # fowf's operation adapter allowlists it (OPENWORKFLOW_PLATFORM_GRPC_ENDPOINTS) - one value so the
+    # two can never differ. Deliberately <service>.<namespace>.svc, without .cluster.local: the
+    # workflow DSL schema caps a gRPC host at 63 characters (its per-label pattern is applied to the
+    # whole host), and the cluster's DNS search path resolves the short form unchanged.
+    decisionEngine:
+      grpcHost: {{ printf "decision-engine.%s.svc" $namespaces.decisionEngine }}
+      grpcPort: 9000
+    # The platform's ml-serving stage, which products' workflows call: Docling document conversion
+    # and the GLiNER named-entity-recognition model.
+    docling:
+      convertUrl: {{ $doclingConvertUrl }}
+    namedEntityRecognition:
+      extractionsUrl: {{ $nerExtractionsUrl }}
+  # Language-model profiles (from clusters/<env>.yaml.gotmpl): name -> url (the full endpoint URL),
+  # wireFormat (openai-chat-completions | anthropic-messages), modelId, requestParameters
+  # (model-specific settings merged into every request body) and apiKeyCredential (the platform
+  # credential holding its key).
+  llmProfiles:
+    {{- toYaml $llmProfiles | nindent 4 }}
+  # Which profile each product use runs on - one per product per deployment.
+  llmProfileAssignments:
+    {{- toYaml $llmProfileAssignments | nindent 4 }}
+  # Hosts every tenant's workflows may call through fowf's operation adapter: the ml-serving stage
+  # and every profile's model.
+  workflowEgress:
+    platformHosts:
+      {{- toYaml (uniq $workflowEgressHosts) | nindent 6 }}
   # logical=physical;... - where each product's logical API address (an OpenAPI document's
   # servers: URL) is served in-cluster, for fowf's operation adapter
   # (OPENWORKFLOW_ADAPTER_HTTP_ENDPOINT_ROUTES, HttpEndpointRoutes: longest prefix at a path

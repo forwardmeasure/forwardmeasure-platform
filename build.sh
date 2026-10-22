@@ -46,7 +46,12 @@ Options:
   --no-cache              Rebuild Docker layers without using the cache
                            (Docker caching is enabled by default).
   --no-build-cache       Disable Maven build-cache reuse for this invocation.
-  --run-tests             Run tests and enforce coverage (tests skipped by default).
+  --run-tests             Run unit tests and enforce coverage (tests skipped by default).
+                           Integration tests (*IT) do not run; use --full-suite.
+  --full-suite            Run unit and integration tests (the "full-suite" profile).
+                           Implies --run-tests.
+                           Both need DOCKER_HUB_USERNAME and DOCKER_HUB_TOKEN set
+                           (a test pulls a real private image).
   --coverage              Collect Jacoco code coverage via the "coverage"
                            profile (disabled by default).
   -h, --help              Show this help and exit.
@@ -81,6 +86,7 @@ mode=full
 target=
 push=true
 skip_tests=true
+full_suite=false
 coverage=false
 no_cache=false
 build_cache=true
@@ -123,6 +129,11 @@ while [ $# -gt 0 ]; do
 			skip_tests=false
 			shift
 			;;
+		--full-suite)
+			skip_tests=false
+			full_suite=true
+			shift
+			;;
 		--no-cache)
 			no_cache=true
 			shift
@@ -147,6 +158,17 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
+# Test runs pull a real private image (fowf's KubernetesJobLifecycleTest proves image pull
+# secrets against Docker Hub); refuse to start a long build that is bound to fail at that test.
+if [ "$skip_tests" = false ]; then
+	for credential in DOCKER_HUB_USERNAME DOCKER_HUB_TOKEN; do
+		[ -n "${!credential:-}" ] || {
+			echo "$credential must be set to run tests (Docker Hub credentials for the private-image pull test)" >&2
+			exit 1
+		}
+	done
+fi
+
 if [ -n "$threads" ]; then
 	# Pass -T directly for launchers without MAVEN_ARGS support. Maven 3 takes the first -T,
 	# so prepend the same value to MAVEN_ARGS to override any inherited thread setting.
@@ -158,6 +180,9 @@ fi
 profiles=container-image
 if [ "$coverage" = true ] || [ "$skip_tests" = false ]; then
 	profiles="$profiles,coverage"
+fi
+if [ "$full_suite" = true ]; then
+	profiles="$profiles,full-suite"
 fi
 
 build_started=$(date +%s)

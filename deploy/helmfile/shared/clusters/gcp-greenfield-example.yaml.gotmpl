@@ -35,6 +35,7 @@
 {{- $entityIntelligenceServiceAccount := "entity-intelligence@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $decisionEngineServiceAccount := "decision-engine@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $dataStreamingServiceAccount := "data-streaming@forwardmeasure-production.iam.gserviceaccount.com" }}
+{{- $indexicalServiceAccount := "indexical@forwardmeasure-production.iam.gserviceaccount.com" }}
 {{- $tenants := list (dict "alias" "example-bank" "displayName" "Example Bank") }}
 platform:
   databases:
@@ -63,6 +64,26 @@ platform:
   # from the alias and this environment's domain; the tenant's UUID is never stored anywhere - it is
   # always TenantId.forDid(did) (see forwardmeasure-openworkflow/docs/
   # tenant-provisioning-did-first-fix-2026-09-18.md).
+  # Language-model profiles this environment offers (shared/common.yaml.gotmpl): url is the full
+  # endpoint URL and wireFormat the API it speaks - openai-chat-completions (any OpenAI-compatible
+  # chat/completions endpoint: a model provider, or a self-hosted server) or anthropic-messages
+  # (Anthropic's Messages API, https://api.anthropic.com/v1/messages, whose structured outputs make
+  # the reply schema-valid JSON). modelId is the model to request, and requestParameters the
+  # model-specific settings merged into every request body (for example max_tokens; never a
+  # temperature below 1 for Claude 4.7 and later, which rejects it). A profile's API key is the
+  # platform credential platform-llm-<profile>-api-key (any value for a server without auth).
+  llmProfiles:
+    extraction:
+      # Set both before deploying forwardmeasure-agent-ensemble: indexical-service refuses to
+      # render without them.
+      url: ""
+      wireFormat: openai-chat-completions
+      modelId: ""
+      requestParameters: {}
+  # The profile each product use runs on - one per deployment.
+  llmProfileAssignments:
+    # Indexical's extract step (forwardmeasure-agent-ensemble).
+    indexicalExtraction: extraction
   tenants:
     {{- range $tenants }}
     {{- $host := printf "%s.%s" .alias $domain }}
@@ -92,6 +113,10 @@ platform:
         # entity_intelligence_population_archive.bucket_name from the selected infrastructure stack.
         archiveBucket: "replace-with-population-archive-bucket-output"
         archiveKmsKey: {{ printf "projects/%s/locations/%s/keyRings/fei-archives-%s/cryptoKeys/population-archive" $gcpProjectId $gcpRegion (sha256sum $gcpClusterName | trunc 16) | quote }}
+      indexical:
+        serviceAccount: {{ $indexicalServiceAccount | quote }}
+        # Set from the indexical entry of the OpenTofu bucket_names output.
+        documentsBucket: "replace-with-indexical-documents-bucket-output"
       openworkflow:
         runtimeServiceAccount: {{ $openworkflowRuntimeServiceAccount | quote }}
         migrationsServiceAccount: {{ $openworkflowMigrationsServiceAccount | quote }}
