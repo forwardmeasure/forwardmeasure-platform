@@ -75,10 +75,13 @@ secrets:
       OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_ID: {{ .Values.platform.identity.serviceClients.workflowPublisher.clientId | quote }}
       OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_SECRET: {{ "{{ .publisherSecret }}" | quote }}
       OPENWORKFLOW_DEFINITION_RESOURCE_AUTH_SECRETS: {{ printf "{{ dict \"apicurio-registry-reader\" (dict \"tokenUrl\" %q \"clientId\" %q \"clientSecret\" .apicurioReaderSecret) | toJson }}" .Values.platform.endpoints.keycloak.tokenUrl .Values.platform.identity.serviceClients.apicurioReader.clientId | quote }}
+      OPENWORKFLOW_HUMAN_TASK_MEMBERSHIP_CLIENT_ID: {{ .Values.platform.identity.serviceClients.humanTaskMembership.clientId | quote }}
+      OPENWORKFLOW_HUMAN_TASK_MEMBERSHIP_CLIENT_SECRET: {{ "{{ .humanTaskMembershipSecret }}" | quote }}
     remoteRefs:
       - {secretKey: operatorSecret, remoteKey: {{ .Values.platform.identity.serviceClients.platformOperator.secretRemoteKey | quote }}}
       - {secretKey: publisherSecret, remoteKey: {{ .Values.platform.identity.serviceClients.workflowPublisher.secretRemoteKey | quote }}}
       - {secretKey: apicurioReaderSecret, remoteKey: {{ .Values.platform.identity.serviceClients.apicurioReader.secretRemoteKey | quote }}}
+      - {secretKey: humanTaskMembershipSecret, remoteKey: {{ .Values.platform.identity.serviceClients.humanTaskMembership.secretRemoteKey | quote }}}
   {{- if .Values.platform.products.decisionEngine.enabled }}
   - name: decision-engine-identity-credentials
     identityClientCredentials: true

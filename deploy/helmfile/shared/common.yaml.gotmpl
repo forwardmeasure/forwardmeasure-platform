@@ -282,6 +282,21 @@ platform:
         authorizationServicesEnabled: false
         organizationClaim: false
         enabled: true
+      # OpenWorkflow Human Task management's live Organization membership: who a task may be assigned
+      # to, and the groups and roles a caller claims with, read through Keycloak's Admin REST API.
+      # Read-only by construction: realm-management view-users and view-organizations, nothing else
+      # (never the master realm's bootstrap administrator). No Organization claim, no tenant role.
+      humanTaskMembership:
+        clientId: openworkflow-human-task-membership
+        name: OpenWorkflow Human Task Membership Reader
+        secretKey: OPENWORKFLOW_HUMAN_TASK_MEMBERSHIP_CLIENT_SECRET
+        secretRemoteKey: platform-openworkflow-human-task-membership-client-secret
+        realmManagementRoles:
+        - view-users
+        - view-organizations
+        authorizationServicesEnabled: false
+        organizationClaim: false
+        enabled: true
       dataStreaming:
         clientId: datastreaming
         name: Data Streaming Launcher
@@ -387,7 +402,7 @@ platform:
     # OPENWORKFLOW_ADMIN_DATABASE_PASSWORD, synced into forwardmeasure-openworkflow's namespace.
     openworkflowIdentity: openworkflow-identity-credentials
     # The service-client credentials openworkflow-platform-clients' Job creates in Keycloak (platform
-    # operator, workflow publisher, definition-resource auth). Owned by that Job alone: it can't share
+    # operator, workflow publisher, definition-resource auth, Human Task membership reader). Owned by that Job alone: it can't share
     # openworkflowIdentity, which its ExternalSecret owns and restores, dropping any key it didn't put.
     openworkflowPlatformClients: openworkflow-platform-clients
     # Narrow, dedicated secrets carrying ONLY the Keycloak admin credential (KC_BOOTSTRAP_ADMIN_*),

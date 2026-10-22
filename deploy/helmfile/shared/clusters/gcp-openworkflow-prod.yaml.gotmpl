@@ -84,8 +84,11 @@ platform:
     extraction:
       # Set both before deploying forwardmeasure-agent-ensemble: indexical-service refuses to
       # render without them.
-      url: "https://api.anthropic.com/v1/chat/completions"
-      wireFormat: openai-chat-completions
+      # Anthropic's native Messages API: structured outputs make the reply schema-valid JSON, and
+      # the key travels in x-api-key (FOWF's apiKey authentication). Its OpenAI-compatible endpoint
+      # is not production-grade and ignores response_format.
+      url: "https://api.anthropic.com/v1/messages"
+      wireFormat: anthropic-messages
       modelId: "claude-opus-5-5"
       requestParameters: {max_tokens: 16000}
   # The profile each product use runs on - one per deployment.

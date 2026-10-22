@@ -34,7 +34,8 @@ EXPECTED_KEYS = {
     "openworkflow-platform-clients": {
         "OPENWORKFLOW_PLATFORM_OPERATOR_CLIENT_ID", "OPENWORKFLOW_PLATFORM_OPERATOR_CLIENT_SECRET",
         "OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_ID", "OPENWORKFLOW_WORKFLOW_PUBLISHER_CLIENT_SECRET",
-        "OPENWORKFLOW_DEFINITION_RESOURCE_AUTH_SECRETS"},
+        "OPENWORKFLOW_DEFINITION_RESOURCE_AUTH_SECRETS",
+        "OPENWORKFLOW_HUMAN_TASK_MEMBERSHIP_CLIENT_ID", "OPENWORKFLOW_HUMAN_TASK_MEMBERSHIP_CLIENT_SECRET"},
     "data-streaming-launcher-credentials": {
         "authorization-client-secret", "fowf-keycloak-client-id", "fowf-keycloak-client-secret"},
     "entity-intelligence-credentials": {
@@ -153,6 +154,22 @@ class ManifestTest(unittest.TestCase):
         expected = {value["secretKey"] for value in self.values["platform"]["identity"]["serviceClients"].values()
                     if value["enabled"]}
         self.assertTrue(expected <= keys)
+
+    def test_human_task_membership_reader_is_read_only_and_delivered_to_openworkflow(self):
+        client = self.values["platform"]["identity"]["serviceClients"]["humanTaskMembership"]
+        self.assertTrue(client["enabled"])
+        # Read-only by construction: these two realm-management roles, no Organization, no authz.
+        self.assertEqual(["view-users", "view-organizations"], client["realmManagementRoles"])
+        self.assertFalse(client["organizationClaim"])
+        self.assertFalse(client["authorizationServicesEnabled"])
+        self.assertNotIn("realmRoles", client)
+        self.assertNotIn("tenantRoles", client)
+        secret = next(value for value in self.secret_values["secrets"]
+                      if value["name"] == self.values["platform"]["secrets"]["openworkflowPlatformClients"])
+        refs = {value["secretKey"]: value["remoteKey"] for value in secret["remoteRefs"]}
+        self.assertEqual(client["secretRemoteKey"], refs["humanTaskMembershipSecret"])
+        self.assertEqual(client["clientId"],
+                         secret["templateData"]["OPENWORKFLOW_HUMAN_TASK_MEMBERSHIP_CLIENT_ID"])
 
     def test_human_task_signing_key_is_delivered_to_runtime_secret(self):
         secret = next(value for value in self.manifests if value and value["kind"] == "ExternalSecret"
