@@ -29,6 +29,7 @@ TARGETS = (
     "forwardmeasure-openworkflow/openworkflow-api-specifications/src/main/resources/META-INF/openapi/common-definitions.yaml",
     "forwardmeasure-entity-intelligence/forwardmeasure-entity-intelligence-api-specifications/src/main/resources/META-INF/openapi/entity-intelligence-api.yaml",
     "forwardmeasure-data-streaming/forwardmeasure-data-streaming-api/src/main/resources/openapi/launcher.yaml",
+    "forwardmeasure-agent-ensemble/indexical/indexical-api-specifications/src/main/resources/META-INF/openapi/indexical.openapi.yaml",
 )
 
 

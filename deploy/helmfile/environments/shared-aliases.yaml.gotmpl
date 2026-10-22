@@ -70,10 +70,11 @@ tenants:
     did: {{ .did | quote }}
     code: {{ .alias | quote }}
     name: {{ .displayName | quote }}
-    # Workflow-call secrets the operation adapter mounts for this tenant: Indexical's model
-    # provider key (one platform credential; any value for a model server without auth).
+    # Workflow-call secrets the operation adapter mounts for this tenant: the API key of the
+    # language-model profile Indexical's extract step runs on (platform.llmProfileAssignments;
+    # shared/common.yaml.gotmpl names each profile's credential platform-llm-<profile>-api-key).
     workflowSecrets:
-      - {secretKey: indexical-model-api-key, remoteKey: platform-indexical-model-api-key}
+      - {secretKey: indexical-extraction-llm-api-key, remoteKey: {{ printf "platform-llm-%s-api-key" (required "cluster platform.llmProfileAssignments.indexicalExtraction is required" (dig "llmProfileAssignments" "indexicalExtraction" "" $cluster)) | quote }}}
   {{- end }}
 {{- $bootstrapTenant := index $cluster.tenants 0 }}
 bootstrapIdentity:

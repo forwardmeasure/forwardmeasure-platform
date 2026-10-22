@@ -153,6 +153,7 @@
          2.64.1) before applying - pubsub moves from 1.152.0 to 1.150.0, a two-patch-version
          difference, not a real compatibility risk. -->
     <google.cloud.libraries.version>26.90.0</google.cloud.libraries.version>
+    <google.http-client.version>2.2.0</google.http-client.version>
     <google.common.protos.version>2.71.0</google.common.protos.version>
     <opentelemetry.version>1.62.0</opentelemetry.version>
     <asm.version>9.10.1</asm.version>

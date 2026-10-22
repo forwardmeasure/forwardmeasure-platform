@@ -64,6 +64,16 @@
                 <artifactId>lettuce-core</artifactId>
                 <version>${lettuce.quarkus.version}</version>
             </dependency>
+            <!-- GAX from our Google Cloud BOM calls NetHttpTransport.Builder.setSecurityProvider.
+                 Quarkus's HTTP client 1.47.1 lacks it. Keep the entire HTTP client family aligned
+                 with Google Cloud instead of mixing a new GAX with the old transport. -->
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client-bom</artifactId>
+                <version>${google.http-client.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-bom</artifactId>

@@ -61,6 +61,7 @@ image_files=(
   "${SCRIPT_DIR}/helmfile/environments/image-versions.yaml"
   "${WORKSPACE_DIR}/forwardmeasure-data-streaming/deploy/helmfile/environments/base.yaml"
   "${WORKSPACE_DIR}/forwardmeasure-entity-intelligence/deploy/helmfile/environments/base.yaml"
+  "${WORKSPACE_DIR}/forwardmeasure-agent-ensemble/deploy/helmfile/environments/base.yaml"
 )
 if [[ "${FORWARDMEASURE_ENABLE_FDE}" == true ]]; then
   image_files+=("${WORKSPACE_DIR}/forwardmeasure-decision-engine/deploy/helmfile/environments/base.yaml.gotmpl")

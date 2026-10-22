@@ -50,6 +50,8 @@ Options:
                            Integration tests (*IT) do not run; use --full-suite.
   --full-suite            Run unit and integration tests (the "full-suite" profile).
                            Implies --run-tests.
+                           Both need DOCKER_HUB_USERNAME and DOCKER_HUB_TOKEN set
+                           (a test pulls a real private image).
   --coverage              Collect Jacoco code coverage via the "coverage"
                            profile (disabled by default).
   -h, --help              Show this help and exit.
@@ -155,6 +157,17 @@ while [ $# -gt 0 ]; do
 			;;
 	esac
 done
+
+# Test runs pull a real private image (fowf's KubernetesJobLifecycleTest proves image pull
+# secrets against Docker Hub); refuse to start a long build that is bound to fail at that test.
+if [ "$skip_tests" = false ]; then
+	for credential in DOCKER_HUB_USERNAME DOCKER_HUB_TOKEN; do
+		[ -n "${!credential:-}" ] || {
+			echo "$credential must be set to run tests (Docker Hub credentials for the private-image pull test)" >&2
+			exit 1
+		}
+	done
+fi
 
 if [ -n "$threads" ]; then
 	# Pass -T directly for launchers without MAVEN_ARGS support. Maven 3 takes the first -T,

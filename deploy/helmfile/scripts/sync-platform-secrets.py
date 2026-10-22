@@ -65,8 +65,12 @@ def released_externalsecrets(release_namespace, helm_command=helm):
     return owned
 
 
+def progress(message):
+    print(message, flush=True)
+
+
 def sync(store, timeout=300, command=kubectl, now=time.monotonic, sleep=time.sleep,
-         helm_command=helm, report=print):
+         helm_command=helm, report=progress):
     # Helm replaces managed-by with "Helm" at install time. Use release ownership,
     # not the chart's rendered managed-by label, to identify installed resources.
     inventory = json.loads(command("get", "externalsecrets", "--all-namespaces", "-o", "json"))
@@ -90,13 +94,21 @@ def sync(store, timeout=300, command=kubectl, now=time.monotonic, sleep=time.sle
         if (namespace, name) in owned:
             selected.append(item)
             continue
-        command("--namespace", namespace, "delete", "externalsecret", name, "--ignore-not-found")
+        report(f"Removing orphan ExternalSecret {namespace}/{name} (timeout: {timeout}s)...")
+        try:
+            command("--namespace", namespace, "delete", "externalsecret", name,
+                    "--ignore-not-found", f"--timeout={timeout}s")
+        except RuntimeError as failure:
+            raise RuntimeError(f"Could not remove orphan ExternalSecret {namespace}/{name}; "
+                               f"check its finalizers and whether namespace {namespace} exists. "
+                               f"{failure}") from failure
         report(f"Removed {namespace}/{name}: labelled as {RELEASE} but not in its deployed manifest "
                "(left behind by a failed upgrade).")
     if not selected:
         raise RuntimeError(f"No ExternalSecrets of the deployed {RELEASE} release reference {store}")
     nonce = uuid.uuid4().hex
     pending = []
+    report(f"Requesting synchronization of {len(selected)} platform ExternalSecrets...")
     for item in selected:
         namespace, name = item["metadata"]["namespace"], item["metadata"]["name"]
         target = item["spec"].get("target", {}).get("name") or name
@@ -108,6 +120,7 @@ def sync(store, timeout=300, command=kubectl, now=time.monotonic, sleep=time.sle
                 "--type=merge", "--patch", json.dumps(patch))
         pending.append((namespace, name, target))
     deadline = now() + timeout
+    last_pending = None
     while pending:
         waiting = []
         for namespace, name, target in pending:
@@ -121,6 +134,10 @@ def sync(store, timeout=300, command=kubectl, now=time.monotonic, sleep=time.sle
             if observed != nonce or not ready:
                 waiting.append((namespace, name, target))
         pending = waiting
+        if pending and pending != last_pending:
+            names = ", ".join(f"{ns}/{name}" for ns, name, _ in pending)
+            report(f"Waiting for ExternalSecrets to synchronize: {names}")
+            last_pending = pending
         if pending and now() >= deadline:
             names = ", ".join(f"{ns}/{name}" for ns, name, _ in pending)
             raise RuntimeError(f"ExternalSecrets did not apply this synchronization request: {names}")
@@ -132,7 +149,8 @@ def sync(store, timeout=300, command=kubectl, now=time.monotonic, sleep=time.sle
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("store")
-    parser.add_argument("--timeout", type=int, default=300)
+    parser.add_argument("--timeout", type=int, default=300,
+                        help="Seconds to wait for each orphan deletion and for synchronization (default: 300)")
     args = parser.parse_args()
     if args.timeout <= 0:
         parser.error("--timeout must be positive")

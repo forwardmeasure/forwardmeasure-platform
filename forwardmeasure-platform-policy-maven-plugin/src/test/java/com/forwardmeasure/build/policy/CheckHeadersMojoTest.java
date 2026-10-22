@@ -117,6 +117,48 @@ class CheckHeadersMojoTest {
     assertEquals(0, Files.list(module).count());
   }
 
+  /**
+   * A file git ignores - a local credentials file, generated output - is not one of the
+   * repository's sources and is left alone; a tracked file is checked whatever the ignore rules
+   * say.
+   */
+  @Test
+  void gitIgnoredFilesAreLeftAloneButTrackedOnesAreChecked() throws Exception {
+    git("init", "--quiet");
+    write(".gitignore", "*.credentials.yaml.gotmpl\nlocal/\n");
+    write("deploy/prod.credentials.yaml.gotmpl", "no header: ignored local credentials\n");
+    write("local/run.sh", "no header: ignored directory\n");
+    write("scripts/release.sh", ASF);
+    assertDoesNotThrow(mojo()::execute);
+
+    write("deploy/tracked.credentials.yaml.gotmpl", "no header: ignored pattern, but tracked\n");
+    git("add", "--force", "deploy/tracked.credentials.yaml.gotmpl");
+    var failure = assertThrows(MojoFailureException.class, mojo()::execute);
+    assertTrue(failure.getMessage().startsWith("1 file(s)"), failure.getMessage());
+    assertTrue(failure.getMessage().contains("tracked.credentials"), failure.getMessage());
+
+    var everything = mojo();
+    everything.skipGitIgnored = false;
+    var all = assertThrows(MojoFailureException.class, everything::execute);
+    assertTrue(all.getMessage().startsWith("3 file(s)"), all.getMessage());
+  }
+
+  /** Outside a git work tree nothing is ignored: every matching file is checked. */
+  @Test
+  void outsideAGitWorkTreeEveryMatchingFileIsChecked() {
+    write(".gitignore", "*.sh\n");
+    write("run.sh", "no header\n");
+    assertThrows(MojoFailureException.class, mojo()::execute);
+  }
+
+  private void git(String... arguments) throws Exception {
+    var command =
+        new java.util.ArrayList<String>(java.util.List.of("git", "-C", module.toString()));
+    command.addAll(java.util.List.of(arguments));
+    var process = new ProcessBuilder(command).inheritIO().start();
+    assertEquals(0, process.waitFor(), "git " + String.join(" ", arguments));
+  }
+
   private CheckHeadersMojo mojo() {
     var mojo = new CheckHeadersMojo();
     mojo.basedir = module.toFile();
