@@ -39,6 +39,20 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Framework BOMs override these only for the coordinates they actually manage. -->
+            <dependency><groupId>org.apache.logging.log4j</groupId><artifactId>log4j-bom</artifactId><version>${log4j.version}</version><type>pom</type><scope>import</scope></dependency>
+            <dependency><groupId>com.github.ben-manes.caffeine</groupId><artifactId>caffeine</artifactId><version>${caffeine.version}</version></dependency>
+            <dependency><groupId>org.jctools</groupId><artifactId>jctools-core</artifactId><version>${jctools.version}</version></dependency>
+            <dependency><groupId>org.opensearch.client</groupId><artifactId>opensearch-rest-client</artifactId><version>${opensearch-rest-client.version}</version></dependency>
+            <dependency><groupId>org.apache.cassandra</groupId><artifactId>java-driver-query-builder</artifactId><version>${cassandra.java.driver.version}</version></dependency>
+            <!-- Align the optional graph reporters with the platform-owned Metrics core. -->
+            <dependency>
+              <groupId>io.dropwizard.metrics</groupId>
+              <artifactId>metrics-bom</artifactId>
+              <version>${dropwizard.metrics.version}</version>
+              <type>pom</type>
+              <scope>import</scope>
+            </dependency>
             <!-- Graph-engine dependencies added on develop follow the shared libraries BOM. -->
             <dependency>
               <groupId>org.apache.tinkerpop</groupId>
@@ -162,6 +176,12 @@
             <dependency>
               <groupId>org.apache.spark</groupId>
               <artifactId>spark-sql_${scala.binary.version}</artifactId>
+              <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+              <!-- Cluster-manager runtime used by the distributed analytics worker. -->
+              <groupId>org.apache.spark</groupId>
+              <artifactId>spark-kubernetes_${scala.binary.version}</artifactId>
               <version>${spark.version}</version>
             </dependency>
             <dependency>
@@ -445,6 +465,11 @@
               <groupId>org.apache.cassandra</groupId>
               <artifactId>java-driver-core</artifactId>
               <version>${cassandra.java.driver.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.github.stephenc.jcip</groupId>
+              <artifactId>jcip-annotations</artifactId>
+              <version>${jcip.annotations.version}</version>
             </dependency>
             <dependency>
               <groupId>org.checkerframework</groupId>
