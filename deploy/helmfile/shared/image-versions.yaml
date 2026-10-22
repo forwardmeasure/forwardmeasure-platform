@@ -37,4 +37,4 @@ imageVersions:
   openworkflowWorkflowPublisher:
     repository: docker.io/forwardmeasure/openworkflow-workflow-publisher
     tag: "1.1.0"
-    digest: "sha256:b13ad0691033be90dd02aa1ff508e4345c6654cf7e6ddc028da006411e43f481"
+    digest: "sha256:2d170aa2112a79d58ad419feb3ff2afcc9b4bae4fd7d8067c4014dfdb335ac1f"
