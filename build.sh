@@ -28,7 +28,8 @@ resulting container images. With no options, builds every module.
 Options:
   --module <target>       Build only this module and what it depends on
                            (mvn -pl <target> -am). Use for a normal scoped
-                           build of one module.
+                           build of one module. Repeat it, or give a
+                           comma-separated list, to build several at once.
   --only <targets>        Build exactly these modules (comma-separated) and
                            nothing upstream of them (mvn -pl <targets>). Their
                            dependencies are taken from the local repository, so
@@ -99,14 +100,18 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 		--module)
 			[ -n "${2:-}" ] || { echo "--module requires a value" >&2; exit 1; }
+			[ -z "$target" ] || [ "$mode" = module ] || { echo "--module cannot be combined with --$mode" >&2; exit 1; }
 			mode=module
-			target="$2"
+			# Repeating the option adds targets (Maven's -pl takes a comma-separated list).
+			target="${target:+$target,}$2"
 			shift 2
 			;;
 		--only)
 			[ -n "${2:-}" ] || { echo "--only requires a value" >&2; exit 1; }
+			[ -z "$target" ] || [ "$mode" = only ] || { echo "--only cannot be combined with --$mode" >&2; exit 1; }
 			mode=only
-			target="$2"
+			# Repeating the option adds targets (Maven's -pl takes a comma-separated list).
+			target="${target:+$target,}$2"
 			shift 2
 			;;
 		--resume-from)
