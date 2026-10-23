@@ -8,6 +8,20 @@ operational API, dashboard source and Keycloak theme.
 The Java parent and BOM adoption pattern is documented in
 [`docs/technical-vision.md`, section 22](docs/technical-vision.md#22-versions-and-the-build).
 
+## Building on a new machine
+
+Check out every repository the reactor builds side by side on `develop` (`reactor.xml` refers to
+them as `../<repository>`). On a fresh local Maven repository, install the platform parent once,
+from the folder that holds the repositories:
+
+```bash
+mvn -f forwardmeasure-platform/pom.xml -N -Dplatform.policy.bootstrap -B -ntp -Dmaven.build.cache.enabled=false -DskipTests -DskipITs -Dmaven.test.skip=false test-compile install:install
+```
+
+`-Dplatform.policy.bootstrap` switches off the inherited version-policy check for this one
+install. Then build normally with `./build.sh` (`--full-suite` for unit and integration tests); the
+reactor builds the policy plugin itself.
+
 ## Artifact compatibility
 
 `reactor.xml` builds the compatible Apache-licensed ForwardMeasure stack from
