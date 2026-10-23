@@ -717,6 +717,13 @@
               <version>${forwardmeasure.openworkflow.version}</version>
             </dependency>
             <dependency>
+              <!-- Test scope only: the overflow store FOWF engines and adapters require, on a real
+                   S3-compatible container. -->
+              <groupId>com.forwardmeasure.openworkflow</groupId>
+              <artifactId>openworkflow-protocol-overflow-testkit</artifactId>
+              <version>${forwardmeasure.openworkflow.version}</version>
+            </dependency>
+            <dependency>
               <!-- Tenant database/role provisioning and Cassandra changelog application, shared by
                    every product's migrations image (forwardmeasure-data-streaming-migrations). -->
               <groupId>com.forwardmeasure.openworkflow</groupId>
